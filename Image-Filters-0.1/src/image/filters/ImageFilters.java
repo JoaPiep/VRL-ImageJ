@@ -6,11 +6,21 @@
 package image.filters;
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
+import ij.IJ;
+import ij.ImageJ;
 import ij.ImagePlus;
+import ij.gui.ImageWindow;
 import ij.io.FileSaver;
+import ij.io.Opener;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +59,8 @@ public class ImageFilters implements Serializable {
         }
         return image;
    }
-    
+   
+   
     /**
      * 
      * @param image image to filter
@@ -61,7 +72,7 @@ public class ImageFilters implements Serializable {
         ImageProcessor ip = new ColorProcessor(image);
         ip.blurGaussian(sigma);
         Image ig = ip.createImage();
-       
+     
         return ig;
         
    }
@@ -122,4 +133,31 @@ public class ImageFilters implements Serializable {
         fileSaver.saveAsPng();
        
    }
-}
+     /**
+      *  
+      * @param image image to load
+      * @return changed image
+      */ 
+      public Image IJEditor(Image image) {
+          
+      final ImageJ imageJ = new ImageJ();
+      ImagePlus imagePlus = new ImagePlus("image", image);
+      final ImageWindow iw = new ImageWindow(imagePlus);
+      WindowListener wl = new WindowAdapter() {
+
+          @Override
+          public void windowClosing(WindowEvent e) {
+              iw.close();
+              imageJ.quit();
+          }
+      };
+       iw.addWindowListener(wl);
+       Image changedImage = imagePlus.getImage();
+      
+       return changedImage;
+      }
+
+  
+    }
+    
+    

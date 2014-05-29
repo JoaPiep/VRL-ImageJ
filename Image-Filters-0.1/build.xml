@@ -92,7 +92,7 @@
         
        <delete dir="dist/tmp"/>
         
-       <!--Copy final jar to studio plugin folder-->   
+       <!--Copy final jar to studio plugin folder  --> 
        <property file="build.properties"/>
        <echo message="Copying ${dist.jar} to ${vrl.dir}/plugin-updates"/>
        <copy 

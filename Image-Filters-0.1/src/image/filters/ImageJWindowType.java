@@ -46,8 +46,9 @@ public class ImageJWindowType extends TypeRepresentationBase
     protected ImageCanvas imageCanvas;
     protected ImagePlus imagePlus = new ImagePlus();
     protected FloatPolygon floatPolygon;
-    protected PolygonRoi freehandRoi;
+    protected PolygonRoi polygonRoi;
     protected ImageProcessor imageProcessor;
+    protected ImageJVRL imageJVrl;
 
     public ImageJWindowType() {
 
@@ -74,7 +75,9 @@ public class ImageJWindowType extends TypeRepresentationBase
                         && e.getClickCount() == 2) {
                     if (plotPane.getImage() != null || isInput()) {
                         imagePlus.setImage((Image) getViewValue());
-
+                        
+                        imageJVrl = new ImageJVRL(imagePlus);
+                        
                         iw = new ImageWindow(imagePlus);
                         imageCanvas = iw.getCanvas();
                         floatPolygon = new FloatPolygon();
@@ -92,22 +95,24 @@ public class ImageJWindowType extends TypeRepresentationBase
                                 } else if (e.getButton() == MouseEvent.BUTTON1
                                         && e.getClickCount() == 2) {
 
-                                    freehandRoi = new PolygonRoi(floatPolygon,
+                                    polygonRoi = new PolygonRoi(floatPolygon,
                                             Roi.POLYGON);
-                                    freehandRoi.setImage(imagePlus);
-                                    // freehandRoi.setColor(Color.red);
+                                    polygonRoi.setImage(imagePlus);
+                                    // polygonRoi.setColor(Color.red);
                                     imageProcessor = imagePlus.getProcessor();
-                                    imageProcessor.setRoi(freehandRoi);
+                                    imageProcessor.setRoi(polygonRoi);
                                     imageProcessor.dilate();
-                                   imageProcessor.setColor(Color.yellow);
+                                    imageProcessor.setColor(Color.green);
                                     //imageProcessor.medianFilter();
                                     imageProcessor.fill(imageProcessor.getMask());
-                                    // imageProcessor.fill(freehandRoi);
+                                    // imageProcessor.fill(polygonRoi);
 
                                     iw.addWindowListener(new WindowAdapter() {
                                         @Override
                                         public void windowClosed(WindowEvent e) {
                                             setViewValue(imagePlus.getImage());
+                                            imageJVrl.setImage(imagePlus);
+                                            imageJVrl.setRoi(polygonRoi);
                                             System.out.println("window closed");
                                             setDataOutdated();
                                         }
@@ -148,7 +153,7 @@ public class ImageJWindowType extends TypeRepresentationBase
 
     @Override
     public void setViewValue(Object o) {
-
+        
         setDataOutdated();
         Image image = null;
         try {
@@ -157,6 +162,7 @@ public class ImageJWindowType extends TypeRepresentationBase
         }
         plotPane.setImage(image);
         imagePlus.setImage(image);
+        
         System.out.println("setViewValue ImageJType");
     }
 

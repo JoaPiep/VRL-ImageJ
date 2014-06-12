@@ -4,6 +4,8 @@
  */
 package image.filters;
 
+import ij.ImagePlus;
+import ij.gui.PolygonRoi;
 import java.awt.Image;
 
 /**
@@ -12,18 +14,31 @@ import java.awt.Image;
  */
 public class ImageJVRL {
 
-    public Image image;
+    public ImagePlus image;
+    public PolygonRoi roi;
+
+    public ImageJVRL(ImagePlus image) {
+        this.image = image;
+    }
+    
+    public ImageJVRL(PolygonRoi roi) {
+        this.roi = roi;
+    }
     
 
-    public ImageJVRL(Image image) {
-        this.image = image;
-    }
-
-    public Image getImage() {
+    public ImagePlus getImage() {
         return image;
     }
+    
+    public PolygonRoi getRoi(){
+        return roi;
+    }
 
-    public void setImage(Image image) {
+    public void setImage(ImagePlus image) {
         this.image = image;
+    }
+    
+    public void setRoi(PolygonRoi roi) {
+        this.roi = roi;
     }
 }

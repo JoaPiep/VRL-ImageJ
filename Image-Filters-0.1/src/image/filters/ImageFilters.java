@@ -76,7 +76,6 @@ public class ImageFilters implements Serializable {
      */
     public Image min3x3Filter(Image image) {
 
-
         ImageProcessor ip = new ColorProcessor(image);
         ip.dilate();
         Image ig = ip.createImage();
@@ -159,10 +158,22 @@ public class ImageFilters implements Serializable {
     }
 
     public ImageJVRL createImageJVRL(@ParamInfo(name = "", style = "imageJType", options = "") Image image) {
-        return new ImageJVRL(image);
+        return new ImageJVRL(new ImagePlus("",image));
+    }
+    /**
+     * 
+     * @param image
+     * @return 
+     */
+    public ImageJVRL createImageJVRLChoose(@ParamInfo(name = "", style = "ImageJWindowType", options = "") Image image) {
+        return new ImageJVRL(new ImagePlus("",image));
     }
 
-    public Image createImageJVRLChoose(@ParamInfo(name = "", style = "ImageJWindowType", options = "") Image image) {
-        return new ImageJVRL(image).getImage();
+    public Image getImageVRL(ImageJVRL imageVRL) {
+        
+        ImagePlus ip = new ImagePlus();
+        ip.setRoi(imageVRL.getRoi());
+        
+        return ip.getImage();
     }
 }

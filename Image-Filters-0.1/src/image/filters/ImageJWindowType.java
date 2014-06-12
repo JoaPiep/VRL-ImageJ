@@ -27,7 +27,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.Box;
 
-
 /**
  *
  * @author Joanna Pieper
@@ -48,7 +47,8 @@ public class ImageJWindowType extends TypeRepresentationBase
     protected FloatPolygon floatPolygon;
     protected PolygonRoi polygonRoi;
     protected ImageProcessor imageProcessor;
-    protected ImageJVRL imageJVrl;
+
+    protected Boolean roiSelected = false;
 
     public ImageJWindowType() {
 
@@ -60,77 +60,71 @@ public class ImageJWindowType extends TypeRepresentationBase
         setValueName("");
         nameLabel.setAlignmentY(0.5f);
 
-
-
         setUpdateLayoutOnValueChange(false);
 
         setMinimumPlotPaneSize(new Dimension(70, 70));
 
-
         plotPane.addMouseListener(
                 new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getButton() == MouseEvent.BUTTON1
                         && e.getClickCount() == 2) {
-                    if (plotPane.getImage() != null || isInput()) {
-                        imagePlus.setImage((Image) getViewValue());
-                        
-                        imageJVrl = new ImageJVRL(imagePlus);
-                        
-                        iw = new ImageWindow(imagePlus);
-                        imageCanvas = iw.getCanvas();
-                        floatPolygon = new FloatPolygon();
+                            if (plotPane.getImage() != null || isInput()) {
+                                imagePlus.setImage((Image) getViewValue());
 
-                        imageCanvas.addMouseListener(new MouseAdapter() {
-                            @Override
-                            public void mouseClicked(MouseEvent e) {
+                                iw = new ImageWindow(imagePlus);
+                                imageCanvas = iw.getCanvas();
+                                floatPolygon = new FloatPolygon();
 
-                                if (e.getButton() == MouseEvent.BUTTON1
+                                imageCanvas.addMouseListener(new MouseAdapter() {
+                                    @Override
+                                    public void mouseClicked(MouseEvent e) {
+
+                                        if (e.getButton() == MouseEvent.BUTTON1
                                         && e.getClickCount() == 1) {
-                                    floatPolygon.addPoint(
-                                            imageCanvas.offScreenX(e.getX()),
-                                            imageCanvas.offScreenY(e.getY()));
+                                            floatPolygon.addPoint(
+                                                    imageCanvas.offScreenX(e.getX()),
+                                                    imageCanvas.offScreenY(e.getY()));
 
-                                } else if (e.getButton() == MouseEvent.BUTTON1
+                                        } else if (e.getButton() == MouseEvent.BUTTON1
                                         && e.getClickCount() == 2) {
+                                            roiSelected = true; // roi wurde ausgewählt
+                                            polygonRoi = new PolygonRoi(floatPolygon,
+                                                    Roi.POLYGON);
+                                            // polygonRoi.setImage(imagePlus);
+                                            // polygonRoi.setColor(Color.red);
+                                            imageProcessor = imagePlus.getProcessor();
 
-                                    polygonRoi = new PolygonRoi(floatPolygon,
-                                            Roi.POLYGON);
-                                    polygonRoi.setImage(imagePlus);
-                                    // polygonRoi.setColor(Color.red);
-                                    imageProcessor = imagePlus.getProcessor();
-                                    imageProcessor.setRoi(polygonRoi);
-                                    imageProcessor.dilate();
-                                    imageProcessor.setColor(Color.green);
-                                    //imageProcessor.medianFilter();
-                                    imageProcessor.fill(imageProcessor.getMask());
-                                    // imageProcessor.fill(polygonRoi);
+                                            imageProcessor.setRoi(polygonRoi);
+                                            imageProcessor.dilate();
+                                            imageProcessor.setColor(Color.green);
+                                            //imageProcessor.medianFilter();
+                                            imageProcessor.fill(imageProcessor.getMask());
+                                            // imageProcessor.fill(polygonRoi);
 
-                                    iw.addWindowListener(new WindowAdapter() {
-                                        @Override
-                                        public void windowClosed(WindowEvent e) {
-                                            setViewValue(imagePlus.getImage());
-                                            imageJVrl.setImage(imagePlus);
-                                            imageJVrl.setRoi(polygonRoi);
-                                            System.out.println("window closed");
-                                            setDataOutdated();
+                                            iw.addWindowListener(new WindowAdapter() {
+                                                @Override
+                                                public void windowClosed(WindowEvent e) {
+
+                                                    setViewValue(imagePlus.getImage());
+                                                    System.out.println("window closed");
+                                                    setDataOutdated();
+                                                }
+                                            });
+                                            floatPolygon = new FloatPolygon();
+                                        } else {
+                                            System.out.println("One click - add point"
+                                                    + "\n" + "Double click - print the polygon");
                                         }
-                                    });
-                                    floatPolygon = new FloatPolygon();
-                                } else {
-                                    System.out.println("One click - add point"
-                                            + "\n" + "Double click - print the polygon");
-                                }
+
+                                    }
+                                });
 
                             }
-                        });
-
-
+                        }
                     }
-                }
-            }
-        });
+                });
 
         this.add(Box.createHorizontalStrut(3));
 
@@ -153,7 +147,7 @@ public class ImageJWindowType extends TypeRepresentationBase
 
     @Override
     public void setViewValue(Object o) {
-        
+
         setDataOutdated();
         Image image = null;
         try {
@@ -161,7 +155,22 @@ public class ImageJWindowType extends TypeRepresentationBase
         } catch (Exception e) {
         }
         plotPane.setImage(image);
-        imagePlus.setImage(image);
+
+        if (roiSelected = true) {
+
+            imageProcessor = imagePlus.getProcessor();
+            imageProcessor.setRoi(polygonRoi);
+            imageProcessor.dilate();
+            imageProcessor.setColor(Color.red);
+            //imageProcessor.medianFilter();
+            imageProcessor.fill(imageProcessor.getMask());
+            // imageProcessor.fill(polygonRoi);
+            roiSelected = false;
+        } else {
+            imagePlus.setImage(image);
+        }
+        
+        
         
         System.out.println("setViewValue ImageJType");
     }
@@ -210,7 +219,6 @@ public class ImageJWindowType extends TypeRepresentationBase
             }
 
 //            System.out.println("Property:" + property.getClass());
-
             if (property != null) {
                 w = (Integer) property;
             }
@@ -275,8 +283,6 @@ public class ImageJWindowType extends TypeRepresentationBase
 
         plotPane.setMinimumSize(minimumPlotPaneSize);
 
-
         revalidate();
     }
 }
-

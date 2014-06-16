@@ -25,6 +25,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import javax.swing.Box;
 
 /**
@@ -76,6 +77,14 @@ public class ImageJWindowType extends TypeRepresentationBase
                                 iw = new ImageWindow(imagePlus);
                                 imageCanvas = iw.getCanvas();
                                 floatPolygon = new FloatPolygon();
+
+                                iw.addWindowStateListener(new WindowStateListener() {
+
+                                    @Override
+                                    public void windowStateChanged(WindowEvent e) {
+                                        System.out.println("window changed");
+                                    }
+                                });
 
                                 imageCanvas.addMouseListener(new MouseAdapter() {
                                     @Override
@@ -154,6 +163,7 @@ public class ImageJWindowType extends TypeRepresentationBase
             image = (Image) o;
         } catch (Exception e) {
         }
+
         plotPane.setImage(image);
 
         if (roiSelected = true) {
@@ -169,9 +179,7 @@ public class ImageJWindowType extends TypeRepresentationBase
         } else {
             imagePlus.setImage(image);
         }
-        
-        
-        
+
         System.out.println("setViewValue ImageJType");
     }
 

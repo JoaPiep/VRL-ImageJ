@@ -7,7 +7,7 @@ package image.filters;
 import eu.mihosoft.vrl.annotation.TypeInfo;
 
 import eu.mihosoft.vrl.types.BufferedImageType;
-import ij.ImagePlus;
+import java.awt.Image;
 
 
 /**
@@ -17,21 +17,20 @@ import ij.ImagePlus;
 public class ImageJVRLType extends BufferedImageType {
 
    
-
-    public ImageJVRLType() {
     
+    public ImageJVRLType() {
+    System.out.println("ImageJVRLType");
     }
 
     @Override
     public void setViewValue(Object o) {
         setDataOutdated();
-        ImageJVRL imageJVRL = (ImageJVRL) o;
-        ImagePlus image = imageJVRL.getImage();
-        //ImagePlus ip = new ImagePlus("",image1);
-        //ip.setRoi(imageJVRL.getRoi());
+        ImageJVRL imageJVRL  = (ImageJVRL) o;
+        
+        Image image = imageJVRL.getImage();
         System.out.println("Set view value ImageJVRLType");
-        super.setViewValue(image.getImage());
-
+        super.setViewValue(image);
+        //super.setViewValue((Image) getViewValue());
     }
 
     @Override

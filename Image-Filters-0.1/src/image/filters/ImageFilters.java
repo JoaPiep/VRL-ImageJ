@@ -8,12 +8,19 @@ import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
 import ij.ImageJ;
 import ij.ImagePlus;
+import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
+import ij.gui.PolygonRoi;
+import ij.gui.Roi;
 import ij.io.FileSaver;
 import ij.io.Opener;
 import ij.process.ColorProcessor;
+import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
+import java.awt.Color;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -158,22 +165,19 @@ public class ImageFilters implements Serializable {
     }
 
     public ImageJVRL createImageJVRL(@ParamInfo(name = "", style = "imageJType", options = "") Image image) {
-        return new ImageJVRL(new ImagePlus("",image));
-    }
-    /**
-     * 
-     * @param image
-     * @return 
-     */
-    public ImageJVRL createImageJVRLChoose(@ParamInfo(name = "", style = "ImageJWindowType", options = "") Image image) {
-        return new ImageJVRL(new ImagePlus("",image));
+        return new ImageJVRL(image);
     }
 
-    public Image getImageVRL(ImageJVRL imageVRL) {
-        
-        ImagePlus ip = new ImagePlus();
-        ip.setRoi(imageVRL.getRoi());
-        
-        return ip.getImage();
+    /**
+     *
+     * @param image
+     * @return
+     */
+    public ImageJVRL createImageJVRLChoose(@ParamInfo(name = "", style = "ImageJWindowType", options = "") Image image) {
+        return new ImageJVRL(image);
     }
+
+    
 }
+
+

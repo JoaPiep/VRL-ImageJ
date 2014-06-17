@@ -14,10 +14,10 @@ import java.awt.Image;
  */
 public class ImageJVRL {
 
-    public ImagePlus image;
+    public Image image;
     public PolygonRoi roi;
 
-    public ImageJVRL(ImagePlus image) {
+    public ImageJVRL(Image image) {
         this.image = image;
     }
     
@@ -26,7 +26,7 @@ public class ImageJVRL {
     }
     
 
-    public ImagePlus getImage() {
+    public Image getImage() {
         return image;
     }
     
@@ -34,7 +34,7 @@ public class ImageJVRL {
         return roi;
     }
 
-    public void setImage(ImagePlus image) {
+    public void setImage(Image image) {
         this.image = image;
     }
     

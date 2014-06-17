@@ -21,11 +21,12 @@ import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
 import javax.swing.Box;
 
 /**
@@ -42,6 +43,7 @@ public class ImageJWindowType extends TypeRepresentationBase
     protected Dimension plotPaneSize;
     protected Dimension previousPlotPaneSize;
     protected Dimension minimumPlotPaneSize;
+
     protected ImageWindow iw;
     protected ImageCanvas imageCanvas;
     protected ImagePlus imagePlus = new ImagePlus();
@@ -64,7 +66,6 @@ public class ImageJWindowType extends TypeRepresentationBase
         setUpdateLayoutOnValueChange(false);
 
         setMinimumPlotPaneSize(new Dimension(70, 70));
-
         plotPane.addMouseListener(
                 new MouseAdapter() {
                     @Override
@@ -78,14 +79,6 @@ public class ImageJWindowType extends TypeRepresentationBase
                                 imageCanvas = iw.getCanvas();
                                 floatPolygon = new FloatPolygon();
 
-                                iw.addWindowStateListener(new WindowStateListener() {
-
-                                    @Override
-                                    public void windowStateChanged(WindowEvent e) {
-                                        System.out.println("window changed");
-                                    }
-                                });
-
                                 imageCanvas.addMouseListener(new MouseAdapter() {
                                     @Override
                                     public void mouseClicked(MouseEvent e) {
@@ -98,30 +91,40 @@ public class ImageJWindowType extends TypeRepresentationBase
 
                                         } else if (e.getButton() == MouseEvent.BUTTON1
                                         && e.getClickCount() == 2) {
-                                            roiSelected = true; // roi wurde ausgewählt
+
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
-                                            // polygonRoi.setImage(imagePlus);
-                                            // polygonRoi.setColor(Color.red);
                                             imageProcessor = imagePlus.getProcessor();
 
                                             imageProcessor.setRoi(polygonRoi);
                                             imageProcessor.dilate();
                                             imageProcessor.setColor(Color.green);
-                                            //imageProcessor.medianFilter();
                                             imageProcessor.fill(imageProcessor.getMask());
-                                            // imageProcessor.fill(polygonRoi);
+                                            roiSelected = true;
 
                                             iw.addWindowListener(new WindowAdapter() {
                                                 @Override
                                                 public void windowClosed(WindowEvent e) {
-
-                                                    setViewValue(imagePlus.getImage());
-                                                    System.out.println("window closed");
                                                     setDataOutdated();
+                                                    setViewValue(imagePlus.getImage());
+
+                                                    System.out.println("window closed");
+
+                                                }
+                                            });
+                                            imageCanvas.addKeyListener(new KeyAdapter() {
+
+                                                @Override
+                                                public void keyTyped(KeyEvent e) {
+                                                    if (e.getKeyChar() == 'n') {
+                                                        roiSelected = false;
+                                                        System.out.println("Key Pressed");
+                                                    }
+
                                                 }
                                             });
                                             floatPolygon = new FloatPolygon();
+
                                         } else {
                                             System.out.println("One click - add point"
                                                     + "\n" + "Double click - print the polygon");
@@ -164,23 +167,14 @@ public class ImageJWindowType extends TypeRepresentationBase
         } catch (Exception e) {
         }
 
-        plotPane.setImage(image);
-
-        if (roiSelected = true) {
-
-            imageProcessor = imagePlus.getProcessor();
-            imageProcessor.setRoi(polygonRoi);
-            imageProcessor.dilate();
-            imageProcessor.setColor(Color.red);
-            //imageProcessor.medianFilter();
-            imageProcessor.fill(imageProcessor.getMask());
-            // imageProcessor.fill(polygonRoi);
-            roiSelected = false;
-        } else {
+        if (roiSelected == false) {
             imagePlus.setImage(image);
+            imagePlus.setTitle("Image");
         }
 
-        System.out.println("setViewValue ImageJType");
+        plotPane.setImage(imagePlus.getImage());
+        System.out.println("Set view value ImageJWindowType");
+
     }
 
     @Override
@@ -193,7 +187,7 @@ public class ImageJWindowType extends TypeRepresentationBase
         }
 
         return o;
-        // return plotPane.getImage();
+        
     }
 
     public Dimension getPlotPaneSize() {

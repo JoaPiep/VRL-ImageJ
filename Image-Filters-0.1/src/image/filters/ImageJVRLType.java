@@ -5,7 +5,6 @@
 package image.filters;
 
 import eu.mihosoft.vrl.annotation.TypeInfo;
-
 import eu.mihosoft.vrl.types.BufferedImageType;
 import java.awt.Image;
 
@@ -14,7 +13,7 @@ import java.awt.Image;
  * @author Joanna Pieper
  */
 @TypeInfo(type = ImageJVRL.class, input = true, output = true, style = "default")
-public class ImageJVRLType extends BufferedImageType {
+public class ImageJVRLType extends ImageJWindowType {// Buffered Image
 
    
     

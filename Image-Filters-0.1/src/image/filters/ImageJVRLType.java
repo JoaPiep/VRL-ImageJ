@@ -12,8 +12,8 @@ import java.awt.Image;
 /**
  * @author Joanna Pieper
  */
-@TypeInfo(type = ImageJVRL.class, input = true, output = true, style = "default")
-public class ImageJVRLType extends ImageJWindowType {// Buffered Image
+@TypeInfo(type = ImageJVRL.class, input = false, output = true, style = "default")
+public class ImageJVRLType extends BufferedImageType {
 
    
     
@@ -29,11 +29,12 @@ public class ImageJVRLType extends ImageJWindowType {// Buffered Image
         Image image = imageJVRL.getImage();
         System.out.println("Set view value ImageJVRLType");
         super.setViewValue(image);
-        //super.setViewValue((Image) getViewValue());
+        
     }
 
     @Override
     public Object getViewValue() {
+        System.out.println("ImageVRL get");
         return this.value;
     }
 }

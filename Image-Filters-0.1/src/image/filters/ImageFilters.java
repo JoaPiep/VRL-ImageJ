@@ -8,17 +8,25 @@ import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
 import ij.ImageJ;
 import ij.ImagePlus;
+import ij.gui.FreehandRoi;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
+import ij.gui.Toolbar;
 import ij.io.FileSaver;
 import ij.io.Opener;
+import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.FloatPolygon;
+import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -173,11 +181,36 @@ public class ImageFilters implements Serializable {
      * @param image
      * @return
      */
-    public ImageJVRL createImageJVRLChoose(@ParamInfo(name = "", style = "ImageJWindowType", options = "") Image image) {
+    public ImageJVRL createImageJVRLChoose(@ParamInfo(name = "", style = "ImageJPRoiType", options = "") Image image) {
         return new ImageJVRL(image);
     }
+  
+   /* public void testRoi(Image image) {
 
-    
+        ImagePlus imagePlus = new ImagePlus("image", image);
+
+        FloatPolygon floatPolygon = new FloatPolygon();
+        floatPolygon.addPoint(1500, 1400);
+        floatPolygon.addPoint(1560, 2400);
+        floatPolygon.addPoint(2500, 1200);
+        floatPolygon.addPoint(2300, 450);
+        floatPolygon.addPoint(1900, 780);
+
+        PolygonRoi polygonRoi = new PolygonRoi(floatPolygon,
+                Roi.POLYGON);
+       
+        ImageProcessor imageProcessor = imagePlus.getProcessor();
+        imageProcessor.snapshot();
+        imageProcessor.setRoi(polygonRoi);
+ 
+        imageProcessor.dilate();
+        
+        imageProcessor.reset(imageProcessor.getMask());
+        imagePlus.show();
+        
+       
+    }*/
+
+   
+
 }
-
-

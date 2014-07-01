@@ -1,5 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 package image.filters;
@@ -12,13 +13,13 @@ import eu.mihosoft.vrl.visual.FullScreenComponent;
 import eu.mihosoft.vrl.visual.VBoxLayout;
 import groovy.lang.Script;
 import ij.ImagePlus;
+import ij.gui.FreehandRoi;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
@@ -33,8 +34,8 @@ import javax.swing.Box;
  *
  * @author Joanna Pieper
  */
-@TypeInfo(type = Image.class, input = true, output = true, style = "ImageJWindowType")
-public class ImageJWindowType extends TypeRepresentationBase
+@TypeInfo(type = Image.class, input = true, output = true, style = "ImageJFRoiType")
+public class ImageJFreehandRoiType extends TypeRepresentationBase
         implements TypeRepresentation, FullScreenComponent {
 
     private static final long serialVersionUID = 1988974656391008424L;
@@ -47,13 +48,12 @@ public class ImageJWindowType extends TypeRepresentationBase
     protected ImageWindow iw;
     protected ImageCanvas imageCanvas;
     protected ImagePlus imagePlus = new ImagePlus();
-    protected FloatPolygon floatPolygon;
-    protected PolygonRoi polygonRoi;
+    //  protected FloatPolygon floatPolygon;
+    protected FreehandRoi freehandRoi;
     protected ImageProcessor imageProcessor;
-
     protected Boolean roiSelected = false;
 
-    public ImageJWindowType() {
+    public ImageJFreehandRoiType() {
 
         plotPane = new PlotPane(this);
 
@@ -66,6 +66,7 @@ public class ImageJWindowType extends TypeRepresentationBase
         setUpdateLayoutOnValueChange(false);
 
         setMinimumPlotPaneSize(new Dimension(70, 70));
+
         plotPane.addMouseListener(
                 new MouseAdapter() {
                     @Override
@@ -77,29 +78,39 @@ public class ImageJWindowType extends TypeRepresentationBase
 
                                 iw = new ImageWindow(imagePlus);
                                 imageCanvas = iw.getCanvas();
-                                floatPolygon = new FloatPolygon();
+
+                                //############ key listener ################ 
+                                //wenn die Taste "x" gedrueckt wird, dann werden alle ausgewaehlte ROIs geloescht beim "start"
+                                iw.addKeyListener(new KeyAdapter() {
+
+                                    @Override
+                                    public void keyTyped(KeyEvent e) {
+                                        if (e.getKeyChar() == 'x') {
+                                            roiSelected = false;
+                                            System.out.println("Key Pressed");
+                                        }
+
+                                    }
+                                });
+                                //###########################################
 
                                 imageCanvas.addMouseListener(new MouseAdapter() {
                                     @Override
                                     public void mouseClicked(MouseEvent e) {
 
                                         if (e.getButton() == MouseEvent.BUTTON1
-                                        && e.getClickCount() == 1) {
-                                            floatPolygon.addPoint(
-                                                    imageCanvas.offScreenX(e.getX()),
-                                                    imageCanvas.offScreenY(e.getY()));
-
-                                        } else if (e.getButton() == MouseEvent.BUTTON1
                                         && e.getClickCount() == 2) {
-
-                                            polygonRoi = new PolygonRoi(floatPolygon,
-                                                    Roi.POLYGON);
+                                            freehandRoi = new FreehandRoi(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()), imagePlus);
+                                  
+                                            
+                                            System.out.println("point: "+ imageCanvas.offScreenX(e.getX()));
+                                            imagePlus.setRoi(freehandRoi);
                                             imageProcessor = imagePlus.getProcessor();
+                                            imageProcessor.snapshot();
+                                            imageProcessor.setRoi(freehandRoi);
+                                            imageProcessor.invert();
+                                            imageProcessor.reset(imageProcessor.getMask());
 
-                                            imageProcessor.setRoi(polygonRoi);
-                                            imageProcessor.dilate();
-                                            imageProcessor.setColor(Color.green);
-                                            imageProcessor.fill(imageProcessor.getMask());
                                             roiSelected = true;
 
                                             iw.addWindowListener(new WindowAdapter() {
@@ -107,23 +118,9 @@ public class ImageJWindowType extends TypeRepresentationBase
                                                 public void windowClosed(WindowEvent e) {
                                                     setDataOutdated();
                                                     setViewValue(imagePlus.getImage());
-
-                                                    System.out.println("window closed");
-
                                                 }
                                             });
-                                            imageCanvas.addKeyListener(new KeyAdapter() {
 
-                                                @Override
-                                                public void keyTyped(KeyEvent e) {
-                                                    if (e.getKeyChar() == 'n') {
-                                                        roiSelected = false;
-                                                        System.out.println("Key Pressed");
-                                                    }
-
-                                                }
-                                            });
-                                            floatPolygon = new FloatPolygon();
 
                                         } else {
                                             System.out.println("One click - add point"
@@ -179,15 +176,14 @@ public class ImageJWindowType extends TypeRepresentationBase
 
     @Override
     public Object getViewValue() {
-
         Image o = null;
-        try {
+        if (imagePlus == null) {
             o = plotPane.getImage();
-        } catch (Exception e) {
+        } else {
+            o = imagePlus.getImage();
         }
-
         return o;
-        
+
     }
 
     public Dimension getPlotPaneSize() {
@@ -287,4 +283,5 @@ public class ImageJWindowType extends TypeRepresentationBase
 
         revalidate();
     }
+
 }

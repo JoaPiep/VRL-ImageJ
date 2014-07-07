@@ -12,13 +12,13 @@ import eu.mihosoft.vrl.visual.FullScreenComponent;
 import eu.mihosoft.vrl.visual.VBoxLayout;
 import groovy.lang.Script;
 import ij.ImagePlus;
+import ij.gui.FreehandRoi;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
@@ -33,7 +33,7 @@ import javax.swing.Box;
  *
  * @author Joanna Pieper
  */
-@TypeInfo(type = Image.class, input = true, output = true, style = "ImageJPRoiType")
+@TypeInfo(type = Image.class, input = true, output = false, style = "ImageJPRoiType")
 public class ImageJPolygonRoiType extends TypeRepresentationBase
         implements TypeRepresentation, FullScreenComponent {
 
@@ -80,7 +80,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 floatPolygon = new FloatPolygon();
 
                                 //############ key listener ################ 
-                                //wenn die Taste "x" gedrueckt wird, dann werden alle ausgewaehlte ROIs geloescht beim "start"
+                                //"x" -> reset all ROIs
                                 iw.addKeyListener(new KeyAdapter() {
 
                                     @Override
@@ -103,33 +103,66 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             floatPolygon.addPoint(
                                                     imageCanvas.offScreenX(e.getX()),
                                                     imageCanvas.offScreenY(e.getY()));
-
-                                        } else if (e.getButton() == MouseEvent.BUTTON1
-                                        && e.getClickCount() == 2) {
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
+                                            imagePlus.setRoi(polygonRoi);
+                                        }
+
+                                        /*else if (e.getButton() == MouseEvent.BUTTON1
+                                         && e.getClickCount() == 2) {
+                                         imageProcessor = imagePlus.getProcessor();
+                                         imageProcessor.snapshot();
+                                         imageProcessor.setRoi(polygonRoi);
+                                         imageProcessor.invert();
+                                         imageProcessor.reset(imageProcessor.getMask());
+
+                                         roiSelected = true;
+
+                                         iw.addWindowListener(new WindowAdapter() {
+                                         @Override
+                                         public void windowClosed(WindowEvent e) {
+                                         plotPane.setImage(imagePlus.getImage());
+                                         setDataOutdated();
+                                         }
+                                         });
+
+                                         floatPolygon = new FloatPolygon();
+
+                                         } else {
+                                         System.out.println("One click - add point"
+                                         + "\n" + "Double click - print the polygon");
+                                         }*/
+                                    }
+                                });
+                                imageCanvas.addKeyListener(new KeyAdapter() {
+
+                                    @Override
+                                    public void keyTyped(KeyEvent e) {
+                                        if (e.getKeyChar() == 'r') { //reset ROI
+                                            polygonRoi = new PolygonRoi(floatPolygon,
+                                                    Roi.POLYGON);
+                                            imagePlus.setRoi(polygonRoi);
+                                            floatPolygon = new FloatPolygon();
+                                        } else if (e.getKeyChar() == 'p') { //choose ROI
                                             imageProcessor = imagePlus.getProcessor();
                                             imageProcessor.snapshot();
                                             imageProcessor.setRoi(polygonRoi);
                                             imageProcessor.invert();
                                             imageProcessor.reset(imageProcessor.getMask());
-                                            
+
                                             roiSelected = true;
+                                            floatPolygon = new FloatPolygon();
 
                                             iw.addWindowListener(new WindowAdapter() {
                                                 @Override
                                                 public void windowClosed(WindowEvent e) {
+                                                    plotPane.setImage(imagePlus.getImage());
                                                     setDataOutdated();
-                                                    setViewValue(imagePlus.getImage());
-                                                    
                                                 }
                                             });
 
-                                            floatPolygon = new FloatPolygon();
-
                                         } else {
-                                            System.out.println("One click - add point"
-                                                    + "\n" + "Double click - print the polygon");
+                                            System.out.println("Press 'p' to print or 'r' to reset the ROI");
                                         }
 
                                     }
@@ -161,7 +194,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
     @Override
     public void setViewValue(Object o) {
-       
+
         setDataOutdated();
         Image image = null;
         try {
@@ -173,22 +206,15 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             imagePlus.setImage(image);
             imagePlus.setTitle("Image");
         }
-        
+
         plotPane.setImage(imagePlus.getImage());
-        
-        System.out.println("Set view value ImageJWindowType");
 
     }
 
     @Override
     public Object getViewValue() {
-        Image o = null;
-        if(imagePlus == null){
-            o = plotPane.getImage();       
-        }else{
-            o = imagePlus.getImage();
-        }
-        return o;
+
+        return imagePlus.getImage();
 
     }
 

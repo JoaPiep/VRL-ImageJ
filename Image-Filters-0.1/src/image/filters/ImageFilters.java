@@ -6,32 +6,13 @@ package image.filters;
 
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
-import ij.ImageJ;
 import ij.ImagePlus;
-import ij.gui.FreehandRoi;
-import ij.gui.ImageCanvas;
-import ij.gui.ImageWindow;
-import ij.gui.PolygonRoi;
-import ij.gui.Roi;
-import ij.gui.Toolbar;
 import ij.io.FileSaver;
 import ij.io.Opener;
-import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
-import ij.process.FloatPolygon;
-import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
-import ij.process.ShortProcessor;
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +37,7 @@ public class ImageFilters implements Serializable {
      * @param imgFile the file where the image is saved
      * @return the loaded image
      */
-    public Image loadImage(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
+    public ImageJVRL loadImage(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
 
         Image image;
         image = null;
@@ -65,7 +46,7 @@ public class ImageFilters implements Serializable {
         } catch (IOException ex) {
             Logger.getLogger(ImageFilters.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return image;
+        return new ImageJVRL(image);
     }
 
     /**
@@ -74,13 +55,23 @@ public class ImageFilters implements Serializable {
      * @param sigma parameter from the gaussian blur function
      * @return filtered image
      */
-    public Image gaussianBlur(Image image, @ParamInfo(name = "Sigma (Double)") double sigma) {
+    public Image gaussianBlur(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image,
+                              @ParamInfo(name = "Sigma (Double)") double sigma) {
 
-        ImageProcessor ip = new ColorProcessor(image);
-        ip.blurGaussian(sigma);
-        Image ig = ip.createImage();
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+        //imageProcessor.setColor(Color.red);
+        imageProcessor.snapshot();
+        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.blurGaussian(sigma);
+        imageProcessor.reset(imageProcessor.getMask());
+           
+        /*if(image.getRoi()!=null){
+            image.getRoi().drawPixels(imageProcessor);
+        }*/
+        
+        Image im = imageProcessor.createImage();
 
-        return ig;
+        return im;
 
     }
 
@@ -89,13 +80,17 @@ public class ImageFilters implements Serializable {
      * @param image image to filter
      * @return with 3x3 minimum filter filtered image
      */
-    public Image min3x3Filter(Image image) {
+    public Image min3x3Filter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
 
-        ImageProcessor ip = new ColorProcessor(image);
-        ip.dilate();
-        Image ig = ip.createImage();
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+        imageProcessor.snapshot();
+        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.dilate();
+        imageProcessor.reset(imageProcessor.getMask());
+      
+        Image im = imageProcessor.createImage();
 
-        return ig;
+        return im;
 
     }
 
@@ -104,14 +99,17 @@ public class ImageFilters implements Serializable {
      * @param image image to filter
      * @return with median filter filtered image
      */
-    public Image medianFilter(Image image) {
+    public Image medianFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
 
-        ImageProcessor ip = new ColorProcessor(image);
-        ip.medianFilter();
-        Image ig = ip.createImage();
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+        imageProcessor.snapshot();
+        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.medianFilter();
+        imageProcessor.reset(imageProcessor.getMask());
+       
+        Image im = imageProcessor.createImage();
 
-        return ig;
-
+        return im;
     }
 
     /**
@@ -142,29 +140,6 @@ public class ImageFilters implements Serializable {
 
     }
 
-    /**
-     *
-     * @param image image to load
-     * @return changed image
-     */
-    public Image IJEditor(Image image) {
-
-        final ImageJ imageJ = new ImageJ();
-        ImagePlus imagePlus = new ImagePlus("image", image);
-        final ImageWindow iw = new ImageWindow(imagePlus);
-        WindowListener wl = new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                iw.close();
-                imageJ.quit();
-            }
-        };
-        iw.addWindowListener(wl);
-        Image changedImage = imagePlus.getImage();
-
-        return changedImage;
-    }
-
     public ImagePlus loadImagePlus(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
         Opener opener = new Opener();
         ImagePlus imagePlus = opener.openImage(imgFile.getPath());
@@ -172,45 +147,50 @@ public class ImageFilters implements Serializable {
         return imagePlus;
     }
 
-    public ImageJVRL createImageJVRL(@ParamInfo(name = "", style = "imageJType", options = "") Image image) {
-        return new ImageJVRL(image);
-    }
 
     /**
      *
-     * @param image
-     * @return
+     * @param image image to filter - invert
+     * @return filtered image
      */
-    public ImageJVRL createImageJVRLChoose(@ParamInfo(name = "", style = "ImageJPRoiType", options = "") Image image) {
-        return new ImageJVRL(image);
-    }
-  
-   /* public void testRoi(Image image) {
-
-        ImagePlus imagePlus = new ImagePlus("image", image);
-
-        FloatPolygon floatPolygon = new FloatPolygon();
-        floatPolygon.addPoint(1500, 1400);
-        floatPolygon.addPoint(1560, 2400);
-        floatPolygon.addPoint(2500, 1200);
-        floatPolygon.addPoint(2300, 450);
-        floatPolygon.addPoint(1900, 780);
-
-        PolygonRoi polygonRoi = new PolygonRoi(floatPolygon,
-                Roi.POLYGON);
-       
-        ImageProcessor imageProcessor = imagePlus.getProcessor();
+    public Image invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
+        
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
-        imageProcessor.setRoi(polygonRoi);
- 
-        imageProcessor.dilate();
-        
+        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.invert();
         imageProcessor.reset(imageProcessor.getMask());
-        imagePlus.show();
+        Image im = imageProcessor.createImage();
+
+        return im;
+
+    }
+
+
+
+    /* public void testRoi(Image image) {
+
+     ImagePlus imagePlus = new ImagePlus("image", image);
+
+     FloatPolygon floatPolygon = new FloatPolygon();
+     floatPolygon.addPoint(1500, 1400);
+     floatPolygon.addPoint(1560, 2400);
+     floatPolygon.addPoint(2500, 1200);
+     floatPolygon.addPoint(2300, 450);
+     floatPolygon.addPoint(1900, 780);
+
+     PolygonRoi polygonRoi = new PolygonRoi(floatPolygon,
+     Roi.POLYGON);
+       
+     ImageProcessor imageProcessor = imagePlus.getProcessor();
+     imageProcessor.snapshot();
+     imageProcessor.setRoi(polygonRoi);
+ 
+     imageProcessor.dilate();
+        
+     imageProcessor.reset(imageProcessor.getMask());
+     imagePlus.show();
         
        
-    }*/
-
-   
-
+     }*/
 }

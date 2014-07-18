@@ -5,20 +5,21 @@
 package image.filters;
 
 
-import ij.gui.PolygonRoi;
+
+import ij.gui.Roi;
 import java.awt.Image;
+import java.io.Serializable;
 
 /**
  *
  * @author Joanna Pieper
  */
-public class ImageJVRL {
+public class ImageJVRL implements Serializable{
+    
+    private static final long serialVersionUID = 1L;
 
-    public Image image;
-    public PolygonRoi roi;
-
-    public ImageJVRL(Image image, PolygonRoi roi) {
-    }
+    private Image image;
+    private Roi roi;
     
     public ImageJVRL(Image image) {
         this.image = image;
@@ -31,6 +32,20 @@ public class ImageJVRL {
 
     public void setImage(Image image) {
         this.image = image;
+    }
+
+    /**
+     * @return the roi
+     */
+    public Roi getRoi() {
+        return roi;
+    }
+
+    /**
+     * @param roi the roi to set
+     */
+    public void setRoi(Roi roi) {
+        this.roi = roi;
     }
    
 }

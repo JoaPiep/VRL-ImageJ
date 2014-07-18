@@ -12,13 +12,13 @@ import eu.mihosoft.vrl.visual.FullScreenComponent;
 import eu.mihosoft.vrl.visual.VBoxLayout;
 import groovy.lang.Script;
 import ij.ImagePlus;
-import ij.gui.FreehandRoi;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
@@ -33,7 +33,7 @@ import javax.swing.Box;
  *
  * @author Joanna Pieper
  */
-@TypeInfo(type = Image.class, input = true, output = false, style = "ImageJPRoiType")
+@TypeInfo(type = ImageJVRL.class, input = true, output = false, style = "ImageJPRoiType")
 public class ImageJPolygonRoiType extends TypeRepresentationBase
         implements TypeRepresentation, FullScreenComponent {
 
@@ -50,7 +50,10 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     protected FloatPolygon floatPolygon;
     protected PolygonRoi polygonRoi;
     protected ImageProcessor imageProcessor;
-    protected Boolean roiSelected = false;
+    protected boolean roiSelected;
+    private boolean editDone;
+
+    private ImageJVRL imageJVRLvalue;
 
     public ImageJPolygonRoiType() {
 
@@ -68,101 +71,76 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
         plotPane.addMouseListener(
                 new MouseAdapter() {
+
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         if (e.getButton() == MouseEvent.BUTTON1
                         && e.getClickCount() == 2) {
                             if (plotPane.getImage() != null || isInput()) {
-                                imagePlus.setImage((Image) getViewValue());
 
+                                editDone = false;
+                                roiSelected = false;
+
+                                imagePlus.setImage((Image) getViewValue());
                                 iw = new ImageWindow(imagePlus);
                                 imageCanvas = iw.getCanvas();
                                 floatPolygon = new FloatPolygon();
-
-                                //############ key listener ################ 
-                                //"x" -> reset all ROIs
-                                iw.addKeyListener(new KeyAdapter() {
-
-                                    @Override
-                                    public void keyTyped(KeyEvent e) {
-                                        if (e.getKeyChar() == 'x') {
-                                            roiSelected = false;
-                                            System.out.println("Key Pressed");
-                                        }
-
-                                    }
-                                });
-                                //###########################################
 
                                 imageCanvas.addMouseListener(new MouseAdapter() {
                                     @Override
                                     public void mouseClicked(MouseEvent e) {
 
                                         if (e.getButton() == MouseEvent.BUTTON1
-                                        && e.getClickCount() == 1) {
+                                        && e.getClickCount() == 1 && !editDone) {
+
                                             floatPolygon.addPoint(
                                                     imageCanvas.offScreenX(e.getX()),
                                                     imageCanvas.offScreenY(e.getY()));
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
+                                            polygonRoi.setStrokeColor(Color.red);
+                                            polygonRoi.setStrokeWidth(3);
                                             imagePlus.setRoi(polygonRoi);
                                         }
+                                        if (e.getButton() == MouseEvent.BUTTON1
+                                        && e.getClickCount() == 2 && !editDone) {
 
-                                        /*else if (e.getButton() == MouseEvent.BUTTON1
-                                         && e.getClickCount() == 2) {
-                                         imageProcessor = imagePlus.getProcessor();
-                                         imageProcessor.snapshot();
-                                         imageProcessor.setRoi(polygonRoi);
-                                         imageProcessor.invert();
-                                         imageProcessor.reset(imageProcessor.getMask());
+                                            editDone = true;
+                                            roiSelected = true;
+                                            imageProcessor = imagePlus.getProcessor();
+                                            imageProcessor.setColor(Color.red);
+                                            //imageProcessor.snapshot();
+                                            //imageProcessor.setRoi(polygonRoi);
+                                        //imageProcessor.medianFilter();
+                                            //imageProcessor.reset(imageProcessor.getMask());
+                                            polygonRoi.drawPixels(imageProcessor);
 
-                                         roiSelected = true;
-
-                                         iw.addWindowListener(new WindowAdapter() {
-                                         @Override
-                                         public void windowClosed(WindowEvent e) {
-                                         plotPane.setImage(imagePlus.getImage());
-                                         setDataOutdated();
-                                         }
-                                         });
-
-                                         floatPolygon = new FloatPolygon();
-
-                                         } else {
-                                         System.out.println("One click - add point"
-                                         + "\n" + "Double click - print the polygon");
-                                         }*/
+                                        }
+                                        iw.addWindowListener(new WindowAdapter() {
+                                            @Override
+                                            public void windowClosed(WindowEvent e) {
+                                                plotPane.setImage(imagePlus.getImage());
+                                                if (imageJVRLvalue != null) {
+                                                    imageJVRLvalue.setRoi(polygonRoi); //set max one roi
+                                                }
+                                                setDataOutdated();
+                                            }
+                                        });
                                     }
                                 });
+
                                 imageCanvas.addKeyListener(new KeyAdapter() {
 
                                     @Override
                                     public void keyTyped(KeyEvent e) {
-                                        if (e.getKeyChar() == 'r') { //reset ROI
+                                        if (e.getKeyChar() == 'r' && !editDone) { //reset ROI
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
                                             imagePlus.setRoi(polygonRoi);
                                             floatPolygon = new FloatPolygon();
-                                        } else if (e.getKeyChar() == 'p') { //choose ROI
-                                            imageProcessor = imagePlus.getProcessor();
-                                            imageProcessor.snapshot();
-                                            imageProcessor.setRoi(polygonRoi);
-                                            imageProcessor.invert();
-                                            imageProcessor.reset(imageProcessor.getMask());
-
-                                            roiSelected = true;
-                                            floatPolygon = new FloatPolygon();
-
-                                            iw.addWindowListener(new WindowAdapter() {
-                                                @Override
-                                                public void windowClosed(WindowEvent e) {
-                                                    plotPane.setImage(imagePlus.getImage());
-                                                    setDataOutdated();
-                                                }
-                                            });
 
                                         } else {
-                                            System.out.println("Press 'p' to print or 'r' to reset the ROI");
+                                            System.out.println("Press 'r' to reset the ROI");
                                         }
 
                                     }
@@ -196,25 +174,33 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     public void setViewValue(Object o) {
 
         setDataOutdated();
-        Image image = null;
+        ImageJVRL image = null;
         try {
-            image = (Image) o;
+            image = (ImageJVRL) o;
         } catch (Exception e) {
         }
 
         if (roiSelected == false) {
-            imagePlus.setImage(image);
+            imagePlus.setImage(image.getImage());
             imagePlus.setTitle("Image");
         }
 
         plotPane.setImage(imagePlus.getImage());
 
+        if (imageJVRLvalue == null || isOutput()) {
+            imageJVRLvalue = image;
+        } else {
+            if (isInput()) {
+                imageJVRLvalue.setImage(image.getImage());
+            }
+        }
+        roiSelected = false;
     }
 
     @Override
     public Object getViewValue() {
 
-        return imagePlus.getImage();
+        return plotPane.getImage();
 
     }
 

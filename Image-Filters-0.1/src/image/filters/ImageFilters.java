@@ -11,7 +11,6 @@ import ij.io.FileSaver;
 import ij.io.Opener;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
-import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -153,7 +152,13 @@ public class ImageFilters implements Serializable {
      * @param image image to filter - invert
      * @return filtered image
      */
-    public Image invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
+    public Image invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveImage=true") ImageJVRL image) {
+        
+        if(image.getRoi() != null){
+            System.out.println(image.getRoi().toString()+" getRoi");
+        }else{
+            System.out.println("no roi!");
+        }
         
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();

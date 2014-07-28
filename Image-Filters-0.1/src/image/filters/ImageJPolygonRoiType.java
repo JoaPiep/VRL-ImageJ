@@ -111,21 +111,26 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             imageProcessor.setColor(Color.red);
                                             //imageProcessor.snapshot();
                                             //imageProcessor.setRoi(polygonRoi);
-                                        //imageProcessor.medianFilter();
+                                            //imageProcessor.invert();
                                             //imageProcessor.reset(imageProcessor.getMask());
                                             polygonRoi.drawPixels(imageProcessor);
 
                                         }
-                                        iw.addWindowListener(new WindowAdapter() {
-                                            @Override
-                                            public void windowClosed(WindowEvent e) {
-                                                plotPane.setImage(imagePlus.getImage());
-                                                if (imageJVRLvalue != null) {
-                                                    imageJVRLvalue.setRoi(polygonRoi); //set max one roi
-                                                }
-                                                setDataOutdated();
-                                            }
-                                        });
+
+                                    }
+                                });
+
+                                iw.addWindowListener(new WindowAdapter() {
+                                    @Override
+                                    public void windowClosed(WindowEvent ew) {
+                                        plotPane.setImage(imagePlus.getImage());
+
+                                        if (imageJVRLvalue != null && editDone == true) {
+                                            imageJVRLvalue.setRoi(polygonRoi); //set max one roi
+                                            System.out.println(polygonRoi.toString() + " set Roi");
+
+                                        }
+                                        setDataOutdated();
                                     }
                                 });
 
@@ -141,6 +146,20 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                         } else {
                                             System.out.println("Press 'r' to reset the ROI");
+                                        }
+                                        
+                                        if(e.getKeyChar()== 'w'){
+                                            System.out.println("write");
+                                            imageJVRLvalue.imageToOutputStream("imageFile.ser");
+                                        }
+                                        if(e.getKeyChar()== 'e'){
+                                            System.out.println("read");
+                                            imageJVRLvalue.getImagefromOutputStream("imageFile.ser");
+                                                System.out.println(imageJVRLvalue.getImagePlus().toString());
+                                            if(imageJVRLvalue.getImagePlus() == null){
+                                                System.out.println("imageJVRLvalue.getImagePlus() is null");
+                                            }
+                                            
                                         }
 
                                     }
@@ -195,6 +214,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             }
         }
         roiSelected = false;
+
     }
 
     @Override
@@ -270,6 +290,21 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     @Override
     protected void evaluationRequest(Script script) {
         setPlotPaneSizeFromValueOptions(script);
+
+        Object property = null;
+
+        if (getValueOptions() != null) {
+
+            if (getValueOptions().contains("saveImage")) {
+                property = script.getProperty("saveImage");
+            }
+
+            if (property != null) {
+
+            }
+
+            property = null;
+        }
     }
 
     @Override

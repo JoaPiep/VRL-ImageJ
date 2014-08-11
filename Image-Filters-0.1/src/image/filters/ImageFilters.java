@@ -157,7 +157,7 @@ public class ImageFilters implements Serializable {
         if(image.getRoi() != null){
             System.out.println(image.getRoi().toString()+" getRoi");
         }else{
-            System.out.println("no roi!");
+            System.out.println(image.toString() + "  no roi!");
         }
         
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());

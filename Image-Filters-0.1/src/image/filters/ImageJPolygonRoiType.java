@@ -27,6 +27,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Box;
 
 /**
@@ -52,6 +55,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     protected ImageProcessor imageProcessor;
     protected boolean roiSelected;
     private boolean editDone;
+    private boolean saveImageInVRL = false;
 
     private ImageJVRL imageJVRLvalue;
 
@@ -127,8 +131,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                         if (imageJVRLvalue != null && editDone == true) {
                                             imageJVRLvalue.setRoi(polygonRoi); //set max one roi
-                                            System.out.println(polygonRoi.toString() + " set Roi");
-
                                         }
                                         setDataOutdated();
                                     }
@@ -146,20 +148,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                         } else {
                                             System.out.println("Press 'r' to reset the ROI");
-                                        }
-                                        
-                                        if(e.getKeyChar()== 'w'){
-                                            System.out.println("write");
-                                            imageJVRLvalue.imageToOutputStream("imageFile.ser");
-                                        }
-                                        if(e.getKeyChar()== 'e'){
-                                            System.out.println("read");
-                                            imageJVRLvalue.getImagefromOutputStream("imageFile.ser");
-                                                System.out.println(imageJVRLvalue.getImagePlus().toString());
-                                            if(imageJVRLvalue.getImagePlus() == null){
-                                                System.out.println("imageJVRLvalue.getImagePlus() is null");
-                                            }
-                                            
                                         }
 
                                     }
@@ -208,12 +196,32 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
         if (imageJVRLvalue == null || isOutput()) {
             imageJVRLvalue = image;
+
+        } else if (imageJVRLvalue.equals(image) == false) {
+            imageJVRLvalue = image;
         } else {
             if (isInput()) {
                 imageJVRLvalue.setImage(image.getImage());
             }
         }
         roiSelected = false;
+
+        if (polygonRoi != null && saveImageInVRL) {
+            try {
+                image.encodeROI();
+
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            try {
+                polygonRoi = (PolygonRoi) image.decodeROI();
+                imageJVRLvalue.setRoi(polygonRoi);
+                System.out.println("Decode " + image.decodeROI().toString());
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
 
     }
 
@@ -300,7 +308,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             }
 
             if (property != null) {
-
+                saveImageInVRL = (Boolean) property;
             }
 
             property = null;

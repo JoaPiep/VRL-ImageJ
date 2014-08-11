@@ -4,16 +4,12 @@
  */
 package image.filters;
 
-import ij.ImagePlus;
 import ij.gui.Roi;
+import ij.io.RoiDecoder;
+import ij.io.RoiEncoder;
 import java.awt.Image;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 
 /**
@@ -25,10 +21,8 @@ public class ImageJVRL implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Image image;
-    private Image image1;
     private Roi roi;
-    private OutputStream fos = null;
-    private InputStream fis = null;
+    private File file = new File(System.getProperty("user.dir") + "/roi");
 
     public ImageJVRL(Image image) {
         this.image = image;
@@ -56,44 +50,14 @@ public class ImageJVRL implements Serializable {
         this.roi = roi;
     }
 
-    public void imageToOutputStream(String filename) {
-
-        try {
-            fos = new FileOutputStream(filename);
-            ObjectOutputStream o = new ObjectOutputStream(fos);
-            o.writeObject(image);
-        } catch (IOException e) {
-            System.err.println(e);
-        } finally {
-            try {
-                fos.close();
-            } catch (IOException e) {
-            }
-        }
-
+    public void encodeROI() throws IOException {
+        RoiEncoder re = new RoiEncoder(file.getAbsolutePath());
+        re.write(roi);
     }
 
-    public void getImagefromOutputStream(String filename) {
-
-        try {
-            fis = new FileInputStream(filename);
-            ObjectInputStream o = new ObjectInputStream(fis);
-            image = (Image) o.readObject();
-            
-        } catch (IOException e) {
-            System.err.println(e);
-        } catch (ClassNotFoundException e) {
-            System.err.println(e);
-        } finally {
-            try {
-                fis.close();
-            } catch (IOException e) {
-            }
-        }
-    }
-    
-     public ImagePlus getImagePlus() {
-        return new ImagePlus("image 1", image1);
+    public Roi decodeROI() throws IOException {
+        RoiDecoder rd = new RoiDecoder(file.getAbsolutePath());
+        return rd.getRoi();
     }
 
 }

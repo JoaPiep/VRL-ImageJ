@@ -84,8 +84,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                 editDone = false;
                                 roiSelected = false;
-
-                                imagePlus.setImage((Image) getViewValue());
+                                
+                                imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                 iw = new ImageWindow(imagePlus);
                                 imageCanvas = iw.getCanvas();
                                 floatPolygon = new FloatPolygon();
@@ -206,18 +206,22 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         }
         roiSelected = false;
 
-        if (polygonRoi != null && saveImageInVRL) {
+       // if (polygonRoi != null && saveImageInVRL) {
+        if (imageJVRLvalue.getRoi() != null && saveImageInVRL) {
             try {
-                image.encodeROI();
-
+                imageJVRLvalue.encodeROI();
+                imageJVRLvalue.decodeROI();
             } catch (IOException ex) {
                 Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } else {
+        }
+
+        if (polygonRoi == null) {
+            System.out.println("polygonRoi == null " + polygonRoi);
             try {
-                polygonRoi = (PolygonRoi) image.decodeROI();
+                polygonRoi = (PolygonRoi) imageJVRLvalue.decodeROI();
+                System.out.println("decode");
                 imageJVRLvalue.setRoi(polygonRoi);
-                System.out.println("Decode " + image.decodeROI().toString());
             } catch (IOException ex) {
                 Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -227,9 +231,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
     @Override
     public Object getViewValue() {
-
-        return plotPane.getImage();
-
+        return imageJVRLvalue;//plotPane.getImage();
     }
 
     public Dimension getPlotPaneSize() {

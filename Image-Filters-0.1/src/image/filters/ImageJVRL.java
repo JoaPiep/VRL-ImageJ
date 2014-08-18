@@ -4,10 +4,13 @@
  */
 package image.filters;
 
+import eu.mihosoft.vrl.io.Base64;
+import eu.mihosoft.vrl.io.IOUtil;
 import ij.gui.Roi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
 import java.awt.Image;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -20,10 +23,13 @@ public class ImageJVRL implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Image image;
-    private Roi roi;
-    private File file = new File(System.getProperty("user.dir") + "/roi");
+    private transient Image image;
+    private transient Roi roi;
+    private String roiData;
 
+    public ImageJVRL() {
+    }
+    
     public ImageJVRL(Image image) {
         this.image = image;
     }
@@ -51,13 +57,22 @@ public class ImageJVRL implements Serializable {
     }
 
     public void encodeROI() throws IOException {
-        RoiEncoder re = new RoiEncoder(file.getAbsolutePath());
+        
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        RoiEncoder re = new RoiEncoder(bout);
         re.write(roi);
+        roiData = Base64.encodeBytes(bout.toByteArray()); // byte to string
+        System.out.println("EncodeROI: "+roiData);
     }
 
     public Roi decodeROI() throws IOException {
-        RoiDecoder rd = new RoiDecoder(file.getAbsolutePath());
-        return rd.getRoi();
+      
+        byte[] stringToByte = Base64.decode(roiData);
+        RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
+        
+        Roi result = rd.getRoi();
+        System.out.println("DecodeROI "+ rd.getRoi());
+        return result;
     }
 
 }

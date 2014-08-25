@@ -84,7 +84,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                 editDone = false;
                                 roiSelected = false;
-                                
+
                                 imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                 iw = new ImageWindow(imagePlus);
                                 imageCanvas = iw.getCanvas();
@@ -193,7 +193,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         }
 
         plotPane.setImage(imagePlus.getImage());
-
         if (imageJVRLvalue == null || isOutput()) {
             imageJVRLvalue = image;
 
@@ -206,26 +205,30 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         }
         roiSelected = false;
 
-       // if (polygonRoi != null && saveImageInVRL) {
-        if (imageJVRLvalue.getRoi() != null && saveImageInVRL) {
+       
+      /*  if (imageJVRLvalue.getRoi() != null && saveImageInVRL) {
             try {
                 imageJVRLvalue.encodeROI();
-                imageJVRLvalue.decodeROI();
             } catch (IOException ex) {
                 Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
-        if (polygonRoi == null) {
-            System.out.println("polygonRoi == null " + polygonRoi);
+        if (imageJVRLvalue.getRoi() == null) {
+            try {
+                System.out.println("polygonRoi == null "+ imageJVRLvalue.decodeROI().toString());
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
+            }
             try {
                 polygonRoi = (PolygonRoi) imageJVRLvalue.decodeROI();
                 System.out.println("decode");
                 imageJVRLvalue.setRoi(polygonRoi);
             } catch (IOException ex) {
+                System.out.println(ex+"EXCEPTION");
                 Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
+        }*/
 
     }
 

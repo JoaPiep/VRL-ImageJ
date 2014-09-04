@@ -4,69 +4,26 @@
  */
 package image.filters;
 
-import eu.mihosoft.vrl.io.Base64;
 import ij.gui.Roi;
-import ij.io.RoiDecoder;
-import ij.io.RoiEncoder;
 import java.awt.Image;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Joanna Pieper
  */
-public class ImageJVRL implements Serializable {
+public class ImageJVRL implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
     private transient Image image;
     private transient Roi roi;
-    private String roiData;
+    private SerializableRoi sRoi = new SerializableRoi();
+  //  private transient String roiData = null;
 
-   public ImageJVRL() {
-   }
-    
-   /* public ImageJVRL() {
-        // encoding in base64
-       
-       try {
-             
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            RoiEncoder re = new RoiEncoder(bout);
-            re.write(roi);
-            System.out.println("33333333333333333333");
-            String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
-         //  System.out.println("wwwwwwwwwwwww " + byteToString);
-            setRoiData(byteToString);
-
-        } catch (IOException ex) {
-            Logger.getLogger(ImageJVRL.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        }
+    public ImageJVRL() {
     }
 
-    public Roi toRoi() {
-        // decoding from string
-        
-        Roi result  = null;
-
-        try {
-            byte[] stringToByte = Base64.decode(getRoiData());
-            RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
-            result = rd.getRoi();
-
-        } catch (IOException ex) {
-            Logger.getLogger(ImageJVRL.class.getName()).
-                    log(Level.SEVERE, null, ex);
-        }
-
-        return result;
-    }*/
-    
     public ImageJVRL(Image image) {
         this.image = image;
     }
@@ -91,38 +48,49 @@ public class ImageJVRL implements Serializable {
      */
     public void setRoi(Roi roi) {
         this.roi = roi;
-    }
-     /**
-     * @return the roi
-     */
-    public String getRoiData() {
-        return roiData;
+        sRoi.roiEncoder(roi);
     }
 
-    /**
-     * @param roiData
-     */
-    public void setRoiData(String roiData) {
-        this.roiData = roiData;
+    public void setsRoi(SerializableRoi sRoi) {
+        this.sRoi = sRoi;
     }
 
-   public void encodeROI() throws IOException {
-        
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        RoiEncoder re = new RoiEncoder(bout);
-        re.write(roi);
-        roiData = Base64.encodeBytes(bout.toByteArray()); // byte to string
-        System.out.println("EncodeROI: "+ roiData);
+    public SerializableRoi getsRoi() {
+        return sRoi;
     }
 
-    public Roi decodeROI() throws IOException {
-        System.out.println("decode roi RoiData " + roiData);
-        byte[] stringToByte = Base64.decode(roiData);
-        RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
-        
-        Roi result = rd.getRoi();
-        System.out.println("DecodeROI "+ rd.getRoi());
-        return result;
-    }
+    /*
+     public String getRoiData() {
+     return roiData;
+     }
 
+ 
+     public void setRoiData(String roiData) {
+     this.roiData = roiData;
+     }
+
+     public void encodeROI() throws IOException {
+
+     ByteArrayOutputStream bout = new ByteArrayOutputStream();
+     RoiEncoder re = new RoiEncoder(bout);
+     System.out.println("encodeROI getRoi() " +getRoi().toString());
+     re.write((PolygonRoi) getRoi());
+     String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
+     setRoiData(byteToString);
+     System.out.println("EncodeROI: " + getRoiData());
+     }
+
+     public Roi decodeROI() throws IOException {
+     // System.out.println("decode getRoiData " + getRoiData());
+     Roi result = null;
+
+     if (getRoiData() != null){
+     byte[] stringToByte = Base64.decode(getRoiData());
+     RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
+     result = rd.getRoi();
+     System.out.println("result "+ result.toString());
+     }
+     System.out.println("decodeROI null");
+     return result;
+     }*/
 }

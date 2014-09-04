@@ -130,7 +130,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                         plotPane.setImage(imagePlus.getImage());
 
                                         if (imageJVRLvalue != null && editDone == true) {
-                                            imageJVRLvalue.setRoi(polygonRoi); //set max one roi
+                                            imageJVRLvalue.setRoi((Roi) polygonRoi); //set max one roi
                                         }
                                         setDataOutdated();
                                     }
@@ -205,8 +205,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         }
         roiSelected = false;
 
-       
-      /*  if (imageJVRLvalue.getRoi() != null && saveImageInVRL) {
+       /* if (imageJVRLvalue.getRoi() != null && saveImageInVRL) {
             try {
                 imageJVRLvalue.encodeROI();
             } catch (IOException ex) {
@@ -215,17 +214,12 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         }
 
         if (imageJVRLvalue.getRoi() == null) {
-            try {
-                System.out.println("polygonRoi == null "+ imageJVRLvalue.decodeROI().toString());
-            } catch (IOException ex) {
-                Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
-            }
+          
             try {
                 polygonRoi = (PolygonRoi) imageJVRLvalue.decodeROI();
-                System.out.println("decode");
                 imageJVRLvalue.setRoi(polygonRoi);
+                imagePlus.setRoi(polygonRoi);
             } catch (IOException ex) {
-                System.out.println(ex+"EXCEPTION");
                 Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
             }
         }*/
@@ -277,7 +271,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             if (getValueOptions().contains("height")) {
                 property = script.getProperty("height");
             }
-
+            
             if (property != null) {
                 h = (Integer) property;
             }

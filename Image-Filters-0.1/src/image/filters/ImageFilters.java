@@ -7,6 +7,7 @@ package image.filters;
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
 import ij.ImagePlus;
+import ij.gui.Roi;
 import ij.io.FileSaver;
 import ij.io.Opener;
 import ij.process.ColorProcessor;
@@ -154,11 +155,11 @@ public class ImageFilters implements Serializable {
      */
     public Image invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveImage=true") ImageJVRL image) {
         
-        if(image.getRoi() != null){
+        /*if(image.getRoi() != null){
             System.out.println(image.getRoi().toString()+" getRoi");
         }else{
            // System.out.println(image.toString() + "  no roi!");
-        }
+        }*/
         
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();

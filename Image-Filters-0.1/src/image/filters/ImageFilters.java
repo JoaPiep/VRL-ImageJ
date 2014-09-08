@@ -7,7 +7,6 @@ package image.filters;
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
 import ij.ImagePlus;
-import ij.gui.Roi;
 import ij.io.FileSaver;
 import ij.io.Opener;
 import ij.process.ColorProcessor;
@@ -30,14 +29,17 @@ import javax.imageio.ImageIO;
         description = "My Component")
 public class ImageFilters implements Serializable {
 
+    public ImageFilters() {
+    }
+
     private static final long serialVersionUID = 1L;
 
     /**
      *
-     * @param imgFile the file where the image is saved
-     * @return the loaded image
+     * @param imgFile image filepath
+     * @return loaded image as ImageJVRL
      */
-    public ImageJVRL loadImage(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
+    public ImageJVRL loadImageJVRL(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
 
         Image image;
         image = null;
@@ -51,75 +53,23 @@ public class ImageFilters implements Serializable {
 
     /**
      *
-     * @param image image to filter
-     * @param sigma parameter from the gaussian blur function
-     * @return filtered image
+     * @param imgFile image filepath
+     * @return ImagePlus image
      */
-    public Image gaussianBlur(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image,
-                              @ParamInfo(name = "Sigma (Double)") double sigma) {
+    public ImagePlus loadImagePlus(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
 
-        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        //imageProcessor.setColor(Color.red);
-        imageProcessor.snapshot();
-        imageProcessor.setRoi(image.getRoi());
-        imageProcessor.blurGaussian(sigma);
-        imageProcessor.reset(imageProcessor.getMask());
-           
-        /*if(image.getRoi()!=null){
-            image.getRoi().drawPixels(imageProcessor);
-        }*/
-        
-        Image im = imageProcessor.createImage();
-
-        return im;
-
+        return new Opener().openImage(imgFile.getPath());
     }
 
     /**
      *
-     * @param image image to filter
-     * @return with 3x3 minimum filter filtered image
-     */
-    public Image min3x3Filter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
-
-        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        imageProcessor.snapshot();
-        imageProcessor.setRoi(image.getRoi());
-        imageProcessor.dilate();
-        imageProcessor.reset(imageProcessor.getMask());
-      
-        Image im = imageProcessor.createImage();
-
-        return im;
-
-    }
-
-    /**
-     *
-     * @param image image to filter
-     * @return with median filter filtered image
-     */
-    public Image medianFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
-
-        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        imageProcessor.snapshot();
-        imageProcessor.setRoi(image.getRoi());
-        imageProcessor.medianFilter();
-        imageProcessor.reset(imageProcessor.getMask());
-       
-        Image im = imageProcessor.createImage();
-
-        return im;
-    }
-
-    /**
-     *
-     * @param imgFile file where the image will be saved
+     * @param imgFile fileposition from the image
      * @param image image to save
      */
-    public void saveImageAsJpg(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile, Image image) {
+    public void saveImageJVRLAsJpg(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"File\"") File imgFile,
+            @ParamInfo(name = "ImageJVRL") ImageJVRL image) {
 
-        BufferedImage bImage = (BufferedImage) image;
+        BufferedImage bImage = (BufferedImage) image.getImage();
         try {
             ImageIO.write(bImage, "jpg", imgFile);
         } catch (IOException e) {
@@ -129,38 +79,80 @@ public class ImageFilters implements Serializable {
 
     /**
      *
-     * @param name your filename
-     * @param image image to save as png
+     * @param name filename
+     * @param image image to save (as .png)
      */
-    public void saveImageAsPng(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") String name, Image image) {
+    public void saveImageJVRLAsPng(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") String name,
+            @ParamInfo(name = "ImageJVRL") ImageJVRL image) {
 
-        ImagePlus imagePlus = new ImagePlus(name, image);
+        ImagePlus imagePlus = new ImagePlus(name, image.getImage());
         FileSaver fileSaver = new FileSaver(imagePlus);
         fileSaver.saveAsPng();
 
     }
 
-    public ImagePlus loadImagePlus(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
-        Opener opener = new Opener();
-        ImagePlus imagePlus = opener.openImage(imgFile.getPath());
+    /**
+     *
+     * @param image image to be filter
+     * @param sigma sigma-parameter
+     * @return filtered image (with gaussian blur)
+     */
+    public ImageJVRL gaussianBlur(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image,
+            @ParamInfo(name = "Sigma (Double)") double sigma) {
 
-        return imagePlus;
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+        imageProcessor.snapshot();
+        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.blurGaussian(sigma);
+        imageProcessor.reset(imageProcessor.getMask());
+        Image im = imageProcessor.createImage();
+
+        return new ImageJVRL(im);
+
     }
-
 
     /**
      *
-     * @param image image to filter - invert
-     * @return filtered image
+     * @param image image to be filter
+     * @return filtered image (with 3x3 minimum filter)
      */
-    public Image invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveImage=true") ImageJVRL image) {
-        
-        /*if(image.getRoi() != null){
-            System.out.println(image.getRoi().toString()+" getRoi");
-        }else{
-           // System.out.println(image.toString() + "  no roi!");
-        }*/
-        
+    public ImageJVRL min3x3Filter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
+
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+        imageProcessor.snapshot();
+        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.dilate();
+        imageProcessor.reset(imageProcessor.getMask());
+        Image im = imageProcessor.createImage();
+
+        return new ImageJVRL(im);
+
+    }
+
+    /**
+     *
+     * @param image image to be filter
+     * @return filtered image (with median filter)
+     */
+    public ImageJVRL medianFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
+
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+        imageProcessor.snapshot();
+        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.medianFilter();
+        imageProcessor.reset(imageProcessor.getMask());
+        Image im = imageProcessor.createImage();
+
+        return new ImageJVRL(im);
+    }
+
+    /**
+     *
+     * @param image image to be filter
+     * @return filtered image (with invert filter)
+     */
+    public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveImage=true") ImageJVRL image) {
+
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
         imageProcessor.setRoi(image.getRoi());
@@ -168,35 +160,28 @@ public class ImageFilters implements Serializable {
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        return im;
+        return new ImageJVRL(im);
 
     }
 
+    /**
+     *
+     * @param image Image image
+     * @return ImageJVRL image
+     */
+    public ImageJVRL imageToImageJVRL(Image image) {
 
+        return new ImageJVRL(image);
+    }
 
-    /* public void testRoi(Image image) {
+    /**
+     *
+     * @param imageJVRL imageJVRL
+     * @return Image image
+     */
+    public Image mageJVRLToImage(@ParamInfo(name = "ImageJVRL") ImageJVRL imageJVRL) {
 
-     ImagePlus imagePlus = new ImagePlus("image", image);
+        return imageJVRL.getImage();
+    }
 
-     FloatPolygon floatPolygon = new FloatPolygon();
-     floatPolygon.addPoint(1500, 1400);
-     floatPolygon.addPoint(1560, 2400);
-     floatPolygon.addPoint(2500, 1200);
-     floatPolygon.addPoint(2300, 450);
-     floatPolygon.addPoint(1900, 780);
-
-     PolygonRoi polygonRoi = new PolygonRoi(floatPolygon,
-     Roi.POLYGON);
-       
-     ImageProcessor imageProcessor = imagePlus.getProcessor();
-     imageProcessor.snapshot();
-     imageProcessor.setRoi(polygonRoi);
- 
-     imageProcessor.dilate();
-        
-     imageProcessor.reset(imageProcessor.getMask());
-     imagePlus.show();
-        
-       
-     }*/
 }

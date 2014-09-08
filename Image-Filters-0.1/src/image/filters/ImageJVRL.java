@@ -6,6 +6,7 @@ package image.filters;
 
 import ij.gui.Roi;
 import java.awt.Image;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -18,20 +19,50 @@ public class ImageJVRL implements Serializable{
 
     private transient Image image;
     private transient Roi roi;
-    private SerializableRoi sRoi = new SerializableRoi();
-  //  private transient String roiData = null;
+
+    private transient SerializableRoi serializableRoi;
 
     public ImageJVRL() {
     }
 
+    /**
+     * 
+     * @param image image to set
+     */
     public ImageJVRL(Image image) {
         this.image = image;
     }
 
+    public ImageJVRL(Image image, Roi roi) throws IOException {
+        
+        this.image = image;
+        
+        if (roi != null) {
+
+            this.serializableRoi = new SerializableRoi(roi);
+            
+        }
+    }
+    /**
+     * 
+     * @param roi to encode with SerializableRoi
+     */
+    public void setSRoi(Roi roi){
+        this.serializableRoi = new SerializableRoi(roi);
+    }
+    
+    /**
+     * 
+     * @return the image
+     */
     public Image getImage() {
         return image;
     }
-
+    
+    /**
+     * 
+     * @param image the image to set
+     */
     public void setImage(Image image) {
         this.image = image;
     }
@@ -48,32 +79,30 @@ public class ImageJVRL implements Serializable{
      */
     public void setRoi(Roi roi) {
         this.roi = roi;
-        sRoi.roiEncoder(roi);
+    }
+    
+    /**
+     * 
+     * @param serializableRoi the serializable roi to set
+     */
+    public void setSerializableRoi(SerializableRoi serializableRoi) {
+        this.serializableRoi = serializableRoi;
     }
 
-    public void setsRoi(SerializableRoi sRoi) {
-        this.sRoi = sRoi;
+    /**
+     * 
+     * @return the serializable roi
+     */
+    public SerializableRoi getSerializableRoi() {
+        return serializableRoi;
     }
 
-    public SerializableRoi getsRoi() {
-        return sRoi;
-    }
-
-    /*
-     public String getRoiData() {
-     return roiData;
-     }
-
- 
-     public void setRoiData(String roiData) {
-     this.roiData = roiData;
-     }
-
-     public void encodeROI() throws IOException {
+    
+    /*public void encodeROI() throws IOException {
 
      ByteArrayOutputStream bout = new ByteArrayOutputStream();
      RoiEncoder re = new RoiEncoder(bout);
-     System.out.println("encodeROI getRoi() " +getRoi().toString());
+     System.out.println("encodeROI getRoi() " + getRoi().toString());
      re.write((PolygonRoi) getRoi());
      String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
      setRoiData(byteToString);
@@ -81,16 +110,17 @@ public class ImageJVRL implements Serializable{
      }
 
      public Roi decodeROI() throws IOException {
-     // System.out.println("decode getRoiData " + getRoiData());
+        
      Roi result = null;
 
-     if (getRoiData() != null){
+     if (getRoiData() != null) {
      byte[] stringToByte = Base64.decode(getRoiData());
      RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
      result = rd.getRoi();
-     System.out.println("result "+ result.toString());
+     System.out.println("result " + result.toString());
      }
      System.out.println("decodeROI null");
      return result;
      }*/
+
 }

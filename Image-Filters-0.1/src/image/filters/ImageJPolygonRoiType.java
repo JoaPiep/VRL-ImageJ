@@ -20,16 +20,12 @@ import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.Box;
 
 /**
@@ -113,10 +109,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             roiSelected = true;
                                             imageProcessor = imagePlus.getProcessor();
                                             imageProcessor.setColor(Color.red);
-                                            //imageProcessor.snapshot();
-                                            //imageProcessor.setRoi(polygonRoi);
-                                            //imageProcessor.invert();
-                                            //imageProcessor.reset(imageProcessor.getMask());
                                             polygonRoi.drawPixels(imageProcessor);
 
                                         }
@@ -131,6 +123,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                         if (imageJVRLvalue != null && editDone == true) {
                                             imageJVRLvalue.setRoi((Roi) polygonRoi); //set max one roi
+
                                         }
                                         setDataOutdated();
                                     }
@@ -205,30 +198,11 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         }
         roiSelected = false;
 
-       /* if (imageJVRLvalue.getRoi() != null && saveImageInVRL) {
-            try {
-                imageJVRLvalue.encodeROI();
-            } catch (IOException ex) {
-                Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
-        if (imageJVRLvalue.getRoi() == null) {
-          
-            try {
-                polygonRoi = (PolygonRoi) imageJVRLvalue.decodeROI();
-                imageJVRLvalue.setRoi(polygonRoi);
-                imagePlus.setRoi(polygonRoi);
-            } catch (IOException ex) {
-                Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }*/
-
     }
 
     @Override
     public Object getViewValue() {
-        return imageJVRLvalue;//plotPane.getImage();
+        return imageJVRLvalue;
     }
 
     public Dimension getPlotPaneSize() {
@@ -271,7 +245,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             if (getValueOptions().contains("height")) {
                 property = script.getProperty("height");
             }
-            
+
             if (property != null) {
                 h = (Integer) property;
             }

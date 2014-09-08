@@ -11,7 +11,6 @@ import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,15 +18,14 @@ import java.util.logging.Logger;
  *
  * @author Joanna Pieper
  */
-public class SerializableRoi implements Serializable{
+public class SerializableRoi {
 
-    private String roiData;
+    private transient String roiData;
 
     public SerializableRoi() {
     }
 
-    public void roiEncoder(Roi roi) {
-     // encoding in base64
+    public SerializableRoi(Roi roi) {
 
         try {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -35,18 +33,15 @@ public class SerializableRoi implements Serializable{
             re.write(roi);
             String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
             setRoiData(byteToString);
-            System.out.println("roiEncoder "+byteToString);
+            System.out.println("roiEncoder " + byteToString);
         } catch (IOException ex) {
             Logger.getLogger(SerializableRoi.class.getName()).
                     log(Level.SEVERE, null, ex);
         }
     }
 
-
-   
-
     public Roi roiDecoder() {
-     // decoding from string
+        // decoding from string
 
         Roi result = null;
 
@@ -71,11 +66,10 @@ public class SerializableRoi implements Serializable{
     }
 
     /**
-     * @param roiData
+     * @param roiData the String data to be set
      */
     public void setRoiData(String roiData) {
         this.roiData = roiData;
     }
-
 
 }

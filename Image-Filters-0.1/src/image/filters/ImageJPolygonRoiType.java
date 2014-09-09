@@ -16,6 +16,7 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
+import ij.plugin.frame.RoiManager;
 import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
 import java.awt.Color;
@@ -53,7 +54,9 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     private boolean editDone;
     private boolean saveImageInVRL = false;
 
-    private ImageJVRL imageJVRLvalue;
+    protected RoiManager roiManager = new RoiManager(false);
+
+    private ImageJVRL imageJVRLvalue = new ImageJVRL();
 
     public ImageJPolygonRoiType() {
 
@@ -122,7 +125,11 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                         plotPane.setImage(imagePlus.getImage());
 
                                         if (imageJVRLvalue != null && editDone == true) {
-                                            imageJVRLvalue.setRoi((Roi) polygonRoi); //set max one roi
+                                            imageJVRLvalue.setRoi(polygonRoi); //set max one roi
+                                            roiManager.addRoi(polygonRoi);
+                                            System.out.println("****************************************************");
+                                            imageJVRLvalue.encodeROI(polygonRoi);
+                                            System.out.println("****************************************************");
 
                                         }
                                         setDataOutdated();
@@ -186,6 +193,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         }
 
         plotPane.setImage(imagePlus.getImage());
+
         if (imageJVRLvalue == null || isOutput()) {
             imageJVRLvalue = image;
 
@@ -197,6 +205,10 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             }
         }
         roiSelected = false;
+        System.out.println("****************************************************");
+        System.out.println("ENCODED ROI DATA: " + imageJVRLvalue.getRoiData());
+        System.out.println("****************************************************");
+        System.out.println("Rois count: " + roiManager.getCount());
 
     }
 

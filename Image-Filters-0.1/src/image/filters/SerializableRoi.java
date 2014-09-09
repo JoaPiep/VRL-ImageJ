@@ -6,6 +6,7 @@
 package image.filters;
 
 import eu.mihosoft.vrl.io.Base64;
+import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
@@ -25,12 +26,12 @@ public class SerializableRoi {
     public SerializableRoi() {
     }
 
-    public SerializableRoi(Roi roi) {
+    public SerializableRoi(PolygonRoi roi) {
 
         try {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
             RoiEncoder re = new RoiEncoder(bout);
-            re.write(roi);
+            re.write((Roi)roi);
             String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
             setRoiData(byteToString);
             System.out.println("roiEncoder " + byteToString);
@@ -40,15 +41,15 @@ public class SerializableRoi {
         }
     }
 
-    public Roi roiDecoder() {
+    public PolygonRoi roiDecoder() {
         // decoding from string
 
-        Roi result = null;
+        PolygonRoi result = null;
 
         try {
             byte[] stringToByte = Base64.decode(getRoiData());
             RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
-            result = rd.getRoi();
+            result = (PolygonRoi) rd.getRoi();
 
         } catch (IOException ex) {
             Logger.getLogger(SerializableRoi.class.getName()).

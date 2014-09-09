@@ -7,6 +7,7 @@ package image.filters;
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
 import ij.ImagePlus;
+import ij.gui.Roi;
 import ij.io.FileSaver;
 import ij.io.Opener;
 import ij.process.ColorProcessor;
@@ -48,7 +49,9 @@ public class ImageFilters implements Serializable {
         } catch (IOException ex) {
             Logger.getLogger(ImageFilters.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return new ImageJVRL(image);
+        ImageJVRL iv = new ImageJVRL(image);
+        System.out.println("loadImageJVRL :"+ iv.toString());
+        return iv;
     }
 
     /**
@@ -102,7 +105,7 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
-        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.setRoi((Roi) image.getRoi());
         imageProcessor.blurGaussian(sigma);
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
@@ -120,7 +123,7 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
-        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.setRoi((Roi) image.getRoi());
         imageProcessor.dilate();
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
@@ -138,7 +141,7 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
-        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.setRoi((Roi) image.getRoi());
         imageProcessor.medianFilter();
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
@@ -155,7 +158,7 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
-        imageProcessor.setRoi(image.getRoi());
+        imageProcessor.setRoi((Roi) image.getRoi());
         imageProcessor.invert();
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
@@ -179,7 +182,7 @@ public class ImageFilters implements Serializable {
      * @param imageJVRL imageJVRL
      * @return Image image
      */
-    public Image mageJVRLToImage(@ParamInfo(name = "ImageJVRL") ImageJVRL imageJVRL) {
+    public Image imageJVRLToImage(@ParamInfo(name = "ImageJVRL") ImageJVRL imageJVRL) {
 
         return imageJVRL.getImage();
     }

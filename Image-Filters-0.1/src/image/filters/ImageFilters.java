@@ -49,9 +49,10 @@ public class ImageFilters implements Serializable {
         } catch (IOException ex) {
             Logger.getLogger(ImageFilters.class.getName()).log(Level.SEVERE, null, ex);
         }
-        ImageJVRL iv = new ImageJVRL(image);
-        System.out.println("loadImageJVRL :"+ iv.toString());
-        return iv;
+        ImageJVRL ijVRL = new ImageJVRL();
+        ijVRL.setImage(image);
+        System.out.println("loadImageJVRL :"+ ijVRL.toString());
+        return ijVRL;
     }
 
     /**
@@ -110,7 +111,10 @@ public class ImageFilters implements Serializable {
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        return new ImageJVRL(im);
+        ImageJVRL ijVRL = new ImageJVRL();
+        ijVRL.setImage(im);
+        
+        return ijVRL;
 
     }
 
@@ -128,7 +132,10 @@ public class ImageFilters implements Serializable {
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        return new ImageJVRL(im);
+        ImageJVRL ijVRL = new ImageJVRL();
+        ijVRL.setImage(im);
+        
+        return ijVRL;
 
     }
 
@@ -146,7 +153,10 @@ public class ImageFilters implements Serializable {
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        return new ImageJVRL(im);
+        ImageJVRL ijVRL = new ImageJVRL();
+        ijVRL.setImage(im);
+        
+        return ijVRL;
     }
 
     /**
@@ -163,18 +173,24 @@ public class ImageFilters implements Serializable {
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        return new ImageJVRL(im);
+        ImageJVRL ijVRL = new ImageJVRL();
+        ijVRL.setImage(im);
+        
+        return ijVRL;
 
     }
 
     /**
      *
      * @param image Image image
-     * @return ImageJVRL image
+     * @return ImageJVRL ijVRL
      */
     public ImageJVRL imageToImageJVRL(Image image) {
 
-        return new ImageJVRL(image);
+        ImageJVRL ijVRL = new ImageJVRL();
+        ijVRL.setImage(image);
+        
+        return ijVRL;
     }
 
     /**

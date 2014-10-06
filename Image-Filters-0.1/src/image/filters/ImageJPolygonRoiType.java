@@ -205,10 +205,10 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             }
         }
         roiSelected = false;
-        System.out.println("****************************************************");
-        System.out.println("ENCODED ROI DATA: " + imageJVRLvalue.getRoiData());
-        System.out.println("****************************************************");
-        System.out.println("Rois count: " + roiManager.getCount());
+      // System.out.println("****************************************************");
+        // System.out.println("ENCODED ROI DATA: " + imageJVRLvalue.getRoiData());
+        //System.out.println("****************************************************");
+        //   System.out.println("Rois count: " + roiManager.getCount());
 
     }
 

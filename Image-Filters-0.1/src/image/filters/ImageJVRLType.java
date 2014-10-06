@@ -14,8 +14,8 @@ import java.awt.Image;
 @TypeInfo(type = ImageJVRL.class, input = false, output = true, style = "default")
 public class ImageJVRLType extends BufferedImageType {
 
-    
     public ImageJVRLType() {
+        setValueName(" ");
     }
 
     @Override
@@ -23,10 +23,14 @@ public class ImageJVRLType extends BufferedImageType {
 
         ImageJVRL imageJVRL = (ImageJVRL) o;
         Image image = imageJVRL.getImage();
-        
+
         super.setViewValue(image);
 
     }
 
-   
+    @Override
+    public Object getViewValue() {
+        return this.value;
+    }
+
 }

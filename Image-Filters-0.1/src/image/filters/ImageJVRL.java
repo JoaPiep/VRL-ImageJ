@@ -25,17 +25,17 @@ public class ImageJVRL implements Serializable {
 
     private transient Image image;
     private transient PolygonRoi roi;
-    private transient String roiData;
+    private String roiData;
 
     public ImageJVRL() {
     }
 
     /**
      *
-     * @param image image to set
+     * @param roiData roiData to set
      */
-    public ImageJVRL(Image image) {
-        this.image = image;
+    public ImageJVRL(String roiData) {
+        this.roiData = roiData;
     }
 
     /**
@@ -68,21 +68,22 @@ public class ImageJVRL implements Serializable {
         this.roi = roi;
     }
 
-   
-   public void encodeROI(PolygonRoi roi) {
+    public void encodeROI(PolygonRoi roi) {
+
         try {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
             RoiEncoder re = new RoiEncoder(bout);
             re.write(roi);
             String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
             setRoiData(byteToString);
-            System.out.println("byteToString: " + byteToString);
+            System.out.println("byteToString: " + roiData);
+            bout.close();
+
         } catch (IOException ex) {
             Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-   
     public PolygonRoi decodeROI() {
 
         PolygonRoi result = null;
@@ -94,18 +95,16 @@ public class ImageJVRL implements Serializable {
         } catch (IOException ex) {
             Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
         }
+
         return result;
     }
 
-   
     public String getRoiData() {
         return roiData;
     }
 
-    
     public void setRoiData(String roiData) {
         this.roiData = roiData;
     }
 
-  
 }

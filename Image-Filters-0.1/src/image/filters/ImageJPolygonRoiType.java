@@ -56,7 +56,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
     protected RoiManager roiManager = new RoiManager(false);
 
-    private ImageJVRL imageJVRLvalue = new ImageJVRL();
+    private ImageJVRL imageJVRLvalue;//= new ImageJVRL();
 
     public ImageJPolygonRoiType() {
 
@@ -128,7 +128,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             imageJVRLvalue.setRoi(polygonRoi); //set max one roi
                                             roiManager.addRoi(polygonRoi);
                                             System.out.println("****************************************************");
-                                            imageJVRLvalue.encodeROI(polygonRoi);
+                                            //imageJVRLvalue.encodeROI(polygonRoi);
                                             System.out.println("****************************************************");
 
                                         }

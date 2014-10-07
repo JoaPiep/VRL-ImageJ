@@ -22,10 +22,10 @@ import java.util.logging.Logger;
 public class ImageJVRL implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    private String roiData = "" ;
     private transient Image image;
     private transient PolygonRoi roi;
-    private String roiData;
+    
 
     public ImageJVRL() {
     }

@@ -22,7 +22,8 @@ import java.util.logging.Logger;
 public class ImageJVRL implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private String roiData = "" ;
+    
+    private String roiData = null;
     private transient Image image;
     private transient PolygonRoi roi;
     
@@ -31,7 +32,7 @@ public class ImageJVRL implements Serializable {
     }
 
     /**
-     *
+     *      
      * @param roiData roiData to set
      */
     public ImageJVRL(String roiData) {
@@ -76,7 +77,7 @@ public class ImageJVRL implements Serializable {
             re.write(roi);
             String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
             setRoiData(byteToString);
-            System.out.println("byteToString: " + roiData);
+           // System.out.println("byteToString in Base64 : " + Base64.encodeObject(byteToString, Base64.GZIP));
             bout.close();
 
         } catch (IOException ex) {
@@ -92,6 +93,9 @@ public class ImageJVRL implements Serializable {
             byte[] stringToByte = Base64.decode(getRoiData());
             RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
             result = (PolygonRoi) rd.getRoi();
+            //++++++++++++++++
+            setRoi(result); 
+            //++++++++++++++++
         } catch (IOException ex) {
             Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
         }

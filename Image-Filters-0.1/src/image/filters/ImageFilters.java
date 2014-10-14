@@ -49,10 +49,8 @@ public class ImageFilters implements Serializable {
         } catch (IOException ex) {
             Logger.getLogger(ImageFilters.class.getName()).log(Level.SEVERE, null, ex);
         }
-        ImageJVRL ijVRL = new ImageJVRL();
-        ijVRL.setImage(image);
-        System.out.println("loadImageJVRL :"+ ijVRL.toString());
-        return ijVRL;
+        
+        return new ImageJVRL(image);
     }
 
     /**
@@ -101,20 +99,14 @@ public class ImageFilters implements Serializable {
      * @param sigma sigma-parameter
      * @return filtered image (with gaussian blur)
      */
-    public ImageJVRL gaussianBlur(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image,
+    public ImageJVRL gaussianBlur(@ParamInfo(name = "ImageJVRL") ImageJVRL image,
             @ParamInfo(name = "Sigma (Double)") double sigma) {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        imageProcessor.snapshot();
-        imageProcessor.setRoi((Roi) image.getRoi());
         imageProcessor.blurGaussian(sigma);
-        imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        ImageJVRL ijVRL = new ImageJVRL();
-        ijVRL.setImage(im);
-        
-        return ijVRL;
+        return new ImageJVRL(im);
 
     }
 
@@ -132,10 +124,7 @@ public class ImageFilters implements Serializable {
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        ImageJVRL ijVRL = new ImageJVRL();
-        ijVRL.setImage(im);
-        
-        return ijVRL;
+        return new ImageJVRL(im);
 
     }
 
@@ -153,10 +142,7 @@ public class ImageFilters implements Serializable {
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        ImageJVRL ijVRL = new ImageJVRL();
-        ijVRL.setImage(im);
-        
-        return ijVRL;
+        return new ImageJVRL(im);
     }
 
     /**
@@ -173,10 +159,7 @@ public class ImageFilters implements Serializable {
         imageProcessor.reset(imageProcessor.getMask());
         Image im = imageProcessor.createImage();
 
-        ImageJVRL ijVRL = new ImageJVRL();
-        ijVRL.setImage(im);
-        
-        return ijVRL;
+        return new ImageJVRL(im);
 
     }
 
@@ -187,10 +170,7 @@ public class ImageFilters implements Serializable {
      */
     public ImageJVRL imageToImageJVRL(Image image) {
 
-        ImageJVRL ijVRL = new ImageJVRL();
-        ijVRL.setImage(image);
-        
-        return ijVRL;
+        return new ImageJVRL(image);
     }
 
     /**

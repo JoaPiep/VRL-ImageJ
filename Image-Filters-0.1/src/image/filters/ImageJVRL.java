@@ -21,22 +21,22 @@ import java.util.logging.Logger;
  */
 public class ImageJVRL implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    //private static final long serialVersionUID = 1L;
     
-    private String roiData = null;
+    private  String roiData;
     private transient Image image;
     private transient PolygonRoi roi;
     
 
-    public ImageJVRL() {
-    }
+   public ImageJVRL() {
+   }
 
     /**
      *      
-     * @param roiData roiData to set
+     * @param image image to set
      */
-    public ImageJVRL(String roiData) {
-        this.roiData = roiData;
+    public ImageJVRL(Image image) {
+        this.image = image;
     }
 
     /**

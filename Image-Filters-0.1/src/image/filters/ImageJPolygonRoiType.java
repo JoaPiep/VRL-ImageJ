@@ -5,7 +5,6 @@
 package image.filters;
 
 import eu.mihosoft.vrl.annotation.TypeInfo;
-import eu.mihosoft.vrl.io.Base64;
 import eu.mihosoft.vrl.reflection.TypeRepresentation;
 import eu.mihosoft.vrl.reflection.TypeRepresentationBase;
 import eu.mihosoft.vrl.types.PlotPane;
@@ -101,12 +100,12 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             floatPolygon.addPoint(
                                                     imageCanvas.offScreenX(e.getX()),
                                                     imageCanvas.offScreenY(e.getY()));
-                                      //      System.out.println("x-coordinate ["+(floatPolygon.npoints-1)+"]: "  + imageCanvas.offScreenX(e.getX()));
-                                        //    System.out.println("y-coordinate ["+(floatPolygon.npoints-1)+"]: " + imageCanvas.offScreenY(e.getY()));
+                                            //      System.out.println("x-coordinate ["+(floatPolygon.npoints-1)+"]: "  + imageCanvas.offScreenX(e.getX()));
+                                            //    System.out.println("y-coordinate ["+(floatPolygon.npoints-1)+"]: " + imageCanvas.offScreenY(e.getY()));
 
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
-                                        
+
                                             polygonRoi.setStrokeColor(Color.red);
                                             polygonRoi.setStrokeWidth(3);
                                             imagePlus.setRoi(polygonRoi);
@@ -151,35 +150,58 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                     @Override
                                     public void keyTyped(KeyEvent e) {
-                                        
-                                        if (e.getKeyChar() == 'r' && !editDone) { //reset ROI
-                                            
-                                            floatPolygon = new FloatPolygon();
-                                            polygonRoi = new PolygonRoi(floatPolygon,
-                                                    Roi.POLYGON);
-                                            imagePlus.setRoi(polygonRoi);
-                                            
 
-                                        }else if (e.getKeyChar() == 'p' && !editDone) { //j ROI
-                                            
+                                        if (e.getKeyChar() == 'r') { //reset ROI
+
+                                            if (!editDone) {
+
+                                                imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
+                                                floatPolygon = new FloatPolygon();
+                                                polygonRoi = new PolygonRoi(floatPolygon,
+                                                        Roi.POLYGON);
+                                                polygonRoi.setStrokeColor(Color.red);
+                                                polygonRoi.setStrokeWidth(3);
+                                                imagePlus.setRoi(polygonRoi);
+
+                                            } else {
+
+                                                editDone = false;
+                                                roiSelected = false;
+                                                imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
+                                                floatPolygon = new FloatPolygon();
+                                                polygonRoi = new PolygonRoi(floatPolygon,
+                                                        Roi.POLYGON);
+                                                polygonRoi.setStrokeColor(Color.red);
+                                                polygonRoi.setStrokeWidth(3);
+                                                imagePlus.setRoi(polygonRoi);
+
+                                            }
+                                        } else if (e.getKeyChar() == 'p' && !editDone) { //j ROI
+
+                                            imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                             editDone = true;
                                             roiSelected = true;
                                             imageProcessor = imagePlus.getProcessor();
                                             imageProcessor.setColor(Color.red);
+                                            polygonRoi.setStrokeColor(Color.red);
+                                            polygonRoi.setStrokeWidth(3);
                                             polygonRoi.drawPixels(imageProcessor);
 
-                                        }else if (e.getKeyChar() == 'e' && editDone) { //j ROI
-                                            
-                                       /*     editDone = false;
+                                        } else if (e.getKeyChar() == 'e' && editDone) { //j ROI
+
+                                            editDone = false;
                                             roiSelected = false;
+                                            imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
+                                            polygonRoi.setStrokeColor(Color.red);
+                                            polygonRoi.setStrokeWidth(3);
                                             imagePlus.setRoi(polygonRoi);
-                                          //  floatPolygon = new FloatPolygon();*/
 
-                                        }else {
-                                            System.out.println("Press 'r' to reset the ROI");
+                                        } else {
+                                            System.out.println("Press 'e' to edit  the ROI");
                                             System.out.println("Press 'p' to print the ROI");
+                                            System.out.println("Press 'r' to reset the ROI");
                                         }
 
                                     }
@@ -227,21 +249,23 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         plotPane.setImage(imagePlus.getImage());
 
         if (imageJVRLvalue == null || isOutput()) {
-            imageJVRLvalue = image;
+            //imageJVRLvalue = image;
+            setImageJVRLvalue(image);
 
         } else if (imageJVRLvalue.equals(image) == false) {
-            imageJVRLvalue = image;
+            //imageJVRLvalue = image;
+            setImageJVRLvalue(image);
         } else {
             if (isInput()) {
                 imageJVRLvalue.setImage(image.getImage());
             }
         }
         roiSelected = false;
-        // System.out.println("****************************************************");
-        // System.out.println("ENCODED ROI DATA: " + imageJVRLvalue.getRoiData());
-        //System.out.println("****************************************************");
-        //   System.out.println("Rois count: " + roiManager.getCount());
 
+    }
+
+    public void setImageJVRLvalue(ImageJVRL imageJVRLvalue) {
+        this.imageJVRLvalue = imageJVRLvalue;
     }
 
     @Override

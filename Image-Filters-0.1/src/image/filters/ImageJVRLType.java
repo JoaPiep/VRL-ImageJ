@@ -30,7 +30,7 @@ public class ImageJVRLType extends BufferedImageType {
 
     @Override
     public Object getViewValue() {
-        return this.value;
+        return this.viewValue;
     }
 
 }

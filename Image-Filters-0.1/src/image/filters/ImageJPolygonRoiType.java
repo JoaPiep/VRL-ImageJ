@@ -90,6 +90,15 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 imageCanvas = iw.getCanvas();
                                 floatPolygon = new FloatPolygon();
 
+                                if (polygonRoi != null) {
+                                    
+                                    floatPolygon = polygonRoi.getFloatPolygon();
+                                    polygonRoi = new PolygonRoi(floatPolygon,
+                                            Roi.POLYGON);
+                                    polygonRoi.setStrokeColor(Color.red);
+                                    polygonRoi.setStrokeWidth(3);
+                                    imagePlus.setRoi(polygonRoi);
+                                }
                                 imageCanvas.addMouseListener(new MouseAdapter() {
                                     @Override
                                     public void mouseClicked(MouseEvent e) {
@@ -100,6 +109,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             floatPolygon.addPoint(
                                                     imageCanvas.offScreenX(e.getX()),
                                                     imageCanvas.offScreenY(e.getY()));
+                                            
                                             //      System.out.println("x-coordinate ["+(floatPolygon.npoints-1)+"]: "  + imageCanvas.offScreenX(e.getX()));
                                             //    System.out.println("y-coordinate ["+(floatPolygon.npoints-1)+"]: " + imageCanvas.offScreenY(e.getY()));
 
@@ -131,8 +141,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     @Override
                                     public void windowClosed(WindowEvent ew) {
                                         plotPane.setImage(imagePlus.getImage());
-
-                                        if (imageJVRLvalue != null && editDone == true) {
+                                        if (imageJVRLvalue != null && editDone) {
                                             imageJVRLvalue.setRoi(polygonRoi); //set max one roi
 
                                             roiManager.addRoi(polygonRoi);
@@ -203,7 +212,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             System.out.println("Press 'p' to print the ROI");
                                             System.out.println("Press 'r' to reset the ROI");
                                         }
-
                                     }
                                 });
 
@@ -241,7 +249,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         } catch (Exception e) {
         }
 
-        if (roiSelected == false) {
+        if (roiSelected == false && image.getImage() != null) {
             imagePlus.setImage(image.getImage());
             imagePlus.setTitle("Image");
         }
@@ -249,23 +257,31 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         plotPane.setImage(imagePlus.getImage());
 
         if (imageJVRLvalue == null || isOutput()) {
-            //imageJVRLvalue = image;
             setImageJVRLvalue(image);
 
         } else if (imageJVRLvalue.equals(image) == false) {
-            //imageJVRLvalue = image;
             setImageJVRLvalue(image);
         } else {
-            if (isInput()) {
+            if (isInput() && image.getImage() != null) {
                 imageJVRLvalue.setImage(image.getImage());
             }
         }
         roiSelected = false;
 
+        if (image.getRoiData() != null) {
+            System.out.println("ROI: " + image.decodeROI().toString());
+            polygonRoi = image.decodeROI();
+
+        }
+
     }
 
     public void setImageJVRLvalue(ImageJVRL imageJVRLvalue) {
         this.imageJVRLvalue = imageJVRLvalue;
+    }
+
+    public ImageJVRL getImageJVRLvalue() {
+        return imageJVRLvalue;
     }
 
     @Override

@@ -32,7 +32,7 @@ public class ImageFilters implements Serializable {
 
     public ImageFilters() {
     }
-
+    
     private static final long serialVersionUID = 1L;
 
     /**

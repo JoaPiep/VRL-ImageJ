@@ -23,9 +23,7 @@ public class ImageJVRLType extends BufferedImageType {
 
         ImageJVRL imageJVRL = (ImageJVRL) o;
         Image image = imageJVRL.getImage();
-
         super.setViewValue(image);
-
     }
 
     @Override

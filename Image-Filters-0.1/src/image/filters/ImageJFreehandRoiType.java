@@ -16,9 +16,6 @@ import ij.ImagePlus;
 import ij.gui.FreehandRoi;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
-import ij.gui.PolygonRoi;
-import ij.gui.Roi;
-import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -101,7 +98,7 @@ public class ImageJFreehandRoiType extends TypeRepresentationBase
                                         if (e.getButton() == MouseEvent.BUTTON1
                                         && e.getClickCount() == 2) {
                                             freehandRoi = new FreehandRoi(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()), imagePlus);
-                                  
+                        
                                             
                                             System.out.println("point: "+ imageCanvas.offScreenX(e.getX()));
                                             imagePlus.setRoi(freehandRoi);

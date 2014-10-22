@@ -27,6 +27,8 @@ public class ImageFiltersPluginConfigurator extends VPluginConfigurator {
        setCopyrightInfo("Sample-Plugin",
                "(c) Joanna Pieper",
                "www.you.com", "License Name", "License Text...");
+       
+       exportPackage("image.filters");
 
        // specify dependencies
        // addDependency(new PluginDependency("VRL", "0.4.0", "0.4.0"));

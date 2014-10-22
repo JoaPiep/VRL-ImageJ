@@ -68,7 +68,6 @@ public class ImageJVRL implements Serializable {
     public void setRoi(PolygonRoi roi) {
         this.roi = roi;
     }
-//                 ex.printStackTrace(System.err);
 
     public void encodeROI(PolygonRoi roi) {
 
@@ -78,11 +77,11 @@ public class ImageJVRL implements Serializable {
             re.write(roi);
             String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
             setRoiData(byteToString);
-            System.out.println("byteToString in Base64 : " + Base64.encodeObject(byteToString, Base64.GZIP));
             bout.close();
 
         } catch (IOException ex) {
             Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace(System.err);
 
         }
     }

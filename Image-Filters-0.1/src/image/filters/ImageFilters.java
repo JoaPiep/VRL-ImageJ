@@ -150,7 +150,7 @@ public class ImageFilters implements Serializable {
      * @param image image to be filter
      * @return filtered image (with invert filter)
      */
-    public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveImage=true") ImageJVRL image) {
+    public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();

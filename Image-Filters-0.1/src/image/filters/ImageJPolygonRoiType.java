@@ -55,7 +55,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     private ImageJVRL imageJVRLvalue;
 
     public ImageJPolygonRoiType() {
-
         plotPane = new PlotPane(this);
 
         VBoxLayout layout = new VBoxLayout(this, VBoxLayout.Y_AXIS);
@@ -209,7 +208,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
     @Override
     public void setViewValue(Object o) {
-
         setDataOutdated();
         ImageJVRL image = null;
         try {
@@ -222,32 +220,56 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             imagePlus.setTitle("Image");
         }
 
-        plotPane.setImage(imagePlus.getImage());
+        if (image.getRoiData() != null) {
+            polygonRoi = image.decodeROI();
+            image.setRoi(polygonRoi);
+            imageJVRLvalue.setRoi(polygonRoi);
+        }
 
         if (imageJVRLvalue == null || isOutput()) {
             setImageJVRLvalue(image);
+            if (polygonRoi != null) {
+                imageJVRLvalue.setRoi(polygonRoi);
+            }
+
         } else if (imageJVRLvalue.equals(image) == false) {
             setImageJVRLvalue(image);
-            if (polygonRoi != null && saveRoiInVRL) {
+            if (polygonRoi != null) {
+                imageJVRLvalue.setRoi(polygonRoi);
+                if (saveRoiInVRL) {
                     imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
+                }
             }
+
         } else {
             if (isInput() && image.getImage() != null) {
                 imageJVRLvalue.setImage(image.getImage());
+                if (polygonRoi != null) {
+                    imageJVRLvalue.setRoi(polygonRoi);
+                    imageProcessor = imagePlus.getProcessor();
+                    imageProcessor.setColor(Color.red);
+                    polygonRoi.setStrokeWidth(3);
+                    polygonRoi.drawPixels(imageProcessor);
+                }
             }
         }
         roiSelected = false;
-
-        if (image.getRoiData() != null) {
-            polygonRoi = image.decodeROI();
-        }
-
+    
+        plotPane.setImage(imagePlus.getImage());
     }
 
+    /**
+     *
+     * @param imageJVRLvalue imageJVRLvalue to set
+     */
     public void setImageJVRLvalue(ImageJVRL imageJVRLvalue) {
         this.imageJVRLvalue = imageJVRLvalue;
     }
 
+    /**
+     *
+     * @return imageJVRLvalue
+     */
     public ImageJVRL getImageJVRLvalue() {
         return imageJVRLvalue;
     }

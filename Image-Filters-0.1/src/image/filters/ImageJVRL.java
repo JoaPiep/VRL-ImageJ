@@ -36,7 +36,6 @@ public class ImageJVRL implements Serializable {
      */
     public ImageJVRL(Image image) {
         this.image = image;
-
     }
 
     /**
@@ -69,6 +68,10 @@ public class ImageJVRL implements Serializable {
         this.roi = roi;
     }
 
+    /**
+     *
+     * @param roi roi to encode (as String)
+     */
     public void encodeROI(PolygonRoi roi) {
 
         try {
@@ -86,6 +89,10 @@ public class ImageJVRL implements Serializable {
         }
     }
 
+    /**
+     *
+     * @return Roi decoded from a string
+     */
     public PolygonRoi decodeROI() {
 
         PolygonRoi result = null;
@@ -102,10 +109,18 @@ public class ImageJVRL implements Serializable {
         return result;
     }
 
+    /**
+     *
+     * @return encoded Roi (as String)
+     */
     public String getRoiData() {
         return roiData;
     }
 
+    /**
+     *
+     * @param roiData roiData to set
+     */
     public void setRoiData(String roiData) {
         this.roiData = roiData;
     }

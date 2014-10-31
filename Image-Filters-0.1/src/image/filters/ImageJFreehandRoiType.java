@@ -16,7 +16,11 @@ import ij.ImagePlus;
 import ij.gui.FreehandRoi;
 import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
+import ij.gui.PolygonRoi;
+import ij.gui.Roi;
+import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
@@ -31,7 +35,7 @@ import javax.swing.Box;
  *
  * @author Joanna Pieper
  */
-@TypeInfo(type = Image.class, input = true, output = true, style = "ImageJFRoiType")
+@TypeInfo(type = ImageJVRL.class, input = true, output = true, style = "ImageJFRoiType")
 public class ImageJFreehandRoiType extends TypeRepresentationBase
         implements TypeRepresentation, FullScreenComponent {
 
@@ -45,10 +49,13 @@ public class ImageJFreehandRoiType extends TypeRepresentationBase
     protected ImageWindow iw;
     protected ImageCanvas imageCanvas;
     protected ImagePlus imagePlus = new ImagePlus();
-    //  protected FloatPolygon floatPolygon;
-    protected FreehandRoi freehandRoi;
+    protected FloatPolygon floatPolygon;
+    protected PolygonRoi polygonRoi;
     protected ImageProcessor imageProcessor;
-    protected Boolean roiSelected = false;
+    protected boolean roiSelected;
+    private boolean editDone;
+    private boolean saveRoiInVRL = true;
+    private ImageJVRL imageJVRLvalue;
 
     public ImageJFreehandRoiType() {
 
@@ -66,64 +73,116 @@ public class ImageJFreehandRoiType extends TypeRepresentationBase
 
         plotPane.addMouseListener(
                 new MouseAdapter() {
+
                     @Override
                     public void mouseClicked(MouseEvent e) {
+
                         if (e.getButton() == MouseEvent.BUTTON1
                         && e.getClickCount() == 2) {
                             if (plotPane.getImage() != null || isInput()) {
-                                imagePlus.setImage((Image) getViewValue());
+                                editDone = false;
+                                roiSelected = false;
 
+                                imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                 iw = new ImageWindow(imagePlus);
                                 imageCanvas = iw.getCanvas();
+                                floatPolygon = new FloatPolygon();
 
-                                //############ key listener ################ 
-                                //wenn die Taste "x" gedrueckt wird, dann werden alle ausgewaehlte ROIs geloescht beim "start"
-                                iw.addKeyListener(new KeyAdapter() {
+                                if (polygonRoi != null) {
 
-                                    @Override
-                                    public void keyTyped(KeyEvent e) {
-                                        if (e.getKeyChar() == 'x') {
-                                            roiSelected = false;
-                                            System.out.println("Key Pressed");
-                                        }
-
-                                    }
-                                });
-                                //###########################################
+                                    floatPolygon = polygonRoi.getFloatPolygon();
+                                    polygonRoi = new PolygonRoi(floatPolygon,
+                                            Roi.POLYGON);
+                                    polygonRoi.setStrokeColor(Color.red);
+                                    polygonRoi.setStrokeWidth(3);
+                                    imagePlus.setRoi(polygonRoi);
+                                }
 
                                 imageCanvas.addMouseListener(new MouseAdapter() {
                                     @Override
                                     public void mouseClicked(MouseEvent e) {
 
                                         if (e.getButton() == MouseEvent.BUTTON1
-                                        && e.getClickCount() == 2) {
-                                            freehandRoi = new FreehandRoi(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()), imagePlus);
-                        
-                                            
-                                            System.out.println("point: "+ imageCanvas.offScreenX(e.getX()));
-                                            imagePlus.setRoi(freehandRoi);
-                                            imageProcessor = imagePlus.getProcessor();
-                                            imageProcessor.snapshot();
-                                            imageProcessor.setRoi(freehandRoi);
-                                            imageProcessor.invert();
-                                            imageProcessor.reset(imageProcessor.getMask());
+                                        && e.getClickCount() == 1 && !editDone) {
 
-                                            roiSelected = true;
+                                            floatPolygon.addPoint(
+                                                    imageCanvas.offScreenX(e.getX()),
+                                                    imageCanvas.offScreenY(e.getY()));
+                                            polygonRoi = new PolygonRoi(floatPolygon,
+                                                    Roi.POLYGON);
 
-                                            iw.addWindowListener(new WindowAdapter() {
-                                                @Override
-                                                public void windowClosed(WindowEvent e) {
-                                                    setDataOutdated();
-                                                    setViewValue(imagePlus.getImage());
-                                                }
-                                            });
+                                            polygonRoi.setStrokeColor(Color.red);
+                                            polygonRoi.setStrokeWidth(3);
+                                            imagePlus.setRoi(polygonRoi);
 
-
-                                        } else {
-                                            System.out.println("One click - add point"
-                                                    + "\n" + "Double click - print the polygon");
                                         }
 
+                                        if (e.getButton() == MouseEvent.BUTTON3
+                                        && e.getClickCount() == 1 && !editDone) {
+                                            editDone = true;
+                                            roiSelected = true;
+                                            imageProcessor = imagePlus.getProcessor();
+                                            imageProcessor.setColor(Color.red);
+                                            polygonRoi.drawPixels(imageProcessor);
+
+                                        }
+
+                                    }
+
+                                });
+
+                                iw.addWindowListener(new WindowAdapter() {
+                                    @Override
+                                    public void windowClosed(WindowEvent ew) {
+                                        plotPane.setImage(imagePlus.getImage());
+                                        if (imageJVRLvalue != null && editDone) {
+
+                                            imageJVRLvalue.setRoi(polygonRoi); //set max one roi
+
+                                            if (saveRoiInVRL) {
+                                                imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
+                                            }
+
+                                        }
+                                        setDataOutdated();
+                                    }
+                                });
+
+                                imageCanvas.addKeyListener(new KeyAdapter() {
+
+                                    @Override
+                                    public void keyTyped(KeyEvent e) {
+
+                                        if (e.getKeyChar() == 'r') { //reset ROI
+
+                                            imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
+                                            floatPolygon = new FloatPolygon();
+                                            polygonRoi = new PolygonRoi(floatPolygon,
+                                                    Roi.POLYGON);
+                                            polygonRoi.setStrokeColor(Color.red);
+                                            polygonRoi.setStrokeWidth(3);
+                                            imagePlus.setRoi(polygonRoi);
+
+                                            if (editDone) {
+                                                editDone = false;
+                                                roiSelected = false;
+                                            }
+
+                                        } else if (e.getKeyChar() == 'e' && editDone) { //j ROI
+
+                                            editDone = false;
+                                            roiSelected = false;
+                                            imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
+                                            polygonRoi = new PolygonRoi(floatPolygon,
+                                                    Roi.POLYGON);
+                                            polygonRoi.setStrokeColor(Color.red);
+                                            polygonRoi.setStrokeWidth(3);
+                                            imagePlus.setRoi(polygonRoi);
+
+                                        } else {
+                                            System.out.println("Press 'e' to edit  the ROI");
+                                            System.out.println("Press 'r' to reset the ROI");
+                                        }
                                     }
                                 });
 
@@ -155,32 +214,58 @@ public class ImageJFreehandRoiType extends TypeRepresentationBase
     public void setViewValue(Object o) {
 
         setDataOutdated();
-        Image image = null;
+        ImageJVRL image = null;
         try {
-            image = (Image) o;
+            image = (ImageJVRL) o;
         } catch (Exception e) {
         }
 
-        if (roiSelected == false) {
-            imagePlus.setImage(image);
+        if (roiSelected == false && image.getImage() != null) {
+            imagePlus.setImage(image.getImage());
             imagePlus.setTitle("Image");
         }
 
         plotPane.setImage(imagePlus.getImage());
-        System.out.println("Set view value ImageJWindowType");
 
+        if (imageJVRLvalue == null || isOutput()) {
+            setImageJVRLvalue(image);
+        } else if (imageJVRLvalue.equals(image) == false) {
+            setImageJVRLvalue(image);
+            if (polygonRoi != null && saveRoiInVRL) {
+                    imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
+            }
+        } else {
+            if (isInput() && image.getImage() != null) {
+                imageJVRLvalue.setImage(image.getImage());
+            }
+        }
+        roiSelected = false;
+
+        if (image.getRoiData() != null) {
+            polygonRoi = image.decodeROI();
+        }
+
+    }
+    
+    /**
+     * 
+     * @param imageJVRLvalue imageJVRLvalue to set
+     */
+    public void setImageJVRLvalue(ImageJVRL imageJVRLvalue) {
+        this.imageJVRLvalue = imageJVRLvalue;
+    }
+
+    /**
+     * 
+     * @return imageJVRLvalue
+     */
+    public ImageJVRL getImageJVRLvalue() {
+        return imageJVRLvalue;
     }
 
     @Override
     public Object getViewValue() {
-        Image o = null;
-        if (imagePlus == null) {
-            o = plotPane.getImage();
-        } else {
-            o = imagePlus.getImage();
-        }
-        return o;
-
+        return imageJVRLvalue;
     }
 
     public Dimension getPlotPaneSize() {
@@ -249,6 +334,21 @@ public class ImageJFreehandRoiType extends TypeRepresentationBase
     @Override
     protected void evaluationRequest(Script script) {
         setPlotPaneSizeFromValueOptions(script);
+
+        Object property = null;
+
+        if (getValueOptions() != null) {
+
+            if (getValueOptions().contains("saveRoi")) {
+                property = script.getProperty("saveRoi");
+            }
+
+            if (property != null) {
+                saveRoiInVRL = (Boolean) property;
+            }
+
+            property = null;
+        }
     }
 
     @Override
@@ -280,5 +380,4 @@ public class ImageJFreehandRoiType extends TypeRepresentationBase
 
         revalidate();
     }
-
 }

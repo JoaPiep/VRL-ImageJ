@@ -32,7 +32,7 @@ public class ImageFilters implements Serializable {
 
     public ImageFilters() {
     }
-    
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -49,7 +49,7 @@ public class ImageFilters implements Serializable {
         } catch (IOException ex) {
             Logger.getLogger(ImageFilters.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return new ImageJVRL(image);
     }
 
@@ -151,7 +151,10 @@ public class ImageFilters implements Serializable {
      * @return filtered image (with invert filter)
      */
     public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
-
+        if (image.getRoiData() != null) {
+            System.out.println("****************** ROI DATA ******************");
+        }
+        System.out.println("****************** Invert filter ******************");
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
         imageProcessor.setRoi((Roi) image.getRoi());

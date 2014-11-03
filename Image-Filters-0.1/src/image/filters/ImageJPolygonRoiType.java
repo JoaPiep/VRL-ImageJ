@@ -16,6 +16,7 @@ import ij.gui.ImageCanvas;
 import ij.gui.ImageWindow;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
+import ij.plugin.frame.RoiManager;
 import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
 import java.awt.Color;
@@ -55,6 +56,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     private ImageJVRL imageJVRLvalue;
 
     public ImageJPolygonRoiType() {
+
         plotPane = new PlotPane(this);
 
         VBoxLayout layout = new VBoxLayout(this, VBoxLayout.Y_AXIS);
@@ -132,8 +134,11 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     public void windowClosed(WindowEvent ew) {
                                         plotPane.setImage(imagePlus.getImage());
                                         if (imageJVRLvalue != null && editDone) {
-
-                                            imageJVRLvalue.setRoi(polygonRoi); //set max one roi
+                                            
+                                            if (imageJVRLvalue.getRoiList().isEmpty() || imageJVRLvalue.getRoi().equals(polygonRoi) == false) {
+                                                imageJVRLvalue.setRoi(polygonRoi); //set max one roi
+                                                imageJVRLvalue.setRoiInRoiList(polygonRoi);
+                                            }
 
                                             if (saveRoiInVRL) {
                                                 imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
@@ -164,7 +169,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                 roiSelected = false;
                                             }
 
-                                        } else if (e.getKeyChar() == 'e' && editDone) { //j ROI
+                                        } else if (e.getKeyChar() == 'e' && editDone) { //edit ROI
 
                                             editDone = false;
                                             roiSelected = false;
@@ -175,9 +180,23 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             polygonRoi.setStrokeWidth(3);
                                             imagePlus.setRoi(polygonRoi);
 
+                                        } else if (e.getKeyChar() == 'z' && imageJVRLvalue.getRoiList().size() > 1) { //edit ROI
+
+                                            imageJVRLvalue.removeLastElem();
+                                            imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
+                                            polygonRoi = imageJVRLvalue.getRoi();
+                                            polygonRoi.setStrokeColor(Color.red);
+                                            polygonRoi.setStrokeWidth(3);
+                                            imagePlus.setRoi(polygonRoi);
+
+                                            if (editDone) {
+                                                editDone = false;
+                                                roiSelected = false;
+                                            }
                                         } else {
                                             System.out.println("Press 'e' to edit  the ROI");
                                             System.out.println("Press 'r' to reset the ROI");
+                                            System.out.println("Press 'z' to remove the last ROI");
                                         }
                                     }
                                 });
@@ -223,7 +242,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         if (image.getRoiData() != null) {
             polygonRoi = image.decodeROI();
             image.setRoi(polygonRoi);
-            imageJVRLvalue.setRoi(polygonRoi);
+            //   imageJVRLvalue.setRoi(polygonRoi);
         }
 
         if (imageJVRLvalue == null || isOutput()) {
@@ -254,7 +273,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             }
         }
         roiSelected = false;
-    
+
         plotPane.setImage(imagePlus.getImage());
     }
 

@@ -12,6 +12,7 @@ import java.awt.Image;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,9 +26,14 @@ public class ImageJVRL implements Serializable {
 
     private String roiData;
     private transient Image image;
-    private transient PolygonRoi roi;
+    private transient PolygonRoi roi; // is last elemnt in the roi list
+    private transient ArrayList<PolygonRoi> roiList;
 
+    /**
+     *
+     */
     public ImageJVRL() {
+
     }
 
     /**
@@ -36,6 +42,7 @@ public class ImageJVRL implements Serializable {
      */
     public ImageJVRL(Image image) {
         this.image = image;
+        roiList = new ArrayList();
     }
 
     /**
@@ -123,6 +130,30 @@ public class ImageJVRL implements Serializable {
      */
     public void setRoiData(String roiData) {
         this.roiData = roiData;
+    }
+
+    public void setRoiList(ArrayList<PolygonRoi> roiList) {
+        this.roiList = roiList;
+    }
+
+    public ArrayList<PolygonRoi> getRoiList() {
+        return roiList;
+    }
+
+    public void setRoiInRoiList(PolygonRoi roi) {
+        roiList.add(roi);
+    }
+
+    public PolygonRoi getFirstElem() {
+        return roiList.get(0);
+    }
+
+    public void removeLastElem() {
+        roiList.remove(roiList.size() - 1);
+    }
+
+    public void removeFirstElem() {
+        roiList.remove(0);
     }
 
 }

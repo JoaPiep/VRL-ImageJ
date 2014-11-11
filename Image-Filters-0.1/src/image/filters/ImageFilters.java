@@ -154,9 +154,13 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
+
+        // for (int i = 0; i < image.getRoiList().size(); i++) {
         imageProcessor.setRoi((Roi) image.getRoi());
         imageProcessor.invert();
         imageProcessor.reset(imageProcessor.getMask());
+        //}
+
         Image im = imageProcessor.createImage();
 
         return new ImageJVRL(im);

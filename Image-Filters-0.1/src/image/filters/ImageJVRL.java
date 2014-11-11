@@ -25,6 +25,7 @@ public class ImageJVRL implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String roiData;
+    private ArrayList<String> roiDataList = new ArrayList();
     private transient Image image;
     private transient PolygonRoi roi; // is last elemnt in the roi list
     private transient ArrayList<PolygonRoi> roiList;
@@ -43,6 +44,10 @@ public class ImageJVRL implements Serializable {
     public ImageJVRL(Image image) {
         this.image = image;
         roiList = new ArrayList();
+    }
+
+    public void addElemInRoiList(PolygonRoi roi) {
+        roiList.add(roi);
     }
 
     /**
@@ -140,15 +145,7 @@ public class ImageJVRL implements Serializable {
         return roiList;
     }
 
-    public void setRoiInRoiList(PolygonRoi roi) {
-        roiList.add(roi);
-    }
-
-    public PolygonRoi getFirstElem() {
-        return roiList.get(0);
-    }
-
-    public void removeLastElem() {
+    public void removeLastElemFromRoiList() {
         roiList.remove(roiList.size() - 1);
     }
 
@@ -156,4 +153,49 @@ public class ImageJVRL implements Serializable {
         roiList.remove(0);
     }
 
+    public ArrayList<String> getRoiDataList() {
+        return roiDataList;
+    }
+
+    public void setRoiDataList(ArrayList<String> roiDataList) {
+        this.roiDataList = roiDataList;
+    }
+
+    public void encodeROIList(ArrayList<PolygonRoi> roiList) {
+
+        ArrayList<String> tempRoiList = new ArrayList();
+
+        for (int i = 0; i < roiList.size(); i++) {
+            try {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                RoiEncoder re = new RoiEncoder(bout);
+                re.write(roiList.get(i));
+                String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
+                tempRoiList.add(i, byteToString);
+                bout.close();
+
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+
+            }
+        }
+        setRoiDataList(tempRoiList);
+    }
+
+    public ArrayList<PolygonRoi> decodeROIList() {
+
+        ArrayList<PolygonRoi> result = new ArrayList();
+        for (int i = 0; i < getRoiDataList().size(); i++) {
+            try {
+                byte[] stringToByte = Base64.decode(getRoiDataList().get(i));
+                RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
+                result.add(i, (PolygonRoi) rd.getRoi());
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+            }
+        }
+        return result;
+    }
 }

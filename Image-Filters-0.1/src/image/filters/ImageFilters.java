@@ -119,11 +119,17 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
-        
-        for (int i = 0; i < image.getRoiList().size(); i++) {
-            imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+
+        if (image.getRoiList().isEmpty()) {
+            imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.dilate();
             imageProcessor.reset(imageProcessor.getMask());
+        } else {
+            for (int i = 0; i < image.getRoiList().size(); i++) {
+                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.dilate();
+                imageProcessor.reset(imageProcessor.getMask());
+            }
         }
 
         Image im = imageProcessor.createImage();
@@ -142,10 +148,16 @@ public class ImageFilters implements Serializable {
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
 
-        for (int i = 0; i < image.getRoiList().size(); i++) {
-            imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+        if (image.getRoiList().isEmpty()) {
+            imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.medianFilter();
             imageProcessor.reset(imageProcessor.getMask());
+        } else {
+            for (int i = 0; i < image.getRoiList().size(); i++) {
+                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.medianFilter();
+                imageProcessor.reset(imageProcessor.getMask());
+            }
         }
 
         Image im = imageProcessor.createImage();
@@ -163,12 +175,17 @@ public class ImageFilters implements Serializable {
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         imageProcessor.snapshot();
 
-        for (int i = 0; i < image.getRoiList().size(); i++) {
-            imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+        if (image.getRoiList().isEmpty()) {
+            imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.invert();
             imageProcessor.reset(imageProcessor.getMask());
+        } else {
+            for (int i = 0; i < image.getRoiList().size(); i++) {
+                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.invert();
+                imageProcessor.reset(imageProcessor.getMask());
+            }
         }
-
         Image im = imageProcessor.createImage();
 
         return new ImageJVRL(im);

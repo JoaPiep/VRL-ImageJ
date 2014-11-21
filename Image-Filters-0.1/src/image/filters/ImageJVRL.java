@@ -6,8 +6,10 @@ package image.filters;
 
 import eu.mihosoft.vrl.io.Base64;
 import ij.gui.PolygonRoi;
+import ij.gui.Roi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
+import ij.process.FloatPolygon;
 import java.awt.Image;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -78,20 +78,12 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                         if (e.getButton() == MouseEvent.BUTTON1
                         && e.getClickCount() == 2) {
                             if (plotPane.getImage() != null || isInput()) {
-                                imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
+
                                 iw = new ImageWindow(imagePlus);
                                 imageCanvas = iw.getCanvas();
-
-                                if (polygonRoiList.size() > 1) {
-                                    printRois(polygonRoiList, imagePlus, polygonRoiList.size());
-                                }
-
-                                if (polygonRoi != null) {
-                                    printRoi(polygonRoi, imagePlus);
-                                }
-
                                 floatPolygon = new FloatPolygon();
 
+                                printRois(polygonRoiList, polygonRoi, imagePlus);
                                 imageCanvas.addMouseListener(new MouseAdapter() {
                                     @Override
                                     public void mouseClicked(MouseEvent e) {
@@ -105,27 +97,20 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
 
-                                            polygonRoi.setStrokeColor(Color.green);
-                                            polygonRoi.setStrokeWidth(3);
-                                            imagePlus.setRoi(polygonRoi);
+                                            printRoi(polygonRoi, imagePlus);
 
                                         }
                                         if (e.getButton() == MouseEvent.BUTTON3
-                                        && e.getClickCount() == 1) { 
+                                        && e.getClickCount() == 1) {
 
+                                            imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                             imageJVRLvalue.setRoi(polygonRoi);
 
                                             if (polygonRoiList.contains(polygonRoi) == false) {
                                                 polygonRoiList.add(polygonRoi);
                                                 imageJVRLvalue.setRoiList(polygonRoiList);
                                             }
-
-                                            if (polygonRoiList.size() > 1) {
-                                                printRois(polygonRoiList, imagePlus, polygonRoiList.size()-1);
-                                            }
-                                            if (polygonRoi != null) {
-                                                printRoi(polygonRoi, imagePlus);
-                                            }
+                                            printRois(polygonRoiList, polygonRoi, imagePlus);
                                             floatPolygon = new FloatPolygon();
                                         }
 
@@ -136,15 +121,21 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 iw.addWindowListener(new WindowAdapter() {
                                     @Override
                                     public void windowClosed(WindowEvent ew) {
-                                        plotPane.setImage(imagePlus.getImage());
-                                        if (imageJVRLvalue != null) {
 
-                                            if (saveRoiInVRL && polygonRoi != null) {
+                                        plotPane.setImage(imagePlus.getImage());
+
+                                        if (saveRoiInVRL) {
+                                            if (polygonRoi != null && polygonRoi.getNCoordinates() != 0) {
                                                 imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
+                                            } else {
+                                                imageJVRLvalue.setRoiData(null);
                                             }
-                                            if (saveRoiInVRL && polygonRoiList != null) {
-                                                imageJVRLvalue.encodeROIList(polygonRoiList);// roiDataList
-                                            }
+                                        }
+
+                                        if (saveRoiInVRL && !polygonRoiList.isEmpty()) {
+                                            imageJVRLvalue.encodeROIList(polygonRoiList);// roiDataList
+                                        } else {
+                                            imageJVRLvalue.setRoiDataList(null);
                                         }
                                         setDataOutdated();
                                     }
@@ -159,38 +150,45 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                             floatPolygon = new FloatPolygon();
-
-                                            // TODO : What happens when we do not choose any roi?
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
                                             polygonRoiList = new ArrayList();
-                                            imageJVRLvalue.setRoi(polygonRoi); // empty ROI
-                                            imageJVRLvalue.setRoiList(polygonRoiList); // empty ROIList
+                                            imageJVRLvalue.setRoi(null);
+                                            imageJVRLvalue.setRoiList(polygonRoiList); // empty List of ROIs
 
                                         } else if (e.getKeyChar() == 'e') {// edit the common ROI
 
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
-
-                                            if (!polygonRoiList.isEmpty() && polygonRoiList.size() > 1) {
-                                                printRois(polygonRoiList, imagePlus, polygonRoiList.size() - 1);
+                                            PolygonRoi tempRoi = null;
+                                            if (!polygonRoiList.isEmpty()) {
+                                                tempRoi = polygonRoiList.get(polygonRoiList.size() - 1);
+                                                polygonRoiList.remove(polygonRoiList.size() - 1);
                                             }
-
-                                            polygonRoiList.remove(polygonRoiList.size() - 1);
+                                            if (tempRoi != null) {
+                                                floatPolygon = tempRoi.getFloatPolygon();
+                                            }
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
-                                            polygonRoi.setStrokeColor(Color.green);
-                                            polygonRoi.setStrokeWidth(3);
-                                            imagePlus.setRoi(polygonRoi);
+                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoi(polygonRoi, imagePlus);
+
+                                            if (polygonRoiList.isEmpty()) {
+                                                floatPolygon = new FloatPolygon();
+                                                polygonRoi = new PolygonRoi(floatPolygon,
+                                                        Roi.POLYGON);
+                                                polygonRoiList = new ArrayList();
+                                                imageJVRLvalue.setRoi(null);
+                                                imageJVRLvalue.setRoiList(polygonRoiList); //empty List of ROIs
+                                            }
 
                                         } else if (e.getKeyChar() == 'z' && polygonRoiList.size() > 1) { //edit ROI
 
                                             polygonRoiList.remove(polygonRoiList.size() - 1);
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
-                                            printRois(polygonRoiList, imagePlus, polygonRoiList.size() - 1);
+                                            printRois(polygonRoiList, polygonRoi, imagePlus);
                                             polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
                                             imageJVRLvalue.setRoiList(polygonRoiList);
                                             imageJVRLvalue.setRoi(polygonRoi);
-                                            printRoi(polygonRoi, imagePlus);
 
                                             System.out.println("Size e.getKeyChar() == 'z' : " + imageJVRLvalue.getRoiList().size());
 
@@ -198,17 +196,14 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                             polygonRoi = polygonRoiList.get(0);
-                                            //  imageJVRLvalue.setRoi(polygonRoi);
                                             polygonRoiList.remove(0);
-                                            printRois(polygonRoiList, imagePlus, polygonRoiList.size());
-                                            polygonRoi.setStrokeColor(Color.green);
-                                            polygonRoi.setStrokeWidth(3);
-                                            imagePlus.setRoi(polygonRoi);
-
+                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoi(polygonRoi, imagePlus);
                                         } else {
                                             System.out.println("Press 'e' to edit  the ROI");
                                             System.out.println("Press 'r' to reset the ROI");
                                             System.out.println("Press 'z' to remove the common ROI");
+                                            System.out.println("Press TAB to change the common ROI");
                                         }
                                     }
                                 });
@@ -222,38 +217,45 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                             floatPolygon = new FloatPolygon();
-
-                                            // TODO : What happens when we do not choose any roi?
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
                                             polygonRoiList = new ArrayList();
-                                            imageJVRLvalue.setRoi(polygonRoi); // empty ROI
-                                            imageJVRLvalue.setRoiList(polygonRoiList); // empty ROIList
+                                            imageJVRLvalue.setRoi(null);
+                                            imageJVRLvalue.setRoiList(polygonRoiList); // empty List of ROIs
 
                                         } else if (e.getKeyChar() == 'e') {// edit the common ROI
 
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
-
-                                            if (!polygonRoiList.isEmpty() && polygonRoiList.size() > 1) {
-                                                printRois(polygonRoiList, imagePlus, polygonRoiList.size() - 1);
+                                            PolygonRoi tempRoi = null;
+                                            if (!polygonRoiList.isEmpty()) {
+                                                tempRoi = polygonRoiList.get(polygonRoiList.size() - 1);
+                                                polygonRoiList.remove(polygonRoiList.size() - 1);
                                             }
-
-                                            polygonRoiList.remove(polygonRoiList.size() - 1);
+                                            if (tempRoi != null) {
+                                                floatPolygon = tempRoi.getFloatPolygon();
+                                            }
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
-                                            polygonRoi.setStrokeColor(Color.green);
-                                            polygonRoi.setStrokeWidth(3);
-                                            imagePlus.setRoi(polygonRoi);
+                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoi(polygonRoi, imagePlus);
+
+                                            if (polygonRoiList.isEmpty()) {
+                                                floatPolygon = new FloatPolygon();
+                                                polygonRoi = new PolygonRoi(floatPolygon,
+                                                        Roi.POLYGON);
+                                                polygonRoiList = new ArrayList();
+                                                imageJVRLvalue.setRoi(null);
+                                                imageJVRLvalue.setRoiList(polygonRoiList); //empty List of ROIs
+                                            }
 
                                         } else if (e.getKeyChar() == 'z' && polygonRoiList.size() > 1) { //edit ROI
 
                                             polygonRoiList.remove(polygonRoiList.size() - 1);
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
-                                            printRois(polygonRoiList, imagePlus, polygonRoiList.size() - 1);
+                                            printRois(polygonRoiList, polygonRoi, imagePlus);
                                             polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
                                             imageJVRLvalue.setRoiList(polygonRoiList);
                                             imageJVRLvalue.setRoi(polygonRoi);
-                                            printRoi(polygonRoi, imagePlus);
 
                                             System.out.println("Size e.getKeyChar() == 'z' : " + imageJVRLvalue.getRoiList().size());
 
@@ -262,14 +264,13 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                             polygonRoi = polygonRoiList.get(0);
                                             polygonRoiList.remove(0);
-                                            printRois(polygonRoiList, imagePlus, polygonRoiList.size());
-                                            polygonRoi.setStrokeColor(Color.green);
-                                            polygonRoi.setStrokeWidth(3);
-                                            imagePlus.setRoi(polygonRoi);
+                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoi(polygonRoi, imagePlus);
                                         } else {
                                             System.out.println("Press 'e' to edit  the ROI");
                                             System.out.println("Press 'r' to reset the ROI");
                                             System.out.println("Press 'z' to remove the common ROI");
+                                            System.out.println("Press TAB to change the common ROI");
                                         }
                                     }
                                 });
@@ -312,7 +313,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             imagePlus.setTitle("Image");
         }
 
-        if (image.getRoiData() != null) {
+        if (image.getRoiData() != null && polygonRoi == null) {
             polygonRoi = image.decodeROI();
             image.setRoi(polygonRoi);
         }
@@ -334,14 +335,13 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             setImageJVRLvalue(image);
             if (polygonRoiList != null) {
                 imageJVRLvalue.setRoiList(polygonRoiList);
-                printRois(polygonRoiList, imagePlus, polygonRoiList.size());
+                printRois(polygonRoiList, polygonRoi, imagePlus);
                 if (saveRoiInVRL) {
                     imageJVRLvalue.encodeROIList(polygonRoiList); // set the string roiData
                 }
             }
             if (polygonRoi != null) {
                 imageJVRLvalue.setRoi(polygonRoi);
-                printRoi(polygonRoi, imagePlus);
                 if (saveRoiInVRL) {
                     imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
                 }
@@ -353,12 +353,11 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                 if (polygonRoiList != null) {
                     imageJVRLvalue.setRoiList(polygonRoiList);
-                    printRois(polygonRoiList, imagePlus, polygonRoiList.size());
+                    printRois(polygonRoiList, polygonRoi, imagePlus);
                 }
 
                 if (polygonRoi != null) {
                     imageJVRLvalue.setRoi(polygonRoi);
-                    printRoi(polygonRoi, imagePlus);
                 }
 
             }
@@ -366,22 +365,36 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         plotPane.setImage(imagePlus.getImage());
     }
 
-    public void printRois(ArrayList<PolygonRoi> polygonRoiList, ImagePlus ip, int n) {
+    public void printRois(ArrayList<PolygonRoi> polygonRoiList, PolygonRoi polyRoi, ImagePlus ip) {
         ImageProcessor imProcessor = ip.getProcessor();
-        imProcessor.setColor(Color.blue);
-        for (int i = 0; i < n; i++) {
-            polygonRoiList.get(i).setStrokeWidth(3);
-            polygonRoiList.get(i).drawPixels(imProcessor);
-            System.out.println("Print ROI: " + i + " " + polygonRoiList.get(i).toString());
+        if (polygonRoiList.size() > 1) {
+            for (int i = 0; i < polygonRoiList.size(); i++) {
+                if (!polygonRoiList.get(i).equals(polyRoi)) {
+                    imProcessor.setColor(Color.blue);
+                    polygonRoiList.get(i).setStrokeWidth(3);
+                    polygonRoiList.get(i).drawPixels(imProcessor);
+                    System.out.println("Print ROI: " + i + " " + polygonRoiList.get(i).toString());
+                } else {
+                    imProcessor.setColor(Color.red);
+                    polygonRoiList.get(i).setStrokeWidth(3);
+                    polygonRoiList.get(i).drawPixels(imProcessor);
+                    System.out.println("Print ROI: " + i + " " + polygonRoiList.get(i).toString());
+                }
+            }
+        } else if (polygonRoiList.size() == 1) {
+            imProcessor.setColor(Color.red);
+            polygonRoiList.get(0).setStrokeWidth(3);
+            polygonRoiList.get(0).drawPixels(imProcessor);
+            System.out.println("Print one Roi" + polygonRoiList.get(0).toString());
         }
+
         System.out.println("**********************************************************");
     }
 
     public void printRoi(PolygonRoi roi, ImagePlus ip) {
-        ImageProcessor imProcessor = ip.getProcessor();
-        imProcessor.setColor(Color.red);
-        roi.setStrokeWidth(5);
-        roi.drawPixels(imProcessor);
+        roi.setStrokeColor(Color.green);
+        roi.setStrokeWidth(3);
+        ip.setRoi(polygonRoi);
     }
 
     /**

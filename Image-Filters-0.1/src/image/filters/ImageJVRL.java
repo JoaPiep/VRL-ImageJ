@@ -6,10 +6,8 @@ package image.filters;
 
 import eu.mihosoft.vrl.io.Base64;
 import ij.gui.PolygonRoi;
-import ij.gui.Roi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
-import ij.process.FloatPolygon;
 import java.awt.Image;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,7 +31,7 @@ public class ImageJVRL implements Serializable {
     private transient ArrayList<PolygonRoi> roiList;
 
     /**
-     *
+     * empty constructor
      */
     public ImageJVRL() {
 
@@ -46,10 +44,6 @@ public class ImageJVRL implements Serializable {
     public ImageJVRL(Image image) {
         this.image = image;
         roiList = new ArrayList();
-    }
-
-    public void addElemInRoiList(PolygonRoi roi) {
-        roiList.add(roi);
     }
 
     /**
@@ -105,7 +99,7 @@ public class ImageJVRL implements Serializable {
 
     /**
      *
-     * @return Roi decoded from a string
+     * @return Roi decoded from the string
      */
     public PolygonRoi decodeROI() {
 
@@ -138,31 +132,43 @@ public class ImageJVRL implements Serializable {
     public void setRoiData(String roiData) {
         this.roiData = roiData;
     }
-
+    
+    /**
+     * 
+     * @param roiList List of ROIs to set
+     */
     public void setRoiList(ArrayList<PolygonRoi> roiList) {
         this.roiList = roiList;
     }
 
+    /**
+     * 
+     * @return list of ROIs
+     */
     public ArrayList<PolygonRoi> getRoiList() {
         return roiList;
     }
 
-    public void removeLastElemFromRoiList() {
-        roiList.remove(roiList.size() - 1);
-    }
-
-    public void removeFirstElem() {
-        roiList.remove(0);
-    }
-
+    /**
+     * 
+     * @return list of strings - encoded ROIs
+     */
     public ArrayList<String> getRoiDataList() {
         return roiDataList;
     }
 
+    /**
+     * 
+     * @param roiDataList roiDataList to set
+     */
     public void setRoiDataList(ArrayList<String> roiDataList) {
         this.roiDataList = roiDataList;
     }
 
+    /**
+     * 
+     * @param roiList list of ROIs to encode
+     */
     public void encodeROIList(ArrayList<PolygonRoi> roiList) {
 
         ArrayList<String> tempRoiList = new ArrayList();
@@ -185,6 +191,10 @@ public class ImageJVRL implements Serializable {
         setRoiDataList(tempRoiList);
     }
 
+    /**
+     * 
+     * @return list of decoded ROIs
+     */
     public ArrayList<PolygonRoi> decodeROIList() {
 
         ArrayList<PolygonRoi> result = new ArrayList();

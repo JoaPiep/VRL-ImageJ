@@ -20,7 +20,6 @@ import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Panel;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -31,12 +30,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 /**
  *
@@ -88,12 +82,12 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                             if (plotPane.getImage() != null || isInput()) {
 
                                 iw = new ImageWindow(imagePlus);
-                                JLabel textLabel = new JLabel("Press: 'e' to edit the ROI, 'r' to reset the ROI, 'z' to remove the current ROI and TAB to change the current ROI");
+                                JLabel textLabel = new JLabel("Press: 'e' to edit the ROI, 'r' to reset the ROI, 'z' to remove the current ROI or TAB to change the current ROI");
                                 textLabel.setForeground(Color.red);
                                 Panel panel = new Panel();
+                                panel.setSize(new Dimension(300,100));
                                 panel.add(textLabel);
-                                iw.add(panel, 0);
-                                
+                                iw.add(panel, 1);
                                 
                                 imageCanvas = iw.getCanvas();
                                 floatPolygon = new FloatPolygon();

@@ -10,6 +10,7 @@ import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
 import java.awt.Image;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -132,9 +133,9 @@ public class ImageJVRL implements Serializable {
     public void setRoiData(String roiData) {
         this.roiData = roiData;
     }
-    
+
     /**
-     * 
+     *
      * @param roiList List of ROIs to set
      */
     public void setRoiList(ArrayList<PolygonRoi> roiList) {
@@ -142,7 +143,7 @@ public class ImageJVRL implements Serializable {
     }
 
     /**
-     * 
+     *
      * @return list of ROIs
      */
     public ArrayList<PolygonRoi> getRoiList() {
@@ -150,7 +151,7 @@ public class ImageJVRL implements Serializable {
     }
 
     /**
-     * 
+     *
      * @return list of strings - encoded ROIs
      */
     public ArrayList<String> getRoiDataList() {
@@ -158,7 +159,7 @@ public class ImageJVRL implements Serializable {
     }
 
     /**
-     * 
+     *
      * @param roiDataList roiDataList to set
      */
     public void setRoiDataList(ArrayList<String> roiDataList) {
@@ -166,7 +167,7 @@ public class ImageJVRL implements Serializable {
     }
 
     /**
-     * 
+     *
      * @param roiList list of ROIs to encode
      */
     public void encodeROIList(ArrayList<PolygonRoi> roiList) {
@@ -192,7 +193,7 @@ public class ImageJVRL implements Serializable {
     }
 
     /**
-     * 
+     *
      * @return list of decoded ROIs
      */
     public ArrayList<PolygonRoi> decodeROIList() {
@@ -210,4 +211,31 @@ public class ImageJVRL implements Serializable {
         }
         return result;
     }
+    /**
+     *
+     * @param roiFile file 
+     * @throws IOException
+     */
+    public void saveRoiInFile(File roiFile) throws IOException {
+
+        if (getRoi() != null) {
+            RoiEncoder re = new RoiEncoder(roiFile.getAbsolutePath());
+            re.write(getRoi());
+        }
+    }
+     /**
+      * 
+      * @param roiFile file with encoded Roi
+      * @return decoded polygon Roi
+      * @throws IOException 
+      */
+    public PolygonRoi getRoifromFile(File roiFile) throws IOException{
+        
+         RoiDecoder rd = new RoiDecoder(roiFile.getAbsolutePath());
+         PolygonRoi pRoi = (PolygonRoi) rd.getRoi();
+         setRoi(pRoi);
+         
+         return pRoi;
+    }
+
 }

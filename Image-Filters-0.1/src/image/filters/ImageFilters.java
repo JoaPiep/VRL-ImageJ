@@ -211,5 +211,4 @@ public class ImageFilters implements Serializable {
 
         return imageJVRL.getImage();
     }
-
 }

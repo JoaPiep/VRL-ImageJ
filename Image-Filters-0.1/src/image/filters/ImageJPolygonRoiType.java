@@ -31,8 +31,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Box;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -58,7 +63,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     protected ImageProcessor imageProcessor;
     private ImageJVRL imageJVRLvalue;
     private boolean saveRoiInVRL = true;
-    
+
     public ImageJPolygonRoiType() {
 
         plotPane = new PlotPane(this);
@@ -93,17 +98,59 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 MenuItem editItem = new MenuItem("Edit ROI", new MenuShortcut(KeyEvent.VK_E));
                                 MenuItem removeItem = new MenuItem("Remove ROI", new MenuShortcut(KeyEvent.VK_Z));
                                 MenuItem changeItem = new MenuItem("Change ROI", new MenuShortcut(KeyEvent.VK_N));
-                                MenuItem showItem = new MenuItem("Show ROI List", new MenuShortcut(KeyEvent.VK_L));
+                                MenuItem saveRoiItem = new MenuItem("Save ROI in File", new MenuShortcut(KeyEvent.VK_S));
+                                MenuItem loadRoiItem = new MenuItem("Load ROI from File", new MenuShortcut(KeyEvent.VK_L));
 
                                 editMenu.add(changeItem);
                                 editMenu.add(editItem);
                                 editMenu.add(removeItem);
                                 editMenu.add(removeAllRoisItem);
-                                editMenu.add(showItem);
+                                editMenu.add(saveRoiItem);
+                                editMenu.add(loadRoiItem);
 
                                 menuBar.add(editMenu);
                                 menuBar.setHelpMenu(helpMenu);
                                 iw.setMenuBar(menuBar);
+
+                                saveRoiItem.addActionListener(new ActionListener() {
+
+                                    @Override
+                                    public void actionPerformed(ActionEvent e) {
+                                         File file = null;
+                                        try {
+                                            JFileChooser fileChooser = new JFileChooser();
+                                            fileChooser.showSaveDialog(iw);
+                                            file = fileChooser.getSelectedFile();
+                                            if (file != null) {
+                                            imageJVRLvalue.saveRoiInFile(file);
+                                            }
+                                        } catch (IOException ex) {
+                                            Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+
+                                });
+
+                                loadRoiItem.addActionListener(new ActionListener() {
+
+                                    @Override
+                                    public void actionPerformed(ActionEvent e) {
+                                        File file = null;
+                                        try {
+                                            JFileChooser fileChooser = new JFileChooser();
+                                            fileChooser.showOpenDialog(iw);
+                                            file = fileChooser.getSelectedFile();
+                                            if (file != null) {
+                                                polygonRoi = imageJVRLvalue.getRoifromFile(file);
+                                                printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            }
+                                        } catch (IOException ex) {
+                                            Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
+                                            ex.printStackTrace(System.err);
+                                        }
+                                    }
+
+                                });
 
                                 removeAllRoisItem.addActionListener(new ActionListener() {
 
@@ -354,6 +401,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             }
         }
         plotPane.setImage(imagePlus.getImage());
+
     }
 
     @Override

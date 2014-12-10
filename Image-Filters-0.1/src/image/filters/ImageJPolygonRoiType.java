@@ -97,22 +97,22 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 MenuItem removeAllRoisItem = new MenuItem("Remove all ROIs", new MenuShortcut(KeyEvent.VK_R));
                                 MenuItem editItem = new MenuItem("Edit ROI", new MenuShortcut(KeyEvent.VK_E));
                                 MenuItem removeItem = new MenuItem("Remove ROI", new MenuShortcut(KeyEvent.VK_Z));
-                                MenuItem changeItem = new MenuItem("Change ROI", new MenuShortcut(KeyEvent.VK_N));
-                                MenuItem saveRoiItem = new MenuItem("Save ROI in File", new MenuShortcut(KeyEvent.VK_S));
+                                MenuItem changeItem = new MenuItem("Change active ROI", new MenuShortcut(KeyEvent.VK_N));
+                                MenuItem saveRoisItem = new MenuItem("Save ROIs in File", new MenuShortcut(KeyEvent.VK_S));
                                 MenuItem loadRoiItem = new MenuItem("Load ROI from File", new MenuShortcut(KeyEvent.VK_L));
 
                                 editMenu.add(changeItem);
                                 editMenu.add(editItem);
                                 editMenu.add(removeItem);
                                 editMenu.add(removeAllRoisItem);
-                                editMenu.add(saveRoiItem);
+                                editMenu.add(saveRoisItem);
                                 editMenu.add(loadRoiItem);
 
                                 menuBar.add(editMenu);
                                 menuBar.setHelpMenu(helpMenu);
                                 iw.setMenuBar(menuBar);
 
-                                saveRoiItem.addActionListener(new ActionListener() {
+                                saveRoisItem.addActionListener(new ActionListener() {
 
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
@@ -122,7 +122,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             fileChooser.showSaveDialog(iw);
                                             file = fileChooser.getSelectedFile();
                                             if (file != null) {
-                                            imageJVRLvalue.saveRoiInFile(file);
+                                          //  imageJVRLvalue.saveRoiInFile(file);
+                                            imageJVRLvalue.saveROIsInFile(file);
                                             }
                                         } catch (IOException ex) {
                                             Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
@@ -141,8 +142,10 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             fileChooser.showOpenDialog(iw);
                                             file = fileChooser.getSelectedFile();
                                             if (file != null) {
-                                                polygonRoi = imageJVRLvalue.getRoifromFile(file);
-                                                printRois(polygonRoiList, polygonRoi, imagePlus);
+                                                imageJVRLvalue.getROIsfromFile(file);
+                                               // polygonRoi = imageJVRLvalue.getRoifromFile(file);
+                                              //  iw.updateImage(imagePlus);
+                                               // printRois(polygonRoiList, polygonRoi, imagePlus);
                                             }
                                         } catch (IOException ex) {
                                             Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);

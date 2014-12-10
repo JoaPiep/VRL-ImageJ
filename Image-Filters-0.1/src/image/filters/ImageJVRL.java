@@ -11,6 +11,9 @@ import ij.io.RoiEncoder;
 import java.awt.Image;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -211,9 +214,10 @@ public class ImageJVRL implements Serializable {
         }
         return result;
     }
+
     /**
      *
-     * @param roiFile file 
+     * @param roiFile file
      * @throws IOException
      */
     public void saveRoiInFile(File roiFile) throws IOException {
@@ -223,19 +227,44 @@ public class ImageJVRL implements Serializable {
             re.write(getRoi());
         }
     }
-     /**
-      * 
-      * @param roiFile file with encoded Roi
-      * @return decoded polygon Roi
-      * @throws IOException 
-      */
-    public PolygonRoi getRoifromFile(File roiFile) throws IOException{
-        
-         RoiDecoder rd = new RoiDecoder(roiFile.getAbsolutePath());
-         PolygonRoi pRoi = (PolygonRoi) rd.getRoi();
-         setRoi(pRoi);
-         
-         return pRoi;
+
+    /**
+     *
+     * @param roiFile file with encoded Roi
+     * @return decoded polygon Roi
+     * @throws IOException
+     */
+    public PolygonRoi getRoifromFile(File roiFile) throws IOException {
+
+        RoiDecoder rd = new RoiDecoder(roiFile.getAbsolutePath());
+        PolygonRoi pRoi = (PolygonRoi) rd.getRoi();
+        setRoi(pRoi);
+
+        if (roiList.contains(pRoi) == false) {
+            roiList.add(pRoi);
+        }
+
+        return pRoi;
     }
 
+    public void saveROIsInFile(File roiFile) throws FileNotFoundException, IOException {
+
+        FileOutputStream fop = new FileOutputStream(roiFile);
+        encodeROIList(getRoiList());
+
+        for (int i = 0; i < roiDataList.size(); i++) {
+            fop.write(roiDataList.get(i).getBytes());
+        }
+        fop.flush();
+        fop.close();
+    }
+    
+    public ArrayList<PolygonRoi> getROIsfromFile(File roiFile) throws FileNotFoundException, IOException {
+        
+        FileInputStream fip = new FileInputStream(roiFile);
+        
+        return null;
+        
+    }
+ 
 }

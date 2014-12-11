@@ -32,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -99,7 +100,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 MenuItem removeItem = new MenuItem("Remove ROI", new MenuShortcut(KeyEvent.VK_Z));
                                 MenuItem changeItem = new MenuItem("Change active ROI", new MenuShortcut(KeyEvent.VK_N));
                                 MenuItem saveRoisItem = new MenuItem("Save ROIs in File", new MenuShortcut(KeyEvent.VK_S));
-                                MenuItem loadRoiItem = new MenuItem("Load ROI from File", new MenuShortcut(KeyEvent.VK_L));
+                                MenuItem loadRoiItem = new MenuItem("Load ROIs from File", new MenuShortcut(KeyEvent.VK_L));
 
                                 editMenu.add(changeItem);
                                 editMenu.add(editItem);
@@ -122,7 +123,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             fileChooser.showSaveDialog(iw);
                                             file = fileChooser.getSelectedFile();
                                             if (file != null) {
-                                          //  imageJVRLvalue.saveRoiInFile(file);
                                             imageJVRLvalue.saveROIsInFile(file);
                                             }
                                         } catch (IOException ex) {
@@ -142,14 +142,18 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             fileChooser.showOpenDialog(iw);
                                             file = fileChooser.getSelectedFile();
                                             if (file != null) {
-                                                imageJVRLvalue.getROIsfromFile(file);
-                                               // polygonRoi = imageJVRLvalue.getRoifromFile(file);
-                                              //  iw.updateImage(imagePlus);
-                                               // printRois(polygonRoiList, polygonRoi, imagePlus);
+                                                polygonRoiList = imageJVRLvalue.getROIsfromFile(file);
+                                                polygonRoi = polygonRoiList.get(polygonRoiList.size()-1);
+                                                imageJVRLvalue.setRoi(polygonRoi);
+                                                imageJVRLvalue.setRoiList(polygonRoiList);
+                                                iw.updateImage(imagePlus);
+                                                printRois(polygonRoiList, polygonRoi, imagePlus);
                                             }
                                         } catch (IOException ex) {
                                             Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
                                             ex.printStackTrace(System.err);
+                                        } catch (ClassNotFoundException ex) {
+                                            Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
                                         }
                                     }
 
@@ -161,6 +165,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     public void actionPerformed(ActionEvent e) {
 
                                         imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
+                                        iw.updateImage(imagePlus);
                                         floatPolygon = new FloatPolygon();
                                         polygonRoi = new PolygonRoi(floatPolygon,
                                                 Roi.POLYGON);

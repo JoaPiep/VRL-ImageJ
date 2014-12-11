@@ -15,6 +15,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -246,25 +248,35 @@ public class ImageJVRL implements Serializable {
 
         return pRoi;
     }
-
+    
+    /**
+     * 
+     * @param roiFile save File
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
     public void saveROIsInFile(File roiFile) throws FileNotFoundException, IOException {
 
-        FileOutputStream fop = new FileOutputStream(roiFile);
         encodeROIList(getRoiList());
-
-        for (int i = 0; i < roiDataList.size(); i++) {
-            fop.write(roiDataList.get(i).getBytes());
-        }
-        fop.flush();
-        fop.close();
+        ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(roiFile));
+        aus.writeObject(getRoiDataList());
     }
     
-    public ArrayList<PolygonRoi> getROIsfromFile(File roiFile) throws FileNotFoundException, IOException {
-        
-        FileInputStream fip = new FileInputStream(roiFile);
-        
-        return null;
-        
+    /**
+     * 
+     * @param roiFile load file
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ClassNotFoundException 
+     */
+    public ArrayList<PolygonRoi> getROIsfromFile(File roiFile) throws FileNotFoundException, IOException, ClassNotFoundException {
+
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(roiFile));
+        ArrayList<String> tempList = (ArrayList<String>) in.readObject();
+        setRoiDataList(tempList);
+       
+        return decodeROIList();
     }
- 
+
 }

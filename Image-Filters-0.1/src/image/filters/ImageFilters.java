@@ -118,14 +118,15 @@ public class ImageFilters implements Serializable {
     public ImageJVRL min3x3Filter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        imageProcessor.snapshot();
 
         if (image.getRoiList().isEmpty()) {
+            imageProcessor.snapshot();
             imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.dilate();
             imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
+                imageProcessor.snapshot();
                 imageProcessor.setRoi((Roi) image.getRoiList().get(i));
                 imageProcessor.dilate();
                 imageProcessor.reset(imageProcessor.getMask());
@@ -146,14 +147,15 @@ public class ImageFilters implements Serializable {
     public ImageJVRL medianFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType") ImageJVRL image) {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        imageProcessor.snapshot();
 
         if (image.getRoiList().isEmpty()) {
+            imageProcessor.snapshot();
             imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.medianFilter();
             imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
+                imageProcessor.snapshot();
                 imageProcessor.setRoi((Roi) image.getRoiList().get(i));
                 imageProcessor.medianFilter();
                 imageProcessor.reset(imageProcessor.getMask());
@@ -172,15 +174,19 @@ public class ImageFilters implements Serializable {
      */
     public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
 
-        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        imageProcessor.snapshot();
-
+        
+        ImageProcessor  imageProcessor = new ColorProcessor(image.getImage());
+        
         if (image.getRoiList().isEmpty()) {
+            
+           imageProcessor.snapshot();
             imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.invert();
             imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
+                
+               imageProcessor.snapshot();
                 imageProcessor.setRoi((Roi) image.getRoiList().get(i));
                 imageProcessor.invert();
                 imageProcessor.reset(imageProcessor.getMask());

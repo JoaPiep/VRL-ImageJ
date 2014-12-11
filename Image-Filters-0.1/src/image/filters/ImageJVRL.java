@@ -256,10 +256,27 @@ public class ImageJVRL implements Serializable {
      * @throws IOException 
      */
     public void saveROIsInFile(File roiFile) throws FileNotFoundException, IOException {
+      
+        ArrayList<String> tempRoiList = new ArrayList();
 
-        encodeROIList(getRoiList());
+        for (int i = 0; i < roiList.size(); i++) {
+            try {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                RoiEncoder re = new RoiEncoder(bout);
+                re.write(roiList.get(i));
+                String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
+                tempRoiList.add(i, byteToString);
+                bout.close();
+
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+
+            }
+        }
+
         ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(roiFile));
-        aus.writeObject(getRoiDataList());
+        aus.writeObject(tempRoiList);
     }
     
     /**

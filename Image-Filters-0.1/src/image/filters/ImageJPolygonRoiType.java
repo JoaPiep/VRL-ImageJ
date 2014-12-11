@@ -32,7 +32,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -100,14 +99,14 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 MenuItem removeItem = new MenuItem("Remove ROI", new MenuShortcut(KeyEvent.VK_Z));
                                 MenuItem changeItem = new MenuItem("Change active ROI", new MenuShortcut(KeyEvent.VK_N));
                                 MenuItem saveRoisItem = new MenuItem("Save ROIs in File", new MenuShortcut(KeyEvent.VK_S));
-                                MenuItem loadRoiItem = new MenuItem("Load ROIs from File", new MenuShortcut(KeyEvent.VK_L));
+                                MenuItem loadRoisItem = new MenuItem("Load ROIs from File", new MenuShortcut(KeyEvent.VK_L));
 
                                 editMenu.add(changeItem);
                                 editMenu.add(editItem);
                                 editMenu.add(removeItem);
                                 editMenu.add(removeAllRoisItem);
                                 editMenu.add(saveRoisItem);
-                                editMenu.add(loadRoiItem);
+                                editMenu.add(loadRoisItem);
 
                                 menuBar.add(editMenu);
                                 menuBar.setHelpMenu(helpMenu);
@@ -132,7 +131,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                 });
 
-                                loadRoiItem.addActionListener(new ActionListener() {
+                                loadRoisItem.addActionListener(new ActionListener() {
 
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
@@ -146,6 +145,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                 polygonRoi = polygonRoiList.get(polygonRoiList.size()-1);
                                                 imageJVRLvalue.setRoi(polygonRoi);
                                                 imageJVRLvalue.setRoiList(polygonRoiList);
+                                                imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                                 iw.updateImage(imagePlus);
                                                 printRois(polygonRoiList, polygonRoi, imagePlus);
                                             }
@@ -264,7 +264,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                     imageCanvas.offScreenY(e.getY()));
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
-
                                             printRoi(polygonRoi, imagePlus);
 
                                         } else if (e.getButton() == MouseEvent.BUTTON3

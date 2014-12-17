@@ -10,6 +10,7 @@ import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.io.FileSaver;
 import ij.io.Opener;
+import ij.plugin.filter.GaussianBlur;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Image;
@@ -96,14 +97,32 @@ public class ImageFilters implements Serializable {
     /**
      *
      * @param image image to be filter
-     * @param sigma sigma-parameter
+     * @param sigmaX
+     * @param sigmaY
+     * @param accuracy
      * @return filtered image (with gaussian blur)
      */
-    public ImageJVRL gaussianBlur(@ParamInfo(name = "ImageJVRL") ImageJVRL image,
-            @ParamInfo(name = "Sigma (Double)") double sigma) {
+    public ImageJVRL gaussianBlur(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image,
+            @ParamInfo(name = "sigmaX   (double)") double sigmaX,
+            @ParamInfo(name = "sigmaY   (double)") double sigmaY,
+            @ParamInfo(name = "accuracy (double)") double accuracy) {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        imageProcessor.blurGaussian(sigma);
+
+        GaussianBlur blur = new GaussianBlur();
+        if (image.getRoiList().isEmpty()) {
+            imageProcessor.snapshot();
+            imageProcessor.setRoi((Roi) image.getRoi());
+            blur.blurGaussian(imageProcessor, sigmaX, sigmaY, accuracy);
+            imageProcessor.reset(imageProcessor.getMask());
+        } else {
+            for (int i = 0; i < image.getRoiList().size(); i++) {
+                imageProcessor.snapshot();
+                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                blur.blurGaussian(imageProcessor, sigmaX, sigmaY, accuracy);
+                imageProcessor.reset(imageProcessor.getMask());
+            }
+        }
         Image im = imageProcessor.createImage();
 
         return new ImageJVRL(im);
@@ -174,19 +193,18 @@ public class ImageFilters implements Serializable {
      */
     public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
 
-        
-        ImageProcessor  imageProcessor = new ColorProcessor(image.getImage());
-        
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+
         if (image.getRoiList().isEmpty()) {
-            
-           imageProcessor.snapshot();
+
+            imageProcessor.snapshot();
             imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.invert();
             imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
-                
-               imageProcessor.snapshot();
+
+                imageProcessor.snapshot();
                 imageProcessor.setRoi((Roi) image.getRoiList().get(i));
                 imageProcessor.invert();
                 imageProcessor.reset(imageProcessor.getMask());

@@ -97,9 +97,9 @@ public class ImageFilters implements Serializable {
     /**
      *
      * @param image image to be filter
-     * @param sigmaX
-     * @param sigmaY
-     * @param accuracy
+     * @param sigmaX sigma X-direction
+     * @param sigmaY sigma Y-direction
+     * @param accuracy filter accuracy
      * @return filtered image (with gaussian blur)
      */
     public ImageJVRL gaussianBlur(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image,
@@ -108,8 +108,8 @@ public class ImageFilters implements Serializable {
             @ParamInfo(name = "accuracy (double)") double accuracy) {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-
         GaussianBlur blur = new GaussianBlur();
+        
         if (image.getRoiList().isEmpty()) {
             imageProcessor.snapshot();
             imageProcessor.setRoi((Roi) image.getRoi());
@@ -234,5 +234,35 @@ public class ImageFilters implements Serializable {
     public Image imageJVRLToImage(@ParamInfo(name = "ImageJVRL") ImageJVRL imageJVRL) {
 
         return imageJVRL.getImage();
+    }
+    
+    /**
+     * 
+     * @param image imageJVRL
+     * @return imageJVRL with detected edges
+     */
+    public ImageJVRL detectEdgesSobel(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
+        
+        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+
+        if (image.getRoiList().isEmpty()) {
+
+            imageProcessor.snapshot();
+            imageProcessor.setRoi((Roi) image.getRoi());
+            imageProcessor.findEdges();
+            imageProcessor.reset(imageProcessor.getMask());
+        } else {
+            for (int i = 0; i < image.getRoiList().size(); i++) {
+
+                imageProcessor.snapshot();
+                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.findEdges();
+                imageProcessor.reset(imageProcessor.getMask());
+            }
+        }
+        Image im = imageProcessor.createImage();
+
+        return new ImageJVRL(im);
+
     }
 }

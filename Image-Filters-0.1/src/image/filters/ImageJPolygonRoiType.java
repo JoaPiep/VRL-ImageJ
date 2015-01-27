@@ -19,6 +19,7 @@ import ij.gui.Roi;
 import ij.process.FloatPolygon;
 import ij.process.ImageProcessor;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Menu;
 import java.awt.MenuBar;
@@ -72,7 +73,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         setLayout(layout);
 
         setValueName("");
-        nameLabel.setAlignmentY(0.5f);
+        nameLabel.setAlignmentX(0.0f);
 
         setUpdateLayoutOnValueChange(false);
 
@@ -331,7 +332,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
         this.add(Box.createHorizontalStrut(3));
 
-        container = Box.createHorizontalBox();
+        container = Box.createVerticalBox();
 
         container.add(nameLabel);
 

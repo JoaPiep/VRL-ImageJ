@@ -11,6 +11,7 @@ import ij.gui.Roi;
 import ij.io.FileSaver;
 import ij.io.Opener;
 import ij.plugin.filter.GaussianBlur;
+import ij.plugin.filter.ThresholdToSelection;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Image;
@@ -109,7 +110,7 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         GaussianBlur blur = new GaussianBlur();
-        
+
         if (image.getRoiList().isEmpty()) {
             imageProcessor.snapshot();
             imageProcessor.setRoi((Roi) image.getRoi());
@@ -235,32 +236,67 @@ public class ImageFilters implements Serializable {
 
         return imageJVRL.getImage();
     }
-    
+
     /**
-     * 
+     *
      * @param image imageJVRL
      * @return imageJVRL with detected edges
      */
     public ImageJVRL detectEdgesSobel(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
-        
-        ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
+
+        ImageProcessor ip = new ColorProcessor(image.getImage());
+
+        ImageProcessor imageProcessor = ip.convertToByte(true);
 
         if (image.getRoiList().isEmpty()) {
-
             imageProcessor.snapshot();
             imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.findEdges();
             imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
-
                 imageProcessor.snapshot();
                 imageProcessor.setRoi((Roi) image.getRoiList().get(i));
                 imageProcessor.findEdges();
                 imageProcessor.reset(imageProcessor.getMask());
             }
         }
+
         Image im = imageProcessor.createImage();
+
+        return new ImageJVRL(im);
+
+    }
+
+    /**
+     *
+     * @param image imageJVRL
+     * @param lowThreshold a low hysteresis threshol
+     * @param highThreshold a high hysteresis threshold
+     * @param gaussianKernelRadius a Gaussian kernel radius in pixels, must exceed 0.1f
+     * @param gaussianKernelWidth a radius for the convolution operation in pixels, at least 2
+     * @return imageJVRL with detected edges
+     */
+    public ImageJVRL detectEdgesCanny(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=false") ImageJVRL image,
+            @ParamInfo(name = "low threshold  (float)") float lowThreshold,
+            @ParamInfo(name = "high threshold (float)") float highThreshold,
+            @ParamInfo(name = "Gaussian kernel radius (float)") float gaussianKernelRadius,
+            @ParamInfo(name = "Gaussian kernel width    (int)") int gaussianKernelWidth) {
+
+        Canny_Edge_Detector cd = new Canny_Edge_Detector();
+
+        cd.setLowThreshold(lowThreshold);
+        cd.setHighThreshold(highThreshold);
+        cd.setGaussianKernelRadius(gaussianKernelRadius);
+
+        if (gaussianKernelWidth < 2) {
+            cd.setGaussianKernelWidth(2);
+        } else {
+            cd.setGaussianKernelWidth(gaussianKernelWidth);
+        }
+
+        ImagePlus img = cd.process(new ImagePlus("", image.getImage()));
+        Image im = img.getImage();
 
         return new ImageJVRL(im);
 

@@ -11,7 +11,6 @@ import ij.gui.Roi;
 import ij.io.FileSaver;
 import ij.io.Opener;
 import ij.plugin.filter.GaussianBlur;
-import ij.plugin.filter.ThresholdToSelection;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import java.awt.Image;
@@ -273,8 +272,10 @@ public class ImageFilters implements Serializable {
      * @param image imageJVRL
      * @param lowThreshold a low hysteresis threshol
      * @param highThreshold a high hysteresis threshold
-     * @param gaussianKernelRadius a Gaussian kernel radius in pixels, must exceed 0.1f
-     * @param gaussianKernelWidth a radius for the convolution operation in pixels, at least 2
+     * @param gaussianKernelRadius a Gaussian kernel radius in pixels, must
+     * exceed 0.1f
+     * @param gaussianKernelWidth a radius for the convolution operation in
+     * pixels, at least 2
      * @return imageJVRL with detected edges
      */
     public ImageJVRL detectEdgesCanny(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=false") ImageJVRL image,
@@ -299,6 +300,47 @@ public class ImageFilters implements Serializable {
         Image im = img.getImage();
 
         return new ImageJVRL(im);
+
+    }
+
+    /**
+     *
+     * @param image imageJVRL
+     * @param lowThreshold a low hysteresis threshol
+     * @param highThreshold a high hysteresis threshold
+     * @param gaussianKernelRadius a Gaussian kernel radius in pixels, must
+     * exceed 0.1f
+     * @param gaussianKernelWidth a radius for the convolution operation in
+     * pixels, at least 2
+     * @return imageJVRL with detected edges
+     */
+    public ImageJVRL detectEdgesCannyInvert(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=false") ImageJVRL image,
+            @ParamInfo(name = "low threshold  (float)") float lowThreshold,
+            @ParamInfo(name = "high threshold (float)") float highThreshold,
+            @ParamInfo(name = "Gaussian kernel radius (float)") float gaussianKernelRadius,
+            @ParamInfo(name = "Gaussian kernel width    (int)") int gaussianKernelWidth) {
+
+        Canny_Edge_Detector cd = new Canny_Edge_Detector();
+
+        cd.setLowThreshold(lowThreshold);
+        cd.setHighThreshold(highThreshold);
+        cd.setGaussianKernelRadius(gaussianKernelRadius);
+
+        if (gaussianKernelWidth < 2) {
+            cd.setGaussianKernelWidth(2);
+        } else {
+            cd.setGaussianKernelWidth(gaussianKernelWidth);
+        }
+
+        ImagePlus img = cd.process(new ImagePlus("", image.getImage()));
+        ImageProcessor ip = new ColorProcessor(img.getImage());
+        ip.invert();
+        Image im = ip.createImage();
+
+        return new ImageJVRL(im);
+    }
+
+    public void scaleRoi(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=false") ImageJVRL image) {
 
     }
 }

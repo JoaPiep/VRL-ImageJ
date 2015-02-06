@@ -341,6 +341,6 @@ public class ImageFilters implements Serializable {
     }
 
     public void scaleRoi(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=false") ImageJVRL image) {
-
+        
     }
 }

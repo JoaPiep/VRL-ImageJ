@@ -24,6 +24,7 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.MenuShortcut;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -259,9 +260,11 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     @Override
                                     public void mouseWheelMoved(MouseWheelEvent e) {
                                         if (e.getWheelRotation() < 0) {
-                                            imageCanvas.zoomIn(e.getX(), e.getY());
+                                            imageCanvas.zoomIn(imageCanvas.screenX(e.getX()),
+                                                    imageCanvas.screenY(e.getY()));
                                         } else {
-                                            imageCanvas.zoomOut(e.getX(), e.getY());
+                                            imageCanvas.zoomOut(imageCanvas.screenX(e.getX()),
+                                                    imageCanvas.screenY(e.getY()));
                                         }
                                     }
                                 });
@@ -303,10 +306,15 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     }
                                 });
 
-                                imageCanvas.addMouseMotionListener(new MouseMotionListener() { //TODO
+                                imageCanvas.addMouseMotionListener(new MouseMotionListener() {
 
                                     @Override
                                     public void mouseDragged(MouseEvent e) {
+                                        Rectangle r = imageCanvas.getSrcRect();
+                                        int rx = r.x;
+                                        int ry = r.y;
+
+                                        System.out.println("bounds " + rx);
                                     }
 
                                     @Override

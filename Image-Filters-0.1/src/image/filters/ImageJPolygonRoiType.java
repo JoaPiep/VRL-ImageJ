@@ -24,6 +24,7 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.MenuShortcut;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -186,20 +187,19 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
                                         imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
-                                        PolygonRoi tempRoi = null;
-                                        if (!polygonRoiList.isEmpty()) {
-                                            tempRoi = polygonRoiList.get(polygonRoiList.size() - 1);
-                                            polygonRoiList.remove(polygonRoiList.size() - 1);
-                                        }
-                                        if (tempRoi != null) {
-                                            floatPolygon = tempRoi.getFloatPolygon();
-                                        }
-                                        polygonRoi = new PolygonRoi(floatPolygon,
-                                                Roi.POLYGON);
-                                        printRois(polygonRoiList, polygonRoi, imagePlus);
-                                        printRoi(polygonRoi, imagePlus);
 
-                                        if (polygonRoiList.isEmpty()) {
+                                        if (!polygonRoiList.isEmpty()) {
+                                            PolygonRoi tempRoi = polygonRoiList.get(polygonRoiList.size() - 1);
+                                            polygonRoiList.remove(polygonRoiList.size() - 1);
+                                            if (tempRoi != null) {
+                                                floatPolygon = tempRoi.getFloatPolygon();
+                                            }
+                                            polygonRoi = new PolygonRoi(floatPolygon,
+                                                    Roi.POLYGON);
+
+                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoi(polygonRoi, imagePlus);
+                                        } else if (polygonRoiList.isEmpty()) {
                                             floatPolygon = new FloatPolygon();
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
@@ -207,6 +207,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             imageJVRLvalue.setRoi(null);
                                             imageJVRLvalue.setRoiList(polygonRoiList); //empty List of ROIs
                                         }
+
                                     }
                                 }
                                 );
@@ -252,7 +253,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     }
                                 }
                                 );
-
                                 imageCanvas = iw.getCanvas();
 
                                 iw.addMouseWheelListener(new MouseWheelListener() {
@@ -310,11 +310,15 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                     @Override
                                     public void mouseDragged(MouseEvent e) {
-                                        Rectangle r = imageCanvas.getSrcRect();
-                                        int rx = r.x;
-                                        int ry = r.y;
 
-                                        System.out.println("bounds " + rx);
+                                        Rectangle r = imageCanvas.getSrcRect();
+
+                                        Point p = e.getPoint();
+                                        int px = p.x;
+                                        int py = p.y;
+                                        System.out.println("Rectangle: " + r.toString());
+                                        System.out.println("Point x " + px);
+                                        System.out.println("Point y " + py);
                                     }
 
                                     @Override
@@ -327,34 +331,40 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     public void windowClosing(WindowEvent ew) {
                                         plotPane.setImage(imagePlus.getImage());
 
-                                        if (polygonRoi.getNCoordinates() > 2 && polygonRoi != null) {
-                                            imageJVRLvalue.setRoi(polygonRoi);
-                                            if (polygonRoiList.contains(polygonRoi) == false) {
-                                                polygonRoiList.add(polygonRoi);
-                                                imageJVRLvalue.setRoiList(polygonRoiList);
-                                            }
-                                        } else if (polygonRoi.getNCoordinates() < 3) {
-                                            polygonRoi = imageJVRLvalue.getRoi();
-                                        }
+                                        if (polygonRoi != null) {
+                                            if (polygonRoi.getNCoordinates() > 2) {
+                                                imageJVRLvalue.setRoi(polygonRoi);
 
-                                        if (saveRoiInVRL) {
-                                            if (polygonRoi != null && polygonRoi.getNCoordinates() > 2) {
-                                                imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
+                                                if (polygonRoiList.contains(polygonRoi) == false) {
+                                                    polygonRoiList.add(polygonRoi);
+                                                    imageJVRLvalue.setRoiList(polygonRoiList);
+                                                }
+
+                                                if (saveRoiInVRL) {
+                                                    imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
+                                                }
+
+                                            } else if (polygonRoi.getNCoordinates() < 3) {
+                                                polygonRoi = imageJVRLvalue.getRoi();
+
+                                                if (imageJVRLvalue.getRoi() != null) {
+                                                    imageJVRLvalue.encodeROI(polygonRoi);
+                                                } else {
+                                                    imageJVRLvalue.setRoiData(null);
+                                                }
+                                            }
+
+                                            if (saveRoiInVRL) {
+                                                imageJVRLvalue.encodeROIList(polygonRoiList);// roiDataList
                                             } else {
-                                                imageJVRLvalue.setRoiData(null);
+                                                imageJVRLvalue.setRoiDataList(null);
                                             }
-                                        }
 
-                                        if (saveRoiInVRL && !polygonRoiList.isEmpty()) {
-                                            imageJVRLvalue.encodeROIList(polygonRoiList);// roiDataList
-                                        } else {
-                                            imageJVRLvalue.setRoiDataList(null);
-                                        }
+                                            setDataOutdated();
 
-                                        setDataOutdated();
-
-                                        if (!polygonRoiList.isEmpty()) {
-                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            if (!polygonRoiList.isEmpty()) {
+                                                printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            }
                                         }
                                     }
                                 });

@@ -31,10 +31,10 @@ public class ImageJVRL implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String roiData;
-    private ArrayList<String> roiDataList = new ArrayList();
     private transient Image image;
-    private transient PolygonRoi roi; // is last elemnt in the roi list
+    private transient PolygonRoi roi; // last element in the roi list
     private transient ArrayList<PolygonRoi> roiList;
+    private ArrayList<String> roiDataList;
 
     /**
      * empty constructor
@@ -50,6 +50,7 @@ public class ImageJVRL implements Serializable {
     public ImageJVRL(Image image) {
         this.image = image;
         roiList = new ArrayList();
+        roiDataList = new ArrayList();
     }
 
     /**
@@ -80,6 +81,54 @@ public class ImageJVRL implements Serializable {
      */
     public void setRoi(PolygonRoi roi) {
         this.roi = roi;
+    }
+    
+    /**
+     *
+     * @return encoded Roi (as String)
+     */
+    public String getRoiData() {
+        return roiData;
+    }
+
+    /**
+     *
+     * @param roiData roiData to set
+     */
+    public void setRoiData(String roiData) {
+        this.roiData = roiData;
+    }
+
+    /**
+     *
+     * @return list of ROIs
+     */
+    public ArrayList<PolygonRoi> getRoiList() {
+        return roiList;
+    }
+
+    /**
+     *
+     * @param roiList List of ROIs to set
+     */
+    public void setRoiList(ArrayList<PolygonRoi> roiList) {
+        this.roiList = roiList;
+    }
+    
+    /**
+     *
+     * @return list of strings - encoded ROIs
+     */
+    public ArrayList<String> getRoiDataList() {
+        return roiDataList;
+    }
+
+    /**
+     *
+     * @param roiDataList roiDataList to set
+     */
+    public void setRoiDataList(ArrayList<String> roiDataList) {
+        this.roiDataList = roiDataList;
     }
 
     /**
@@ -123,54 +172,7 @@ public class ImageJVRL implements Serializable {
         return result;
     }
 
-    /**
-     *
-     * @return encoded Roi (as String)
-     */
-    public String getRoiData() {
-        return roiData;
-    }
-
-    /**
-     *
-     * @param roiData roiData to set
-     */
-    public void setRoiData(String roiData) {
-        this.roiData = roiData;
-    }
-
-    /**
-     *
-     * @param roiList List of ROIs to set
-     */
-    public void setRoiList(ArrayList<PolygonRoi> roiList) {
-        this.roiList = roiList;
-    }
-
-    /**
-     *
-     * @return list of ROIs
-     */
-    public ArrayList<PolygonRoi> getRoiList() {
-        return roiList;
-    }
-
-    /**
-     *
-     * @return list of strings - encoded ROIs
-     */
-    public ArrayList<String> getRoiDataList() {
-        return roiDataList;
-    }
-
-    /**
-     *
-     * @param roiDataList roiDataList to set
-     */
-    public void setRoiDataList(ArrayList<String> roiDataList) {
-        this.roiDataList = roiDataList;
-    }
-
+    
     /**
      *
      * @param roiList list of ROIs to encode
@@ -248,15 +250,15 @@ public class ImageJVRL implements Serializable {
 
         return pRoi;
     }
-    
+
     /**
-     * 
+     *
      * @param roiFile save File
      * @throws FileNotFoundException
-     * @throws IOException 
+     * @throws IOException
      */
     public void saveROIsInFile(File roiFile) throws FileNotFoundException, IOException {
-      
+
         ArrayList<String> tempRoiList = new ArrayList();
 
         for (int i = 0; i < roiList.size(); i++) {
@@ -278,22 +280,24 @@ public class ImageJVRL implements Serializable {
         ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(roiFile));
         aus.writeObject(tempRoiList);
     }
-    
+
     /**
-     * 
+     *
      * @param roiFile load file
-     * @return
+     * @return ROIs from the file
      * @throws FileNotFoundException
      * @throws IOException
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
     public ArrayList<PolygonRoi> getROIsfromFile(File roiFile) throws FileNotFoundException, IOException, ClassNotFoundException {
 
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(roiFile));
         ArrayList<String> tempList = (ArrayList<String>) in.readObject();
         setRoiDataList(tempList);
-       
+
         return decodeROIList();
     }
+    
+   
 
 }

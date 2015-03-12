@@ -6,18 +6,27 @@ package image.filters;
 
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
+import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.io.FileSaver;
 import ij.io.Opener;
+import ij.measure.ResultsTable;
 import ij.plugin.filter.GaussianBlur;
+import ij.plugin.filter.ParticleAnalyzer;
+import ij.plugin.frame.RoiManager;
+import ij.process.BinaryProcessor;
+import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
+import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -340,7 +349,124 @@ public class ImageFilters implements Serializable {
         return new ImageJVRL(im);
     }
 
-    public void scaleRoi(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=false") ImageJVRL image) {
-        
+    /**
+     *
+     * @param image image to analyse
+     * @return image
+     */
+    public ImageJVRL analyseTool(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=false") ImageJVRL image) {
+
+        ImagePlus imagePlus = new ImagePlus("", image.getImage());
+        ImagePlus outputImage = new ImagePlus("", image.getImage());
+
+        ImageConverter ic = new ImageConverter(imagePlus);
+        ic.convertToGray32();
+
+        ByteProcessor byteProcessor = new ByteProcessor(imagePlus.getImage());
+        BinaryProcessor binaryProcessor = new BinaryProcessor(byteProcessor);
+        binaryProcessor.autoThreshold();
+        ImagePlus img = new ImagePlus("", binaryProcessor.createImage());
+
+        ParticleAnalyzer pa = new ParticleAnalyzer();
+        pa.showDialog();
+        Boolean analyse = pa.analyze(img);
+
+        if (!analyse) {
+            System.out.println("ANALYSE ERROR!");
+        } else {
+            if (pa.getOutputImage() == null) {
+                System.out.println("Output image do not exist !");
+            } else {
+                outputImage = pa.getOutputImage();
+                outputImage.show();
+            }
+        }
+
+        Image im = outputImage.getImage();
+
+        return new ImageJVRL(im);
+
+    }
+
+    /**
+     *
+     * @param image image to convert
+     * @return in gray32 converted image
+     */
+    public ImageJVRL convertImgToGray32(@ParamInfo(name = "ImageJVRL", options = "saveRoi=false") ImageJVRL image) {
+
+        ImagePlus imagePlus = new ImagePlus("", image.getImage());
+
+        ImageConverter ic = new ImageConverter(imagePlus);
+        ic.convertToGray32();
+
+        Image im = imagePlus.getBufferedImage();
+
+        return new ImageJVRL(im);
+    }
+
+    /**
+     *
+     * @param image image to analyse
+     * @param minSize minimal size of the area (Pixel)
+     * @param maxSize maximal size of the area (Pixel)
+     * @param minCirc minimal size of the circle
+     * @param maxCirc maximal size of the circle
+     * @return image with ROIs
+     */
+    public ImageJVRL generateRoisAuto(@ParamInfo(name = "ImageJVRL", options = "saveRoi=true") ImageJVRL image,
+            @ParamInfo(name = "min size   (double)") double minSize,
+            @ParamInfo(name = "max size   (double)") double maxSize,
+            @ParamInfo(name = "min circle (double)") double minCirc,
+            @ParamInfo(name = "max circle (double)") double maxCirc) {
+
+        if (maxSize == 0.0) {
+            maxSize = Double.MAX_VALUE;
+        }
+
+        ImagePlus imp = new ImagePlus("", image.getImage());
+
+        ImageConverter ic = new ImageConverter(imp);
+        ic.convertToGray32();
+
+        IJ.setAutoThreshold(imp, "Default");
+        RoiManager manager = new RoiManager(true);
+        ParticleAnalyzer.setRoiManager(manager);
+
+        //options
+        int includeHoles = ParticleAnalyzer.INCLUDE_HOLES;
+        int showOverlayMasks = ParticleAnalyzer.SHOW_OVERLAY_MASKS;
+        int excludeEdgeParticles = ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES;
+        int showSummary = ParticleAnalyzer.SHOW_SUMMARY;
+        int showResluts = ParticleAnalyzer.SHOW_RESULTS;
+        int showMasks = ParticleAnalyzer.SHOW_MASKS;
+        int showOutlines = ParticleAnalyzer.SHOW_OUTLINES;
+        int fourConnected = ParticleAnalyzer.FOUR_CONNECTED;
+        int showOverlayOutlines = ParticleAnalyzer.SHOW_OVERLAY_OUTLINES;
+        int recordStarts = ParticleAnalyzer.RECORD_STARTS;
+        int addToManager = ParticleAnalyzer.ADD_TO_MANAGER;
+        int showRoiMasks = ParticleAnalyzer.SHOW_ROI_MASKS;
+
+        int option = includeHoles + showOverlayOutlines + excludeEdgeParticles;
+
+        ParticleAnalyzer pa = new ParticleAnalyzer(option, 0, new ResultsTable(), minSize, maxSize, minCirc, maxCirc);
+        pa.analyze(imp);
+
+        if (pa.getOutputImage() != null) {
+            pa.getOutputImage().show();
+        } else {
+            imp.show();
+        }
+
+        Roi[] rois = manager.getRoisAsArray();
+        ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
+        for (Roi roi : rois) {
+            imp.setRoi(roi);
+            roiList.add((PolygonRoi) roi);
+        }
+        image.setRoiList(roiList);
+
+        return image;
+
     }
 }

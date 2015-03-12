@@ -90,6 +90,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                         if (e.getButton() == MouseEvent.BUTTON1
                         && e.getClickCount() == 2) {
+
                             if (plotPane.getImage() != null || isInput()) {
 
                                 iw = new ImageWindow(imagePlus);
@@ -291,6 +292,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
 
                                             if (polygonRoi.getNCoordinates() > 2) {
+
                                                 imageJVRLvalue.setRoi(polygonRoi);
                                                 if (polygonRoiList.contains(polygonRoi) == false) {
                                                     polygonRoiList.add(polygonRoi);
@@ -304,21 +306,17 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                         }
 
                                     }
+
                                 });
 
                                 imageCanvas.addMouseMotionListener(new MouseMotionListener() {
 
                                     @Override
                                     public void mouseDragged(MouseEvent e) {
-
                                         Rectangle r = imageCanvas.getSrcRect();
-
-                                        Point p = e.getPoint();
-                                        int px = p.x;
-                                        int py = p.y;
-                                        System.out.println("Rectangle: " + r.toString());
-                                        System.out.println("Point x " + px);
-                                        System.out.println("Point y " + py);
+                                        if (r.x > 0 || r.y > 0) {
+                                            Point p = e.getPoint();
+                                        }
                                     }
 
                                     @Override
@@ -412,8 +410,17 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         }
 
         if (image.getRoiDataList() != null && polygonRoiList == null) {
-            polygonRoiList = image.decodeROIList();
-            image.setRoiList(polygonRoiList);
+            if (!image.getRoiDataList().isEmpty()) {
+                polygonRoiList = image.decodeROIList();
+                image.setRoiList(polygonRoiList);
+            }
+        }
+
+        if (image.getRoiList() != null && polygonRoiList != null) { // generateRoisAuto()
+            if (!image.getRoiList().isEmpty() && polygonRoiList.isEmpty()) {
+                polygonRoiList = image.getRoiList();
+                polygonRoi = polygonRoiList.get(polygonRoiList.size()-1);
+            }
         }
 
         if (imageJVRLvalue == null || isOutput()) {

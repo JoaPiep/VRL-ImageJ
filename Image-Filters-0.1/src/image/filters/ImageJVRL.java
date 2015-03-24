@@ -33,8 +33,8 @@ public class ImageJVRL implements Serializable {
     private String roiData;
     private transient Image image;
     private transient PolygonRoi roi; // last element in the roi list
-    private transient ArrayList<PolygonRoi> roiList;
-    private ArrayList<String> roiDataList;
+    private transient ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
+    private ArrayList<String> roiDataList = new ArrayList<String> ();
 
     /**
      * empty constructor
@@ -49,8 +49,7 @@ public class ImageJVRL implements Serializable {
      */
     public ImageJVRL(Image image) {
         this.image = image;
-        roiList = new ArrayList();
-        roiDataList = new ArrayList();
+
     }
 
     /**
@@ -82,7 +81,7 @@ public class ImageJVRL implements Serializable {
     public void setRoi(PolygonRoi roi) {
         this.roi = roi;
     }
-    
+
     /**
      *
      * @return encoded Roi (as String)
@@ -114,7 +113,7 @@ public class ImageJVRL implements Serializable {
     public void setRoiList(ArrayList<PolygonRoi> roiList) {
         this.roiList = roiList;
     }
-    
+
     /**
      *
      * @return list of strings - encoded ROIs
@@ -172,7 +171,6 @@ public class ImageJVRL implements Serializable {
         return result;
     }
 
-    
     /**
      *
      * @param roiList list of ROIs to encode
@@ -297,7 +295,5 @@ public class ImageJVRL implements Serializable {
 
         return decodeROIList();
     }
-    
-   
 
 }

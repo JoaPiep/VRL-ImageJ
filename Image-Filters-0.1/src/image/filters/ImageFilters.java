@@ -17,8 +17,6 @@ import ij.measure.ResultsTable;
 import ij.plugin.filter.GaussianBlur;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
-import ij.process.BinaryProcessor;
-import ij.process.ByteProcessor;
 import ij.process.ColorProcessor;
 import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
@@ -121,10 +119,7 @@ public class ImageFilters implements Serializable {
         GaussianBlur blur = new GaussianBlur();
 
         if (image.getRoiList().isEmpty()) {
-            imageProcessor.snapshot();
-            imageProcessor.setRoi((Roi) image.getRoi());
             blur.blurGaussian(imageProcessor, sigmaX, sigmaY, accuracy);
-            imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
                 imageProcessor.snapshot();
@@ -149,10 +144,7 @@ public class ImageFilters implements Serializable {
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
 
         if (image.getRoiList().isEmpty()) {
-            imageProcessor.snapshot();
-            imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.dilate();
-            imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
                 imageProcessor.snapshot();
@@ -178,10 +170,7 @@ public class ImageFilters implements Serializable {
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
 
         if (image.getRoiList().isEmpty()) {
-            imageProcessor.snapshot();
-            imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.medianFilter();
-            imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
                 imageProcessor.snapshot();
@@ -206,11 +195,7 @@ public class ImageFilters implements Serializable {
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
 
         if (image.getRoiList().isEmpty()) {
-
-            imageProcessor.snapshot();
-            imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.invert();
-            imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
 
@@ -258,10 +243,7 @@ public class ImageFilters implements Serializable {
         ImageProcessor imageProcessor = ip.convertToByte(true);
 
         if (image.getRoiList().isEmpty()) {
-            imageProcessor.snapshot();
-            imageProcessor.setRoi((Roi) image.getRoi());
             imageProcessor.findEdges();
-            imageProcessor.reset(imageProcessor.getMask());
         } else {
             for (int i = 0; i < image.getRoiList().size(); i++) {
                 imageProcessor.snapshot();

@@ -130,11 +130,11 @@ public class ImageJVRL implements Serializable {
         this.roiDataList = roiDataList;
     }
 
+   
     /**
-     *
-     * @param roi roi to encode (as String)
+     * Encode the given ROI
      */
-    public void encodeROI(PolygonRoi roi) {
+    public void encodeROI() {
 
         try {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -173,9 +173,9 @@ public class ImageJVRL implements Serializable {
 
     /**
      *
-     * @param roiList list of ROIs to encode
+     * Encode the given ROI list
      */
-    public void encodeROIList(ArrayList<PolygonRoi> roiList) {
+    public void encodeROIList() {
 
         ArrayList<String> tempRoiList = new ArrayList();
 
@@ -295,5 +295,6 @@ public class ImageJVRL implements Serializable {
 
         return decodeROIList();
     }
+    
 
 }

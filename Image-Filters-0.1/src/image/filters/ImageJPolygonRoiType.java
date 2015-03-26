@@ -345,14 +345,14 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                 }
                                             }
 
-                                            if (saveRoiInVRL && polygonRoi.getNCoordinates() != 0) {
-                                                imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
+                                            if (saveRoiInVRL && imageJVRLvalue.getRoi().getNCoordinates() != 0) {
+                                                imageJVRLvalue.encodeROI(); // set the string roiData
                                             } else {
                                                 imageJVRLvalue.setRoiData(null);
                                             }
 
-                                            if (saveRoiInVRL && !polygonRoiList.isEmpty()) {
-                                                imageJVRLvalue.encodeROIList(polygonRoiList);// roiDataList
+                                            if (saveRoiInVRL && !imageJVRLvalue.getRoiList().isEmpty()) {
+                                                imageJVRLvalue.encodeROIList();// roiDataList
                                             } else {
                                                 imageJVRLvalue.setRoiDataList(new ArrayList());
                                             }
@@ -386,82 +386,69 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
     @Override
     public void emptyView() {
-        plotPane.setImage(null);
+        if (imagePlus != null) {
+            plotPane.setImage(imagePlus.getImage());
+        } else {
+            plotPane.setImage(null);
+        }
     }
 
     @Override
     public void setViewValue(Object o) {
+        System.out.println(" ++++ Set View Value ++++ ");
         setDataOutdated();
-        ImageJVRL image = null;
+        ImageJVRL imageJVRL = null;
         try {
-            image = (ImageJVRL) o;
+            imageJVRL = (ImageJVRL) o;
         } catch (Exception e) {
         }
 
-        if (image.getImage() != null) {
-            imagePlus.setImage(image.getImage());
+        if (imageJVRL.getImage() != null) {
+            imagePlus.setImage(imageJVRL.getImage());
             imagePlus.setTitle("Image");
         }
 
-        if (image.getRoiData() != null && polygonRoi == null) {
-            polygonRoi = image.decodeROI();
-            image.setRoi(polygonRoi);
-        }
-
-        if (!image.getRoiDataList().isEmpty() && polygonRoiList.isEmpty()) {
-            polygonRoiList = image.decodeROIList();
-            image.setRoiList(polygonRoiList);
-        }
-
-        if (image.getRoiList() != null) { // generateRoisAuto()&& polygonRoiList != null
-            if (!image.getRoiList().isEmpty()) {
-                polygonRoiList = image.getRoiList();
-                polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
-            }
-        }
-
-        
         if (imageJVRLvalue == null || isOutput()) {
-            System.out.println("Imagej Value == null");
-            setImageJVRLvalue(image);
-        } else if (!imageJVRLvalue.equals(image)) {
-            System.out.println(" !imageJVRLvalue.equals(image) ");
-            setImageJVRLvalue(image);
-            
-            if (polygonRoi != null) {
-                if (saveRoiInVRL && polygonRoi.getNCoordinates() != 0) {
-                    imageJVRLvalue.encodeROI(polygonRoi); // set the string roiData
-                } else {
-                    imageJVRLvalue.setRoiData(null);
-                }
+            System.out.println(" ++ imageJVRLvalue == null ++ ");
+            setImageJVRLvalue(imageJVRL);
+
+            if (imageJVRL.getRoiData() != null && polygonRoi == null) {
+                polygonRoi = imageJVRL.decodeROI();
+                imageJVRL.setRoi(polygonRoi);
             }
-            if (saveRoiInVRL && !polygonRoiList.isEmpty()) {
-                imageJVRLvalue.encodeROIList(polygonRoiList);// roiDataList
-            } else {
-                imageJVRLvalue.setRoiDataList(new ArrayList());
+
+            if (!imageJVRL.getRoiDataList().isEmpty() && polygonRoiList.isEmpty()) {
+                polygonRoiList = imageJVRL.decodeROIList();
+                imageJVRL.setRoiList(polygonRoiList);
             }
 
         } else {
-            if (isInput()) {
 
+            if (isInput()) {
+                imageJVRLvalue.setImage(imageJVRL.getImage());
+
+               if (imageJVRL.getRoiList() != null) { // generateRoisAuto()
+                    if (!imageJVRL.getRoiList().isEmpty()) {
+                        polygonRoiList = imageJVRL.getRoiList();
+                        polygonRoi = imageJVRL.getRoiList().get(imageJVRL.getRoiList().size() - 1);
+                    }
+                }
+                System.out.println(" ++ Is input ++ ");
+                if (imageJVRLvalue.getRoi() != null) {
+                    imageJVRL.setRoi(imageJVRLvalue.getRoi());
+                    imageJVRL.setRoiList(imageJVRLvalue.getRoiList());
+                }
+                printRois(imageJVRLvalue.getRoiList(), imageJVRLvalue.getRoi(), imagePlus);
             }
+
         }
-        
-        
-        if (polygonRoi != null) {
-            imageJVRLvalue.setRoi(polygonRoi);
-        }
-        if (!polygonRoiList.isEmpty()) {
-            imageJVRLvalue.setRoiList(polygonRoiList);
-        }
-        printRois(polygonRoiList, polygonRoi, imagePlus);
-        
         plotPane.setImage(imagePlus.getImage());
+
     }
 
     @Override
     public Object getViewValue() {
-        return imageJVRLvalue;
+        return this.imageJVRLvalue;
     }
 
     /**
@@ -511,7 +498,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
     /**
      *
-     * @param imageJVRLvalue imageJVRLvalue to set
+     * @param imageJVRLvalue imageJVRLJVRLvalue to set
      */
     public void setImageJVRLvalue(ImageJVRL imageJVRLvalue) {
         this.imageJVRLvalue = imageJVRLvalue;
@@ -519,7 +506,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
     /**
      *
-     * @return imageJVRLvalue
+     * @return imageJVRLJVRLvalue
      */
     public ImageJVRL getImageJVRLvalue() {
         return imageJVRLvalue;

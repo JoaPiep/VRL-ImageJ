@@ -7,6 +7,7 @@ package image.filters;
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamGroupInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
+import groovy.xml.Entity;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.PolygonRoi;
@@ -121,9 +122,9 @@ public class ImageFilters implements Serializable {
         if (image.getRoiList().isEmpty()) {
             blur.blurGaussian(imageProcessor, sigmaX, sigmaY, accuracy);
         } else {
-            for (int i = 0; i < image.getRoiList().size(); i++) {
+            for (PolygonRoi roi : image.getRoiList()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.setRoi((Roi) roi);
                 blur.blurGaussian(imageProcessor, sigmaX, sigmaY, accuracy);
                 imageProcessor.reset(imageProcessor.getMask());
             }
@@ -146,9 +147,9 @@ public class ImageFilters implements Serializable {
         if (image.getRoiList().isEmpty()) {
             imageProcessor.dilate();
         } else {
-            for (int i = 0; i < image.getRoiList().size(); i++) {
+            for (PolygonRoi roi : image.getRoiList()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.setRoi((Roi) roi);
                 imageProcessor.dilate();
                 imageProcessor.reset(imageProcessor.getMask());
             }
@@ -172,9 +173,9 @@ public class ImageFilters implements Serializable {
         if (image.getRoiList().isEmpty()) {
             imageProcessor.medianFilter();
         } else {
-            for (int i = 0; i < image.getRoiList().size(); i++) {
+           for (PolygonRoi roi : image.getRoiList()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.setRoi((Roi) roi);
                 imageProcessor.medianFilter();
                 imageProcessor.reset(imageProcessor.getMask());
             }
@@ -197,12 +198,13 @@ public class ImageFilters implements Serializable {
         if (image.getRoiList().isEmpty()) {
             imageProcessor.invert();
         } else {
-            for (int i = 0; i < image.getRoiList().size(); i++) {
 
+            for (PolygonRoi roi : image.getRoiList()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.setRoi((Roi) roi);
                 imageProcessor.invert();
                 imageProcessor.reset(imageProcessor.getMask());
+
             }
         }
         Image im = imageProcessor.createImage();
@@ -245,9 +247,9 @@ public class ImageFilters implements Serializable {
         if (image.getRoiList().isEmpty()) {
             imageProcessor.findEdges();
         } else {
-            for (int i = 0; i < image.getRoiList().size(); i++) {
+            for (PolygonRoi roi : image.getRoiList()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) image.getRoiList().get(i));
+                imageProcessor.setRoi((Roi) roi);
                 imageProcessor.findEdges();
                 imageProcessor.reset(imageProcessor.getMask());
             }
@@ -490,7 +492,7 @@ public class ImageFilters implements Serializable {
      * the image (or selection) will be ignored.
      * @return image with ROIs
      */
-    public ImageJVRL autoGenerateROIs(@ParamInfo(name = "ImageJVRL", options = "saveRoi=true") ImageJVRL image,
+    public ImageJVRL autoGenerateROIs(@ParamInfo(name = "ImageJVRL") ImageJVRL image,
             @ParamInfo(name = "Min size   (double)") double minSize,
             @ParamInfo(name = "Max size   (double)") double maxSize,
             @ParamInfo(name = "Min circle (double)") double minCirc,
@@ -534,8 +536,10 @@ public class ImageFilters implements Serializable {
         for (Roi roi : rois) {
             roiList.add((PolygonRoi) roi);
         }
-        image.setRoiList(roiList);
-
+        if (!roiList.isEmpty()) {
+            image.setRoiList(roiList);
+            image.setRoi(roiList.get(roiList.size() - 1));
+        }
         return image;
     }
 }

@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Joanna Pieper
+ * @author Joanna Pieper <joanna.pieper1@gmail.com>
  */
 public class ImageJVRL implements Serializable {
 
@@ -34,7 +34,7 @@ public class ImageJVRL implements Serializable {
     private transient Image image;
     private transient PolygonRoi roi; // last element in the roi list
     private transient ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
-    private ArrayList<String> roiDataList = new ArrayList<String> ();
+    private ArrayList<String> roiDataList = new ArrayList<String>();
 
     /**
      * empty constructor
@@ -130,7 +130,6 @@ public class ImageJVRL implements Serializable {
         this.roiDataList = roiDataList;
     }
 
-   
     /**
      * Encode the given ROI
      */
@@ -295,6 +294,5 @@ public class ImageJVRL implements Serializable {
 
         return decodeROIList();
     }
-    
 
 }

@@ -61,9 +61,10 @@ public class ImageFiltersPluginConfigurator extends VPluginConfigurator {
            // vapi.addTypeRepresentation(MyType.class);
            
            vapi.addComponent(ImageFilters.class);
+           vapi.addComponent(LoadStoreImageJVRL.class);
+           vapi.addComponent(ConvertAnalyseImageJVRL.class);
            vapi.addTypeRepresentation(ImageJVRLType.class);
            vapi.addTypeRepresentation(ImageJPolygonRoiType.class);
-           vapi.addTypeRepresentation(ImageJType.class); 
        }
    }
 

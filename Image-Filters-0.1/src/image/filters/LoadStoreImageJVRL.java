@@ -39,7 +39,7 @@ public class LoadStoreImageJVRL implements Serializable {
      * @param imgFile image filepath
      * @return loaded image as ImageJVRL
      */
-    public ImageJVRL loadImageJVRL(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
+    public ImageJVRL loadImageJVRL(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"File\"") File imgFile) {
 
         Image image;
         image = null;
@@ -54,17 +54,17 @@ public class LoadStoreImageJVRL implements Serializable {
 
     /**
      *
-     * @param imgFile image filepath
+     * @param imgFile image filepath to load
      * @return ImagePlus image
      */
-    public ImagePlus loadImagePlus(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") File imgFile) {
+    public ImagePlus loadImagePlus(@ParamInfo(name = "", style = "load-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"File\"") File imgFile) {
 
         return new Opener().openImage(imgFile.getPath());
     }
 
     /**
      *
-     * @param imgFile fileposition from the image
+     * @param imgFile image filepath to save
      * @param image image to save
      */
     public void saveImageJVRLAsJpg(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"File\"") File imgFile,
@@ -80,13 +80,11 @@ public class LoadStoreImageJVRL implements Serializable {
 
     /**
      *
-     * @param name filename
      * @param image image to save (as .png)
      */
-    public void saveImageJVRLAsPng(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"png\",\"jpg\"]; description=\"Image files\"") String name,
-            @ParamInfo(name = "ImageJVRL") ImageJVRL image) {
+    public void saveImageJVRLAsPng(@ParamInfo(name = "ImageJVRL") ImageJVRL image) {
 
-        ImagePlus imagePlus = new ImagePlus(name, image.getImage());
+        ImagePlus imagePlus = new ImagePlus("Image", image.getImage());
         FileSaver fileSaver = new FileSaver(imagePlus);
         fileSaver.saveAsPng();
 

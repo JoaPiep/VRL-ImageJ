@@ -1,23 +1,33 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
+ ////// * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package image.filters;
 
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamGroupInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
+import eu.mihosoft.vrl.io.Base64;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
+import ij.io.RoiEncoder;
 import ij.measure.ResultsTable;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
 import ij.process.ImageConverter;
+import ij.process.ImageProcessor;
+import java.awt.Color;
 import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -28,11 +38,11 @@ import java.util.ArrayList;
 @ComponentInfo(name = "Convert and analyse",
         category = "ImageJ-VRL",
         description = "My Component")
-public class ConvertAnalyseImageJVRL implements Serializable{
+public class ConvertAnalyseImageJVRL implements Serializable {
 
     public ConvertAnalyseImageJVRL() {
     }
-    
+
     /**
      *
      * @param image Image image
@@ -52,7 +62,7 @@ public class ConvertAnalyseImageJVRL implements Serializable{
 
         return imageJVRL.getImage();
     }
-    
+
     /**
      *
      * @param image image to convert
@@ -201,6 +211,7 @@ public class ConvertAnalyseImageJVRL implements Serializable{
 
     /**
      *
+     * @param imgFile file
      * @param image image to analyse and find ROIs
      * @param minSize minimal size of the area (pixel)
      * @param maxSize maximal size of the area (pixel)
@@ -211,13 +222,15 @@ public class ConvertAnalyseImageJVRL implements Serializable{
      * the image (or selection) will be ignored.
      * @return image with ROIs
      */
-    public ImageJVRL autoGenerateROIs(@ParamInfo(name = "ImageJVRL") ImageJVRL image,
+    public Image autoGenerateROIs(
+            @ParamInfo(name = "", style = "save-dialog", options = "endings=[\"txt\"]; description=\"File\"") File imgFile,
+            @ParamInfo(name = "ImageJVRL") ImageJVRL image,
             @ParamInfo(name = "Min size   (double)") double minSize,
             @ParamInfo(name = "Max size   (double)") double maxSize,
             @ParamInfo(name = "Min circle (double)") double minCirc,
             @ParamInfo(name = "Max circle (double)") double maxCirc,
             @ParamGroupInfo(group = "Options|true|no description") @ParamInfo(name = "Exclude on edges") boolean excludeEdgeParticlesBool,
-            @ParamGroupInfo(group = "Options") @ParamInfo(name = "Incluce holes") boolean includeHolesBool) {
+            @ParamGroupInfo(group = "Options") @ParamInfo(name = "Incluce holes") boolean includeHolesBool) throws IOException {
 
         if (maxSize == 0.0) {
             maxSize = Double.MAX_VALUE;
@@ -252,13 +265,53 @@ public class ConvertAnalyseImageJVRL implements Serializable{
 
         Roi[] rois = manager.getRoisAsArray();
         ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
+
         for (Roi roi : rois) {
             roiList.add((PolygonRoi) roi);
         }
+        
+        ImagePlus ip = new ImagePlus("", image.getImage());
         if (!roiList.isEmpty()) {
-            image.setRoiList(roiList);
-            image.setRoi(roiList.get(roiList.size() - 1));
+            //image.setRoi(roiList.get(roiList.size() - 1));
+            //image.setRoiList(roiList);
+            saveRoisInFile(imgFile, image);
+            ImageProcessor imProcessor = ip.getProcessor();
+
+            for (int i = 0; i < roiList.size(); i++) {
+                imProcessor.setColor(Color.red);
+                roiList.get(i).setStrokeWidth(1);
+                roiList.get(i).drawPixels(imProcessor);
+
+            }
         }
-        return image;
+        return ip.getImage();
+    }
+
+    /**
+     *
+     * @param imgFile file to save the ROIs
+     * @param image ImageJVRL with ROIs
+     * @throws IOException
+     */
+    private void saveRoisInFile(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"txt\"]; description=\"File\"") File imgFile,
+            @ParamInfo(name = "ImageJVRL") ImageJVRL image) throws IOException {
+
+        ArrayList<String> tempRoiList = new ArrayList();
+
+        if (image.getRoiList() != null) {
+            System.out.println("image get ROI list " + image.getRoiList());
+            for (int i = 0; i < image.getRoiList().size(); i++) {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                RoiEncoder re = new RoiEncoder(bout);
+                re.write(image.getRoiList().get(i));
+                String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
+                tempRoiList.add(i, byteToString);
+                bout.close();
+            }
+
+            ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(imgFile));
+            aus.writeObject(tempRoiList);
+        }
+
     }
 }

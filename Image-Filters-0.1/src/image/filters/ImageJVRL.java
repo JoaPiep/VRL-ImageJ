@@ -131,9 +131,10 @@ public class ImageJVRL implements Serializable {
     }
 
     /**
-     * Encode the given ROI
+     *
+     * @param roi encode the given ROI
      */
-    public void encodeROI() {
+    public void encodeROI(PolygonRoi roi) {
 
         try {
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -172,9 +173,9 @@ public class ImageJVRL implements Serializable {
 
     /**
      *
-     * Encode the given ROI list
+     * @param roiList encode the given ROI list
      */
-    public void encodeROIList() {
+    public void encodeROIList(ArrayList<PolygonRoi> roiList) {
 
         ArrayList<String> tempRoiList = new ArrayList();
 
@@ -251,10 +252,11 @@ public class ImageJVRL implements Serializable {
     /**
      *
      * @param roiFile save File
+     * @param roiList list of ROIs to save
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public void saveROIsInFile(File roiFile) throws FileNotFoundException, IOException {
+    public void saveROIsInFile(File roiFile, ArrayList<PolygonRoi> roiList) throws FileNotFoundException, IOException {
 
         ArrayList<String> tempRoiList = new ArrayList();
 
@@ -272,6 +274,7 @@ public class ImageJVRL implements Serializable {
                 ex.printStackTrace(System.err);
 
             }
+
         }
 
         ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(roiFile));

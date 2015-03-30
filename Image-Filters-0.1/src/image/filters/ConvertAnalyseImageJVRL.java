@@ -272,9 +272,10 @@ public class ConvertAnalyseImageJVRL implements Serializable {
         
         ImagePlus ip = new ImagePlus("", image.getImage());
         if (!roiList.isEmpty()) {
-            //image.setRoi(roiList.get(roiList.size() - 1));
-            //image.setRoiList(roiList);
+            image.setRoi(roiList.get(roiList.size() - 1));
+            image.setRoiList(roiList);
             saveRoisInFile(imgFile, image);
+            
             ImageProcessor imProcessor = ip.getProcessor();
 
             for (int i = 0; i < roiList.size(); i++) {
@@ -299,7 +300,6 @@ public class ConvertAnalyseImageJVRL implements Serializable {
         ArrayList<String> tempRoiList = new ArrayList();
 
         if (image.getRoiList() != null) {
-            System.out.println("image get ROI list " + image.getRoiList());
             for (int i = 0; i < image.getRoiList().size(); i++) {
                 ByteArrayOutputStream bout = new ByteArrayOutputStream();
                 RoiEncoder re = new RoiEncoder(bout);

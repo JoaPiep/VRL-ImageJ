@@ -6,7 +6,6 @@ package image.filters;
 
 import eu.mihosoft.vrl.annotation.TypeInfo;
 import eu.mihosoft.vrl.types.BufferedImageType;
-import java.awt.Image;
 
 /**
  * @author Joanna Pieper
@@ -22,8 +21,7 @@ public class ImageJVRLType extends BufferedImageType {
     public void setViewValue(Object o) {
 
         ImageJVRL imageJVRL = (ImageJVRL) o;
-        Image image = imageJVRL.getImage();
-        super.setViewValue(image);
+        super.setViewValue(imageJVRL.getImage());
     }
 
     @Override

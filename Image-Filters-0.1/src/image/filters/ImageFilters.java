@@ -99,7 +99,7 @@ public class ImageFilters implements Serializable {
         if (image.getRoiList().isEmpty()) {
             imageProcessor.medianFilter();
         } else {
-           for (PolygonRoi roi : image.getRoiList()) {
+            for (PolygonRoi roi : image.getRoiList()) {
                 imageProcessor.snapshot();
                 imageProcessor.setRoi((Roi) roi);
                 imageProcessor.medianFilter();
@@ -118,24 +118,25 @@ public class ImageFilters implements Serializable {
      * @return filtered image (with invert filter)
      */
     public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
-
+        System.out.println("*******************************************");
+        System.out.println("INVERT FILTER (bevore) " + image.toString());
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-
         if (image.getRoiList().isEmpty()) {
+            System.out.println(" NO ROIS !!!!!!!!! ");
             imageProcessor.invert();
         } else {
-
             for (PolygonRoi roi : image.getRoiList()) {
                 imageProcessor.snapshot();
                 imageProcessor.setRoi((Roi) roi);
                 imageProcessor.invert();
                 imageProcessor.reset(imageProcessor.getMask());
-
             }
         }
         Image im = imageProcessor.createImage();
-
-        return new ImageJVRL(im);
+        ImageJVRL imageJ = new ImageJVRL(im);
+        System.out.println("INVERT FILTER (after) " + imageJ.toString());
+        System.out.println("*******************************************");
+        return imageJ;
 
     }
 

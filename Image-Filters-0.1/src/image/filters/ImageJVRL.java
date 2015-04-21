@@ -34,7 +34,41 @@ public class ImageJVRL implements Serializable {
     private transient Image image;
     private transient PolygonRoi roi; // last element in the roi list
     private transient ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
+    private transient ArrayList<PolygonRoi> autoGenerateRoiList = new ArrayList<PolygonRoi>();
     private ArrayList<String> roiDataList = new ArrayList<String>();
+    
+    
+    public void setAutoGenerateRoiList(ArrayList<PolygonRoi> autoGenerateRoiList) {
+        this.autoGenerateRoiList = autoGenerateRoiList;
+    }
+
+    public ArrayList<PolygonRoi> getAutoGenerateRoiList() {
+        return autoGenerateRoiList;
+    }
+    
+    
+    /**
+     * 
+     * @param imageJVRL ImageJVRL-Object to copy the attributes
+     */
+    public void copyAttributes(ImageJVRL imageJVRL) {
+        if (imageJVRL.getImage() != null) {
+            setImage(imageJVRL.getImage());
+        }
+        if (imageJVRL.getRoi() != null) {
+            setRoi(imageJVRL.getRoi());
+        }
+        if (imageJVRL.getRoiData() != null) {
+            setRoiData(imageJVRL.getRoiData());
+        }
+        if (imageJVRL.getRoiList() != null) {
+            setRoiList(imageJVRL.getRoiList());
+        }
+        if (imageJVRL.getRoiDataList() != null) {
+            setRoiDataList(imageJVRL.getRoiDataList());
+        }
+
+    }
 
     /**
      * empty constructor

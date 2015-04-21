@@ -21,8 +21,6 @@ import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -222,7 +220,7 @@ public class ConvertAnalyseImageJVRL implements Serializable {
      * the image (or selection) will be ignored.
      * @return image with ROIs
      */
-    public Image autoGenerateROIs(
+    public Image autoGenerateROIsToFile(
             @ParamInfo(name = "", style = "save-dialog", options = "endings=[\"txt\"]; description=\"File\"") File imgFile,
             @ParamInfo(name = "ImageJVRL") ImageJVRL image,
             @ParamInfo(name = "Min size   (double)") double minSize,
@@ -269,13 +267,13 @@ public class ConvertAnalyseImageJVRL implements Serializable {
         for (Roi roi : rois) {
             roiList.add((PolygonRoi) roi);
         }
-        
+
         ImagePlus ip = new ImagePlus("", image.getImage());
         if (!roiList.isEmpty()) {
             image.setRoi(roiList.get(roiList.size() - 1));
             image.setRoiList(roiList);
             saveRoisInFile(imgFile, image);
-            
+
             ImageProcessor imProcessor = ip.getProcessor();
 
             for (int i = 0; i < roiList.size(); i++) {
@@ -313,5 +311,71 @@ public class ConvertAnalyseImageJVRL implements Serializable {
             aus.writeObject(tempRoiList);
         }
 
+    }
+
+    /**
+     *
+     * @param image image to analyse and find ROIs
+     * @param minSize minimal size of the area (pixel)
+     * @param maxSize maximal size of the area (pixel)
+     * @param minCirc minimal size of the circle
+     * @param maxCirc maximal size of the circle
+     * @param includeHolesBool If true, interior holes will be included.
+     * @param excludeEdgeParticlesBool If true, particles touching the edge of
+     * the image (or selection) will be ignored.
+     * @return image with ROIs
+     */
+    public ImageJVRL autoGenerateROIs(
+            @ParamInfo(name = "ImageJVRL") ImageJVRL image,
+            @ParamInfo(name = "Min size   (double)") double minSize,
+            @ParamInfo(name = "Max size   (double)") double maxSize,
+            @ParamInfo(name = "Min circle (double)") double minCirc,
+            @ParamInfo(name = "Max circle (double)") double maxCirc,
+            @ParamGroupInfo(group = "Options|true|no description") @ParamInfo(name = "Exclude on edges") boolean excludeEdgeParticlesBool,
+            @ParamGroupInfo(group = "Options") @ParamInfo(name = "Incluce holes") boolean includeHolesBool) {
+
+        if (maxSize == 0.0) {
+            maxSize = Double.MAX_VALUE;
+        }
+        ImagePlus imp = new ImagePlus("", image.getImage());
+
+        ImageConverter ic = new ImageConverter(imp);
+        ic.convertToGray32();
+
+        IJ.setAutoThreshold(imp, "Default"); //TODO choose method with "selection"
+
+        RoiManager manager = new RoiManager(true);
+        ParticleAnalyzer.setRoiManager(manager);
+
+        int includeHoles = ParticleAnalyzer.INCLUDE_HOLES;
+        int excludeEdgeParticles = ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES;
+
+        int options = 0;
+        int measurements = 0;
+
+        if (includeHolesBool) {
+            options = options + includeHoles;
+        }
+
+        if (excludeEdgeParticlesBool) {
+            options = options + excludeEdgeParticles;
+        }
+
+        ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, new ResultsTable(), minSize, maxSize, minCirc, maxCirc);
+        pa.analyze(imp);
+        pa.setHideOutputImage(false);
+
+        Roi[] rois = manager.getRoisAsArray();
+        ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
+
+        for (Roi roi : rois) {
+            roiList.add((PolygonRoi) roi);
+        }
+
+        if (!roiList.isEmpty()) {
+            image.setAutoGenerateRoiList(roiList);
+        }
+
+        return image;
     }
 }

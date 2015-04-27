@@ -33,22 +33,33 @@ public class ImageJVRL implements Serializable {
     private String roiData;
     private transient Image image;
     private transient PolygonRoi roi; // last element in the roi list
-    private transient ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
-    private transient ArrayList<PolygonRoi> autoGenerateRoiList = new ArrayList<PolygonRoi>();
-    private ArrayList<String> roiDataList = new ArrayList<String>();
-    
-    
-    public void setAutoGenerateRoiList(ArrayList<PolygonRoi> autoGenerateRoiList) {
-        this.autoGenerateRoiList = autoGenerateRoiList;
+    private transient ArrayList<PolygonRoi> roiList;
+    private transient ArrayList<PolygonRoi> autoGenerateRoiList;
+    private ArrayList<String> roiDataList;
+
+    /**
+     * empty constructor
+     */
+    public ImageJVRL() {
+        roiList = new ArrayList<PolygonRoi>();
+        autoGenerateRoiList = new ArrayList<PolygonRoi>();
+        roiDataList = new ArrayList<String>();
     }
 
-    public ArrayList<PolygonRoi> getAutoGenerateRoiList() {
-        return autoGenerateRoiList;
-    }
-    
-    
     /**
-     * 
+     *
+     * @param image image to set
+     */
+    public ImageJVRL(Image image) {
+        this.image = image;
+        roiList = new ArrayList<PolygonRoi>();
+        autoGenerateRoiList = new ArrayList<PolygonRoi>();
+        roiDataList = new ArrayList<String>();
+
+    }
+
+    /**
+     *
      * @param imageJVRL ImageJVRL-Object to copy the attributes
      */
     public void copyAttributes(ImageJVRL imageJVRL) {
@@ -67,22 +78,6 @@ public class ImageJVRL implements Serializable {
         if (imageJVRL.getRoiDataList() != null) {
             setRoiDataList(imageJVRL.getRoiDataList());
         }
-
-    }
-
-    /**
-     * empty constructor
-     */
-    public ImageJVRL() {
-
-    }
-
-    /**
-     *
-     * @param image image to set
-     */
-    public ImageJVRL(Image image) {
-        this.image = image;
 
     }
 
@@ -162,6 +157,22 @@ public class ImageJVRL implements Serializable {
      */
     public void setRoiDataList(ArrayList<String> roiDataList) {
         this.roiDataList = roiDataList;
+    }
+
+    /**
+     *
+     * @param autoGenerateRoiList to set
+     */
+    public void setAutoGenerateRoiList(ArrayList<PolygonRoi> autoGenerateRoiList) {
+        this.autoGenerateRoiList = autoGenerateRoiList;
+    }
+
+    /**
+     *
+     * @return automatically generated list with ROIs
+     */
+    public ArrayList<PolygonRoi> getAutoGenerateRoiList() {
+        return autoGenerateRoiList;
     }
 
     /**

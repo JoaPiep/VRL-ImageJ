@@ -29,4 +29,5 @@ public class ImageJVRLType extends BufferedImageType {
         return this.viewValue;
     }
 
+ 
 }

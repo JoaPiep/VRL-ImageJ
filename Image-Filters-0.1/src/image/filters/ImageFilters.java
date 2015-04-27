@@ -24,6 +24,8 @@ import java.io.Serializable;
         description = "My Component")
 public class ImageFilters implements Serializable {
 
+    //protected ImageJVRL imageJVRL = new ImageJVRL();
+    
     public ImageFilters() {
     }
 
@@ -42,6 +44,7 @@ public class ImageFilters implements Serializable {
             @ParamInfo(name = "sigmaY   (double)") double sigmaY,
             @ParamInfo(name = "accuracy (double)") double accuracy) {
 
+        
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         GaussianBlur blur = new GaussianBlur();
 
@@ -118,11 +121,9 @@ public class ImageFilters implements Serializable {
      * @return filtered image (with invert filter)
      */
     public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
-        System.out.println("*******************************************");
-        System.out.println("INVERT FILTER (bevore) " + image.toString());
+
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         if (image.getRoiList().isEmpty()) {
-            System.out.println(" NO ROIS !!!!!!!!! ");
             imageProcessor.invert();
         } else {
             for (PolygonRoi roi : image.getRoiList()) {
@@ -134,8 +135,6 @@ public class ImageFilters implements Serializable {
         }
         Image im = imageProcessor.createImage();
         ImageJVRL imageJ = new ImageJVRL(im);
-        System.out.println("INVERT FILTER (after) " + imageJ.toString());
-        System.out.println("*******************************************");
         return imageJ;
 
     }

@@ -27,6 +27,7 @@ import javax.imageio.ImageIO;
         category = "ImageJ-VRL",
         description = "My Component")
 public class LoadStoreImageJVRL implements Serializable {
+    
 
     /**
      * empty constructor
@@ -46,9 +47,9 @@ public class LoadStoreImageJVRL implements Serializable {
         try {
             image = ImageIO.read(imgFile);
         } catch (IOException ex) {
-            Logger.getLogger(ImageFilters.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(LoadStoreImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
         return new ImageJVRL(image);
     }
 
@@ -74,7 +75,7 @@ public class LoadStoreImageJVRL implements Serializable {
         try {
             ImageIO.write(bImage, "jpg", imgFile);
         } catch (IOException e) {
-            Logger.getLogger(ImageFilters.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(LoadStoreImageJVRL.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 

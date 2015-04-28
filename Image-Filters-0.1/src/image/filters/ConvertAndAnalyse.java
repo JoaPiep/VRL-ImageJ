@@ -33,7 +33,7 @@ import java.util.ArrayList;
  *
  * @author Joanna Pieper <joanna.pieper1@gmail.com>
  */
-@ComponentInfo(name = "Converting- and analyse-tools",
+@ComponentInfo(name = "Analyse and Convert Tools",
         category = "ImageJ-VRL",
         description = "My Component")
 public class ConvertAndAnalyse implements Serializable {
@@ -202,7 +202,7 @@ public class ConvertAndAnalyse implements Serializable {
         if (pa.getOutputImage() != null) {
             return new ImageJVRL(pa.getOutputImage().getImage());
         } else {
-            return image;
+            return new ImageJVRL(image.getImage());
         }
 
     }
@@ -367,15 +367,15 @@ public class ConvertAndAnalyse implements Serializable {
 
         Roi[] rois = manager.getRoisAsArray();
         ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
-
+        ImageJVRL imageJVRL = new ImageJVRL(image.getImage());
         for (Roi roi : rois) {
             roiList.add((PolygonRoi) roi);
         }
 
         if (!roiList.isEmpty()) {
-            image.setAutoGenerateRoiList(roiList);
+            imageJVRL.setAutoGenerateRoiList(roiList);
         }
 
-        return image;
+        return imageJVRL;
     }
 }

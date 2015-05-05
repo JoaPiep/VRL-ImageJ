@@ -23,11 +23,10 @@ import javax.imageio.ImageIO;
  *
  * @author Joanna Pieper <joanna.pieper1@gmail.com>
  */
-@ComponentInfo(name = "Load and store",
+@ComponentInfo(name = "I/O-Tool",
         category = "ImageJ-VRL",
-        description = "My Component")
+        description = "Load and store of an image")
 public class LoadStoreImageJVRL implements Serializable {
-    
 
     /**
      * empty constructor
@@ -49,7 +48,7 @@ public class LoadStoreImageJVRL implements Serializable {
         } catch (IOException ex) {
             Logger.getLogger(LoadStoreImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return new ImageJVRL(image);
     }
 

@@ -21,10 +21,9 @@ import java.io.Serializable;
  */
 @ComponentInfo(name = "Filters",
         category = "ImageJ-VRL",
-        description = "My Component")
+        description = "ImageJ filters: gaussian blur, minimum filter, median filter, invert filter and detect edges tools")
 public class ImageFilters implements Serializable {
 
-    //protected ImageJVRL imageJVRL = new ImageJVRL();
     
     public ImageFilters() {
     }

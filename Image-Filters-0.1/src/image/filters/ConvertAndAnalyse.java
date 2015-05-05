@@ -1,5 +1,5 @@
 /*
- ////// * To change this license header, choose License Headers in Project Properties.
+ * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -21,6 +21,8 @@ import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,9 +35,9 @@ import java.util.ArrayList;
  *
  * @author Joanna Pieper <joanna.pieper1@gmail.com>
  */
-@ComponentInfo(name = "Analyse and Convert Tools",
+@ComponentInfo(name = "Analyse Tools",
         category = "ImageJ-VRL",
-        description = "My Component")
+        description = "Tools to analyse an image. See: ImageJ API -> ParticleAnalyser. ")
 public class ConvertAndAnalyse implements Serializable {
 
     public ConvertAndAnalyse() {
@@ -108,10 +110,10 @@ public class ConvertAndAnalyse implements Serializable {
      * @return edited or original image
      */
     public ImageJVRL imageAnalyse(@ParamInfo(name = "ImageJVRL", options = "saveRoi=true") ImageJVRL image,
-            @ParamInfo(name = "Min size   (double)") double minSize,
-            @ParamInfo(name = "Max size   (double)") double maxSize,
-            @ParamInfo(name = "Min circle (double)") double minCirc,
-            @ParamInfo(name = "Max circle (double)") double maxCirc,
+            @ParamInfo(name = "Min size   ") double minSize,
+            @ParamInfo(name = "Max size   ") double maxSize,
+            @ParamInfo(name = "Min circle ") double minCirc,
+            @ParamInfo(name = "Max circle ") double maxCirc,
             @ParamInfo(name = "Show: ", style = "selection", options = "value=[\"Nothing\", \"Outlines\", \"Four connected\","
                     + " \"Masks\", \"Rois Masks\", \"Overlay Outlines\", \"Overlay Masks\"]") String show,
             @ParamGroupInfo(group = "Options|false|no description") @ParamInfo(name = "Display results") boolean showResultsBool,
@@ -195,9 +197,23 @@ public class ConvertAndAnalyse implements Serializable {
         }
 
         int measurements = 0;
-
+        
         ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, new ResultsTable(), minSize, maxSize, minCirc, maxCirc);
+        
+        if (!addToManagerBool) {
+            pa.setHideOutputImage(true);
+        }
         pa.analyze(imp);
+        //RoiManager manager = new RoiManager(addToManagerBool);
+       // ParticleAnalyzer.setRoiManager(manager);
+        //manager.setVisible(addToManagerBool);
+        // manager.setAlwaysOnTop(addToManagerBool);
+        //manager.setEditMode(imp, true);
+        //manager.moveRoisToOverlay(imp);
+        //imp.show();
+        // manager.setVisible(addToManagerBool);
+        //Roi[] rois = manager.getRoisAsArray();
+       // System.out.println("ROIS " + rois.length);
 
         if (pa.getOutputImage() != null) {
             return new ImageJVRL(pa.getOutputImage().getImage());
@@ -221,12 +237,12 @@ public class ConvertAndAnalyse implements Serializable {
      * @return image with ROIs
      */
     public Image autoGenerateROIsToFile(
-            @ParamInfo(name = "", style = "save-dialog", options = "endings=[\"txt\"]; description=\"File\"") File imgFile,
+            @ParamInfo(name = "", style = "save-dialog", options = "endings=[\"txt\"]; description=\"Textfile\"") File imgFile,
             @ParamInfo(name = "ImageJVRL") ImageJVRL image,
-            @ParamInfo(name = "Min size   (double)") double minSize,
-            @ParamInfo(name = "Max size   (double)") double maxSize,
-            @ParamInfo(name = "Min circle (double)") double minCirc,
-            @ParamInfo(name = "Max circle (double)") double maxCirc,
+            @ParamInfo(name = "Min size   ") double minSize,
+            @ParamInfo(name = "Max size   ") double maxSize,
+            @ParamInfo(name = "Min circle ") double minCirc,
+            @ParamInfo(name = "Max circle ") double maxCirc,
             @ParamGroupInfo(group = "Options|true|no description") @ParamInfo(name = "Exclude on edges") boolean excludeEdgeParticlesBool,
             @ParamGroupInfo(group = "Options") @ParamInfo(name = "Incluce holes") boolean includeHolesBool) throws IOException {
 
@@ -259,7 +275,6 @@ public class ConvertAndAnalyse implements Serializable {
 
         ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, new ResultsTable(), minSize, maxSize, minCirc, maxCirc);
         pa.analyze(imp);
-        pa.setHideOutputImage(false);
 
         Roi[] rois = manager.getRoisAsArray();
         ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
@@ -268,11 +283,12 @@ public class ConvertAndAnalyse implements Serializable {
             roiList.add((PolygonRoi) roi);
         }
 
+        ImageJVRL imageJVRL = new ImageJVRL(image.getImage());
         ImagePlus ip = new ImagePlus("", image.getImage());
         if (!roiList.isEmpty()) {
-            image.setRoi(roiList.get(roiList.size() - 1));
-            image.setRoiList(roiList);
-            saveRoisInFile(imgFile, image);
+            imageJVRL.setRoi(roiList.get(roiList.size() - 1));
+            imageJVRL.setRoiList(roiList);
+            saveRoisInFile(imgFile, imageJVRL);
 
             ImageProcessor imProcessor = ip.getProcessor();
 
@@ -292,7 +308,7 @@ public class ConvertAndAnalyse implements Serializable {
      * @param image ImageJVRL with ROIs
      * @throws IOException
      */
-    private void saveRoisInFile(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"txt\"]; description=\"File\"") File imgFile,
+    private void saveRoisInFile(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"txt\"]; description=\"Textfile\"") File imgFile,
             @ParamInfo(name = "ImageJVRL") ImageJVRL image) throws IOException {
 
         ArrayList<String> tempRoiList = new ArrayList();
@@ -327,10 +343,10 @@ public class ConvertAndAnalyse implements Serializable {
      */
     public ImageJVRL autoGenerateROIs(
             @ParamInfo(name = "ImageJVRL") ImageJVRL image,
-            @ParamInfo(name = "Min size   (double)") double minSize,
-            @ParamInfo(name = "Max size   (double)") double maxSize,
-            @ParamInfo(name = "Min circle (double)") double minCirc,
-            @ParamInfo(name = "Max circle (double)") double maxCirc,
+            @ParamInfo(name = "Min size   ") double minSize,
+            @ParamInfo(name = "Max size   ") double maxSize,
+            @ParamInfo(name = "Min circle ") double minCirc,
+            @ParamInfo(name = "Max circle ") double maxCirc,
             @ParamGroupInfo(group = "Options|true|no description") @ParamInfo(name = "Exclude on edges") boolean excludeEdgeParticlesBool,
             @ParamGroupInfo(group = "Options") @ParamInfo(name = "Incluce holes") boolean includeHolesBool) {
 
@@ -363,10 +379,10 @@ public class ConvertAndAnalyse implements Serializable {
 
         ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, new ResultsTable(), minSize, maxSize, minCirc, maxCirc);
         pa.analyze(imp);
-        pa.setHideOutputImage(false);
 
         Roi[] rois = manager.getRoisAsArray();
         ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
+
         ImageJVRL imageJVRL = new ImageJVRL(image.getImage());
         for (Roi roi : rois) {
             roiList.add((PolygonRoi) roi);

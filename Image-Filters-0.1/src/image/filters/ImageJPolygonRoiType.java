@@ -333,17 +333,18 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                 }
                                             } /*else {
 
-                                                if (!polygonRoiList.isEmpty()) {
-                                                    polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
-                                                    imageJVRLvalue.setRoi(polygonRoi);
-                                                } else {
-                                                    //polygonRoi = null;
-                                                    imageJVRLvalue.setRoi(null);
-                                                    if (saveRoiInVRL) {
-                                                        imageJVRLvalue.setRoiData(null);
-                                                    }
-                                                }
-                                            }*/
+                                             if (!polygonRoiList.isEmpty()) {
+                                             polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
+                                             imageJVRLvalue.setRoi(polygonRoi);
+                                             } else {
+                                             //polygonRoi = null;
+                                             imageJVRLvalue.setRoi(null);
+                                             if (saveRoiInVRL) {
+                                             imageJVRLvalue.setRoiData(null);
+                                             }
+                                             }
+                                             }*/
+
                                         }
                                         if (saveRoiInVRL) {
                                             if (polygonRoi != null) {
@@ -448,9 +449,9 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         } else {
 
             if (isInput()) {
-                
+
                 imageJVRLvalue.setImage(imageJVRL.getImage());
-                
+
                 if (imageJVRL.getAutoGenerateRoiList() != null) { // autoGenerateRoi()
                     if (!imageJVRL.getAutoGenerateRoiList().isEmpty()) {
                         ArrayList<PolygonRoi> list = imageJVRL.getAutoGenerateRoiList();

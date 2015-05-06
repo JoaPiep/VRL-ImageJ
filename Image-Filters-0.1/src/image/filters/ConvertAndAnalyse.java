@@ -23,6 +23,8 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -129,7 +131,7 @@ public class ConvertAndAnalyse implements Serializable {
             maxSize = Double.MAX_VALUE;
         }
 
-        ImagePlus imp = new ImagePlus("", image.getImage());
+        final ImagePlus imp = new ImagePlus("", image.getImage());
 
         ImageConverter ic = new ImageConverter(imp);
         ic.convertToGray32();
@@ -197,30 +199,46 @@ public class ConvertAndAnalyse implements Serializable {
         }
 
         int measurements = 0;
-        
+
         ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, new ResultsTable(), minSize, maxSize, minCirc, maxCirc);
-        
+
         if (!addToManagerBool) {
             pa.setHideOutputImage(true);
         }
-        pa.analyze(imp);
-        //RoiManager manager = new RoiManager(addToManagerBool);
-       // ParticleAnalyzer.setRoiManager(manager);
-        //manager.setVisible(addToManagerBool);
-        // manager.setAlwaysOnTop(addToManagerBool);
-        //manager.setEditMode(imp, true);
-        //manager.moveRoisToOverlay(imp);
-        //imp.show();
-        // manager.setVisible(addToManagerBool);
-        //Roi[] rois = manager.getRoisAsArray();
-       // System.out.println("ROIS " + rois.length);
 
+        pa.analyze(imp);
+
+        if (addToManagerBool) {
+            final RoiManager manager = RoiManager.getInstance();
+
+            if (pa.getOutputImage() != null) {
+                final ImagePlus outputImage = pa.getOutputImage();
+                
+                manager.setVisible(true);
+                manager.setLocation(0, 0);
+                manager.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent ew) {
+                        outputImage.close();
+                    }
+                });
+
+                outputImage.getWindow().addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent ew) {
+                        manager.close();
+                    }
+                });
+            } else {
+                manager.setVisible(false);
+            }
+        }
+        
         if (pa.getOutputImage() != null) {
             return new ImageJVRL(pa.getOutputImage().getImage());
         } else {
-            return new ImageJVRL(image.getImage());
+            return new ImageJVRL(imp.getImage());
         }
-
     }
 
     /**

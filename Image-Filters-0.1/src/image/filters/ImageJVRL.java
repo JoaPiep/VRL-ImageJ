@@ -6,8 +6,10 @@ package image.filters;
 
 import eu.mihosoft.vrl.io.Base64;
 import ij.gui.PolygonRoi;
+import ij.gui.Roi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
+import ij.plugin.frame.RoiManager;
 import java.awt.Image;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,6 +39,10 @@ public class ImageJVRL implements Serializable {
     private transient ArrayList<PolygonRoi> autoGenerateRoiList;
     private ArrayList<String> roiDataList;
 
+    private transient RoiManager roiManager = new RoiManager(false);
+    private ArrayList<String> roiDataListRM;
+    private Roi [] autoGenerateArray;
+
     /**
      * empty constructor
      */
@@ -44,6 +50,7 @@ public class ImageJVRL implements Serializable {
         roiList = new ArrayList<PolygonRoi>();
         autoGenerateRoiList = new ArrayList<PolygonRoi>();
         roiDataList = new ArrayList<String>();
+        roiDataListRM = new ArrayList<String>();
     }
 
     /**
@@ -55,6 +62,7 @@ public class ImageJVRL implements Serializable {
         roiList = new ArrayList<PolygonRoi>();
         autoGenerateRoiList = new ArrayList<PolygonRoi>();
         roiDataList = new ArrayList<String>();
+        roiDataListRM = new ArrayList<String>();
 
     }
 
@@ -173,6 +181,22 @@ public class ImageJVRL implements Serializable {
      */
     public ArrayList<PolygonRoi> getAutoGenerateRoiList() {
         return autoGenerateRoiList;
+    }
+
+    /**
+     *
+     * @return roi manager
+     */
+    public RoiManager getRoiManager() {
+        return roiManager;
+    }
+
+    /**
+     *
+     * @param roiManager roi manager to set
+     */
+    public void setRoiManager(RoiManager roiManager) {
+        this.roiManager = roiManager;
     }
 
     /**
@@ -343,4 +367,106 @@ public class ImageJVRL implements Serializable {
         return decodeROIList();
     }
 
+    //**************************************************************************
+    public void encodeROIListRM(RoiManager roiManager) {
+
+        ArrayList<String> tempRoiList = new ArrayList();
+
+        for (int i = 0; i < roiManager.getCount(); i++) {
+            try {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                RoiEncoder re = new RoiEncoder(bout);
+                re.write(roiManager.getRoi(i));
+                String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
+                tempRoiList.add(i, byteToString);
+                bout.close();
+
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+
+            }
+        }
+        setRoiDataListRM(tempRoiList);
+    }
+
+    /**
+     *
+     * @return list of decoded ROIs
+     */
+    public RoiManager decodeROIListRM() {
+
+        RoiManager rManager = new RoiManager(false);
+
+        for (int i = 0; i < getRoiDataListRM().size(); i++) {
+            try {
+                byte[] stringToByte = Base64.decode(getRoiDataList().get(i));
+                RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
+                rManager.addRoi((PolygonRoi) rd.getRoi());
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+            }
+        }
+        return rManager;
+    }
+
+    public ArrayList<String> getRoiDataListRM() {
+        return roiDataListRM;
+    }
+
+    public void setRoiDataListRM(ArrayList<String> roiDataListRM) {
+        this.roiDataListRM = roiDataListRM;
+    }
+
+    public void saveROIsInFileRM(File roiFile, RoiManager roiManager) throws FileNotFoundException, IOException {
+
+        ArrayList<String> tempRoiList = new ArrayList();
+
+        for (int i = 0; i < roiManager.getCount(); i++) {
+            try {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                RoiEncoder re = new RoiEncoder(bout);
+                re.write(roiManager.getRoi(i));
+                String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
+                tempRoiList.add(i, byteToString);
+                bout.close();
+
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+
+            }
+        }
+
+        ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(roiFile));
+        aus.writeObject(tempRoiList);
+    }
+    public RoiManager getROIsfromFileRM(File roiFile) throws FileNotFoundException, IOException, ClassNotFoundException {
+
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(roiFile));
+        ArrayList<String> tempList = (ArrayList<String>) in.readObject();
+        
+        RoiManager rManager = new RoiManager(false);
+
+        for (int i = 0; i < tempList.size(); i++) {
+            try {
+                byte[] stringToByte = Base64.decode(tempList.get(i));
+                RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
+                rManager.addRoi((PolygonRoi) rd.getRoi());
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+            }
+        }
+        return rManager;
+    }
+
+    public Roi[] getAutoGenerateArray() {
+        return autoGenerateArray;
+    }
+
+    public void setAutoGenerateArray(Roi[] autoGenerateArray) {
+        this.autoGenerateArray = autoGenerateArray;
+    }
 }

@@ -21,8 +21,6 @@ import ij.process.ImageConverter;
 import ij.process.ImageProcessor;
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
@@ -213,7 +211,7 @@ public class ConvertAndAnalyse implements Serializable {
 
             if (pa.getOutputImage() != null) {
                 final ImagePlus outputImage = pa.getOutputImage();
-                
+
                 manager.setVisible(true);
                 manager.setLocation(0, 0);
                 manager.addWindowListener(new WindowAdapter() {
@@ -233,7 +231,7 @@ public class ConvertAndAnalyse implements Serializable {
                 manager.setVisible(false);
             }
         }
-        
+
         if (pa.getOutputImage() != null) {
             return new ImageJVRL(pa.getOutputImage().getImage());
         } else {
@@ -399,9 +397,10 @@ public class ConvertAndAnalyse implements Serializable {
         pa.analyze(imp);
 
         Roi[] rois = manager.getRoisAsArray();
+        ImageJVRL imageJVRL = new ImageJVRL(image.getImage());
+        imageJVRL.setAutoGenerateArray(rois);
         ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
 
-        ImageJVRL imageJVRL = new ImageJVRL(image.getImage());
         for (Roi roi : rois) {
             roiList.add((PolygonRoi) roi);
         }

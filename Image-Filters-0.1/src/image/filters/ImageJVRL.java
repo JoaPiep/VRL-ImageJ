@@ -38,10 +38,11 @@ public class ImageJVRL implements Serializable {
     private transient ArrayList<PolygonRoi> roiList;
     private transient ArrayList<PolygonRoi> autoGenerateRoiList;
     private ArrayList<String> roiDataList;
+    private Boolean generateRois;
 
     private transient RoiManager roiManager = new RoiManager(false);
     private ArrayList<String> roiDataListRM;
-    private Roi [] autoGenerateArray;
+    private Roi[] autoGenerateArray;
 
     /**
      * empty constructor
@@ -197,6 +198,22 @@ public class ImageJVRL implements Serializable {
      */
     public void setRoiManager(RoiManager roiManager) {
         this.roiManager = roiManager;
+    }
+
+    /**
+     *
+     * @return return 'true' if the rois are always created
+     */
+    public Boolean isGenerateRois() {
+        return generateRois;
+    }
+
+    /**
+     *
+     * @param generateRois if 'true' rois will be always automatically created
+     */
+    public void setGenerateRois(Boolean generateRois) {
+        this.generateRois = generateRois;
     }
 
     /**
@@ -442,11 +459,12 @@ public class ImageJVRL implements Serializable {
         ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(roiFile));
         aus.writeObject(tempRoiList);
     }
+
     public RoiManager getROIsfromFileRM(File roiFile) throws FileNotFoundException, IOException, ClassNotFoundException {
 
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(roiFile));
         ArrayList<String> tempList = (ArrayList<String>) in.readObject();
-        
+
         RoiManager rManager = new RoiManager(false);
 
         for (int i = 0; i < tempList.size(); i++) {
@@ -469,4 +487,5 @@ public class ImageJVRL implements Serializable {
     public void setAutoGenerateArray(Roi[] autoGenerateArray) {
         this.autoGenerateArray = autoGenerateArray;
     }
+
 }

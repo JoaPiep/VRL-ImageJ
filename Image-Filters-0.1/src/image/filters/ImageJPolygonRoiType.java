@@ -329,7 +329,9 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                     Roi.POLYGON);
                                             printRoi(polygonRoi, imagePlus);
 
-                                        } else if (e.getButton() == MouseEvent.BUTTON3
+                                        }
+
+                                        if (e.getButton() == MouseEvent.BUTTON3
                                         && e.getClickCount() == 1) {
 
                                             imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
@@ -547,8 +549,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                 if (imageJVRL.getAutoGenerateRoiList() != null) { // autoGenerateRoi()
                     if (!imageJVRL.getAutoGenerateRoiList().isEmpty()) {
                         ArrayList<PolygonRoi> list = imageJVRL.getAutoGenerateRoiList();
-
-                        if (!list.equals(tempList)) {
+                        if (!list.equals(tempList) || imageJVRL.isGenerateRois()) {
                             for (PolygonRoi roi : tempList) {
                                 if (polygonRoiList.contains(roi)) {
                                     polygonRoiList.remove(roi);

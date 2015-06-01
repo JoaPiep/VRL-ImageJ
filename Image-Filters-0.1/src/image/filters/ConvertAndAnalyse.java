@@ -355,6 +355,7 @@ public class ConvertAndAnalyse implements Serializable {
      * @param includeHolesBool If true, interior holes will be included.
      * @param excludeEdgeParticlesBool If true, particles touching the edge of
      * the image (or selection) will be ignored.
+     * @param generateRois generate always ROIs
      * @return image with ROIs
      */
     public ImageJVRL autoGenerateROIs(
@@ -364,7 +365,8 @@ public class ConvertAndAnalyse implements Serializable {
             @ParamInfo(name = "Min circle ") double minCirc,
             @ParamInfo(name = "Max circle ") double maxCirc,
             @ParamGroupInfo(group = "Options|true|no description") @ParamInfo(name = "Exclude on edges") boolean excludeEdgeParticlesBool,
-            @ParamGroupInfo(group = "Options") @ParamInfo(name = "Incluce holes") boolean includeHolesBool) {
+            @ParamGroupInfo(group = "Options") @ParamInfo(name = "Incluce holes") boolean includeHolesBool,
+            @ParamGroupInfo(group = "Options") @ParamInfo(name = "Create ROIs") boolean generateRois) {
 
         if (maxSize == 0.0) {
             maxSize = Double.MAX_VALUE;
@@ -408,6 +410,7 @@ public class ConvertAndAnalyse implements Serializable {
         if (!roiList.isEmpty()) {
             imageJVRL.setAutoGenerateRoiList(roiList);
         }
+        imageJVRL.setGenerateRois(generateRois);
 
         return imageJVRL;
     }

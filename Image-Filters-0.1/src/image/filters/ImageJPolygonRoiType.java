@@ -170,7 +170,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                 imageJVRLvalue.setRoiList(polygonRoiList); // delete
                                                 imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
                                                 iw.updateImage(imagePlus);
-                                                printRois(polygonRoiList, polygonRoi, imagePlus);
+                                               // printRois(polygonRoiList, polygonRoi, imagePlus);
+                                                printRoisRManager(roiManager,polygonRoi, imagePlus);
                                             }
                                         } catch (IOException ex) {
                                             Logger.getLogger(ImageJPolygonRoiType.class.getName()).log(Level.SEVERE, null, ex);
@@ -220,7 +221,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
 
-                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                           // printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoisRManager(roiManager,polygonRoi, imagePlus);
                                             printRoi(polygonRoi, imagePlus);
                                         } else {
                                             floatPolygon = new FloatPolygon();
@@ -247,7 +249,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                         if (polygonRoiList.size() > 1) {
                                             polygonRoiList.remove(polygonRoiList.size() - 1);
                                             polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
-                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            //printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoisRManager(roiManager,polygonRoi, imagePlus);
                                         } else if (polygonRoiList.size() == 1) {
                                             floatPolygon = new FloatPolygon();
                                             polygonRoi = new PolygonRoi(floatPolygon,
@@ -260,7 +263,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             roiManager.select(0);
                                             roiManager.runCommand("Delete");
                                             polygonRoi = (PolygonRoi) roiManager.getRoi(0);
-                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            //printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoisRManager(roiManager,polygonRoi, imagePlus);
 
                                         } else if (roiManager.getCount() == 1) {
                                             floatPolygon = new FloatPolygon();
@@ -293,7 +297,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             imageJVRLvalue.setRoi(polygonRoi);
                                             imageJVRLvalue.setRoiList(polygonRoiList); // delete
                                             imageJVRLvalue.setRoiManager(roiManager);
-                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            //printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoisRManager(roiManager,polygonRoi, imagePlus);
 
                                         }
                                     }
@@ -367,7 +372,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                     imageJVRLvalue.setRoi(null);
                                                 }
                                             }
-                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            //printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoisRManager(roiManager,polygonRoi, imagePlus);
                                             floatPolygon = new FloatPolygon();
                                         }
                                     }
@@ -426,7 +432,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                         setDataOutdated();
 
                                         if (!polygonRoiList.isEmpty()) {
-                                            printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            //printRois(polygonRoiList, polygonRoi, imagePlus);
+                                            printRoisRManager(roiManager,polygonRoi, imagePlus);
                                         }
                                     }
 
@@ -522,15 +529,29 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                             System.out.println("List are not equals");
                             Roi[] rois = roiManager.getRoisAsArray();
                             ArrayList<PolygonRoi> roiTempList = new ArrayList<PolygonRoi>();
+                            ArrayList<PolygonRoi> rmList = new ArrayList<PolygonRoi>();
                             for (Roi roi : rois) {
                                 roiTempList.add((PolygonRoi) roi);
+                                rmList.add((PolygonRoi) roi);
                             }
 
                             for (PolygonRoi roi : tempList) {
                                 if (roiTempList.contains(roi)) {
                                     roiTempList.remove(roi);
+                                    rmList.remove(roi);
                                 }
                             }
+
+                            for (PolygonRoi roi : list) {
+                                if (rmList.contains(roi)) {
+                                    rmList.remove(roi);
+                                }
+                            }
+
+                            for (PolygonRoi roi : rmList) {
+                                imageJVRL.getRoiManager().addRoi(roi);
+                            }
+
                             for (PolygonRoi roi : list) {
                                 if (!roiTempList.contains(roi)) {
                                     roiTempList.add(roi);
@@ -539,12 +560,14 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                             polygonRoi = roiTempList.get(roiTempList.size() - 1);
                             polygonRoiList = roiTempList;
-                            roiManager.reset();
+                            roiManager = imageJVRL.getRoiManager();
+                            //roiManager.reset();
                             // System.out.println("List size "+ roiTempList.size());
                             //System.out.println("Roi Manager size "+roiManager.getCount());
-                            for (Roi roi : roiTempList) {
-                                roiManager.addRoi(roi);
-                            }
+//                            for (Roi roi : roiTempList) {
+//                                roiManager.addRoi(roi);
+//                            }
+                            //roiManager.setVisible(true);
                             // System.out.println("Roi Manager size "+ roiManager.getCount());
 //                            for (PolygonRoi roi : tempList) {
 //                                if (polygonRoiList.contains(roi)) {
@@ -557,9 +580,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 //                                }
 //                            }
                             // polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
-                            final RoiManager manager = imageJVRL.getRoiManager();
-                            System.out.println("RM closing " + manager.getCount());
-                            
 
                             if (saveRoiInVRL) {
                                 if (polygonRoi != null) {
@@ -582,11 +602,11 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                         tempList = imageJVRL.getAutoGenerateRoiList();
                     }
                 }
-               
+
                 imageJVRL.setRoi(polygonRoi);
                 imageJVRL.setRoiList(polygonRoiList);
-                printRois(polygonRoiList, polygonRoi, imagePlus);
-
+                //printRois(polygonRoiList, polygonRoi, imagePlus);
+                printRoisRManager(roiManager,polygonRoi, imagePlus);
             }
         }
 
@@ -629,6 +649,31 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             plotPane.setImage(imagePlus.getImage());
             System.out.println("Print no rois!");
         }
+    }
+
+    /**
+     * 
+     * @param manager RoiManager with rois    
+     * @param polyRoi current Roi
+     * @param ip  current ImagePlus
+     */
+    private void printRoisRManager(RoiManager manager, PolygonRoi polyRoi, ImagePlus ip) {
+        ImageProcessor imProcessor = ip.getProcessor();
+        Roi[] rois = manager.getRoisAsArray();
+        if (manager.getCount() > 0 && polyRoi != null) {
+            for (Roi roi : rois) {
+                if (!roi.equals(polyRoi)) {
+                    imProcessor.setColor(Color.blue);
+                    roi.setStrokeWidth(2);
+                    roi.drawPixels(imProcessor);
+                } else {
+                    imProcessor.setColor(Color.red);
+                    roi.setStrokeWidth(2);
+                    roi.drawPixels(imProcessor);
+                }
+            }
+        }
+
     }
 
     /**

@@ -6,7 +6,6 @@ package image.filters;
 
 import eu.mihosoft.vrl.io.Base64;
 import ij.gui.PolygonRoi;
-import ij.gui.Roi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
 import ij.plugin.frame.RoiManager;
@@ -42,7 +41,6 @@ public class ImageJVRL implements Serializable {
 
     private transient RoiManager roiManager = new RoiManager(false);
     private ArrayList<String> roiDataListRM;
-    private Roi[] autoGenerateArray;
 
     /**
      * empty constructor
@@ -478,14 +476,6 @@ public class ImageJVRL implements Serializable {
             }
         }
         return rManager;
-    }
-
-    public Roi[] getAutoGenerateArray() {
-        return autoGenerateArray;
-    }
-
-    public void setAutoGenerateArray(Roi[] autoGenerateArray) {
-        this.autoGenerateArray = autoGenerateArray;
     }
 
 }

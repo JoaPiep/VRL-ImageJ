@@ -371,6 +371,7 @@ public class ConvertAndAnalyse implements Serializable {
         if (maxSize == 0.0) {
             maxSize = Double.MAX_VALUE;
         }
+
         ImagePlus imp = new ImagePlus("", image.getImage());
 
         ImageConverter ic = new ImageConverter(imp);
@@ -378,13 +379,13 @@ public class ConvertAndAnalyse implements Serializable {
 
         IJ.setAutoThreshold(imp, "Default"); //TODO choose method with "selection"
 
-        RoiManager manager = new RoiManager(true);
-        ParticleAnalyzer.setRoiManager(manager);
-
         int includeHoles = ParticleAnalyzer.INCLUDE_HOLES;
         int excludeEdgeParticles = ParticleAnalyzer.EXCLUDE_EDGE_PARTICLES;
+        int addToManager = ParticleAnalyzer.ADD_TO_MANAGER;
 
         int options = 0;
+        options = options + addToManager;
+
         int measurements = 0;
 
         if (includeHolesBool) {
@@ -398,19 +399,21 @@ public class ConvertAndAnalyse implements Serializable {
         ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, new ResultsTable(), minSize, maxSize, minCirc, maxCirc);
         pa.analyze(imp);
 
+        final RoiManager manager = RoiManager.getInstance();
+        manager.setLocation(0, 0);
+       // manager.setVisible(false);
+
         Roi[] rois = manager.getRoisAsArray();
         ImageJVRL imageJVRL = new ImageJVRL(image.getImage());
-        imageJVRL.setAutoGenerateArray(rois);
         ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
 
         for (Roi roi : rois) {
             roiList.add((PolygonRoi) roi);
         }
 
-        if (!roiList.isEmpty()) {
-            imageJVRL.setAutoGenerateRoiList(roiList);
-        }
+        imageJVRL.setAutoGenerateRoiList(roiList);
         imageJVRL.setGenerateRois(generateRois);
+        imageJVRL.setRoiManager(manager);
 
         return imageJVRL;
     }

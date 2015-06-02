@@ -38,6 +38,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Box;
@@ -110,6 +111,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 MenuItem changeItem = new MenuItem("Change active ROI", new MenuShortcut(KeyEvent.VK_N));
                                 MenuItem saveRoisItem = new MenuItem("Save ROIs in File", new MenuShortcut(KeyEvent.VK_S));
                                 MenuItem loadRoisItem = new MenuItem("Load ROIs from File", new MenuShortcut(KeyEvent.VK_L));
+                                MenuItem editModusItem = new MenuItem("Edit modus", new MenuShortcut(KeyEvent.VK_M));
 
                                 editMenu.add(changeItem);
                                 editMenu.add(editItem);
@@ -117,6 +119,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 editMenu.add(removeAllRoisItem);
                                 editMenu.add(saveRoisItem);
                                 editMenu.add(loadRoisItem);
+                                editMenu.add(editModusItem);
 
                                 menuBar.add(editMenu);
                                 menuBar.setHelpMenu(helpMenu);
@@ -293,6 +296,15 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             printRois(polygonRoiList, polygonRoi, imagePlus);
 
                                         }
+                                    }
+                                }
+                                );
+
+                                editModusItem.addActionListener(new ActionListener() {
+
+                                    @Override
+                                    public void actionPerformed(ActionEvent e) {
+                                        roiManager.setVisible(true);
                                     }
                                 }
                                 );
@@ -489,7 +501,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                     }
                 }
 
-                if (!polygonRoiList.isEmpty()) {
+                if (roiManager.getCount() > 0) {
                     imageJVRLvalue.encodeROIList(polygonRoiList);// roiDataList delete
                     imageJVRLvalue.encodeROIListRM(roiManager);
                 } else {
@@ -501,67 +513,54 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
         } else {
 
             if (isInput()) {
-
                 imageJVRLvalue.setImage(imageJVRL.getImage());
 
-//                if (imageJVRL.getAutoGenerateArray() != null) {  // TODO 
-//                    if (imageJVRL.getAutoGenerateArray().length != 0) {
-//                        Roi[] array = imageJVRL.getAutoGenerateArray();
-//                        if (!Arrays.equals(array, tempArray)) {
-//                            System.out.println("Arrays are not equals");
-//
-//                            if (tempArray != null) {
-//                                for (Roi roi : tempArray) {
-//                                    // if (roiManager.getRoiIndex(roi) != -1) {
-//                                    System.out.println("DELETE");
-//                                    roiManager.select(roiManager.getRoiIndex(roi));
-//                                    roiManager.runCommand("Delete");
-//
-//                                    // }
-//                                }
-//                                System.out.println("ROI MANAGER bevore INSERT " + roiManager.getCount());
-//                                for (Roi roi : array) {
-//                                    if (roiManager.getRoiIndex(roi) == -1) {
-//                                        roiManager.addRoi(roi);
-//                                        System.out.println("ADD ROI TPosition " + roi.getTPosition());
-//                                    }
-//                                }
-//                                System.out.println("ROI MANAGER COUNT after INSERT " + roiManager.getCount());
-//                                polygonRoi = (PolygonRoi) roiManager.getRoi(0);
-//
-//                                //##### nur solange polygonRoiList existiert #####
-//                                polygonRoiList.clear();
-//                                Roi[] rois = roiManager.getRoisAsArray();
-//                                for (Roi roi : rois) {
-//                                    polygonRoiList.add((PolygonRoi) roi);
-//                                }
-//                                //System.out.println("PolygonRoi List count " + polygonRoiList.size());
-//                                // ###############################################
-//
-//                            }
-//                        }
-//                        tempArray = imageJVRL.getAutoGenerateArray();
-//                    }
-//                }
-//
-//                System.out.println("Roi Manager count " + roiManager.getCount());
-//
                 if (imageJVRL.getAutoGenerateRoiList() != null) { // autoGenerateRoi()
                     if (!imageJVRL.getAutoGenerateRoiList().isEmpty()) {
                         ArrayList<PolygonRoi> list = imageJVRL.getAutoGenerateRoiList();
                         if (!list.equals(tempList) || imageJVRL.isGenerateRois()) {
+                            System.out.println("List are not equals");
+                            Roi[] rois = roiManager.getRoisAsArray();
+                            ArrayList<PolygonRoi> roiTempList = new ArrayList<PolygonRoi>();
+                            for (Roi roi : rois) {
+                                roiTempList.add((PolygonRoi) roi);
+                            }
+
                             for (PolygonRoi roi : tempList) {
-                                if (polygonRoiList.contains(roi)) {
-                                    polygonRoiList.remove(roi);
+                                if (roiTempList.contains(roi)) {
+                                    roiTempList.remove(roi);
                                 }
                             }
                             for (PolygonRoi roi : list) {
-                                if (!polygonRoiList.contains(roi)) {
-                                    polygonRoiList.add(roi);
+                                if (!roiTempList.contains(roi)) {
+                                    roiTempList.add(roi);
                                 }
                             }
-                            polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
-//
+
+                            polygonRoi = roiTempList.get(roiTempList.size() - 1);
+                            polygonRoiList = roiTempList;
+                            roiManager.reset();
+                            // System.out.println("List size "+ roiTempList.size());
+                            //System.out.println("Roi Manager size "+roiManager.getCount());
+                            for (Roi roi : roiTempList) {
+                                roiManager.addRoi(roi);
+                            }
+                            // System.out.println("Roi Manager size "+ roiManager.getCount());
+//                            for (PolygonRoi roi : tempList) {
+//                                if (polygonRoiList.contains(roi)) {
+//                                    polygonRoiList.remove(roi);
+//                                }
+//                            }
+//                            for (PolygonRoi roi : list) {
+//                                if (!polygonRoiList.contains(roi)) {
+//                                    polygonRoiList.add(roi);
+//                                }
+//                            }
+                            // polygonRoi = polygonRoiList.get(polygonRoiList.size() - 1);
+                            final RoiManager manager = imageJVRL.getRoiManager();
+                            System.out.println("RM closing " + manager.getCount());
+                            
+
                             if (saveRoiInVRL) {
                                 if (polygonRoi != null) {
                                     if (polygonRoi.getNCoordinates() != 0) {
@@ -571,11 +570,10 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                     }
                                 }
 
-                                if (!polygonRoiList.isEmpty()) {
-                                    imageJVRLvalue.encodeROIList(polygonRoiList);// roiDataList delete
+                                if (roiManager.getCount() > 0) {
+                                    imageJVRLvalue.encodeROIList(polygonRoiList);
                                     imageJVRLvalue.encodeROIListRM(roiManager);
                                 } else {
-                                    imageJVRLvalue.setRoiDataList(new ArrayList<String>()); // delete
                                     imageJVRLvalue.setRoiDataListRM(new ArrayList<String>());
                                 }
                             }
@@ -584,15 +582,14 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                         tempList = imageJVRL.getAutoGenerateRoiList();
                     }
                 }
-
-//                if (!polygonRoiList.equals(imageJVRL.getRoiList())) {
-//                    System.out.println("List NoT EQUAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//                }
+               
                 imageJVRL.setRoi(polygonRoi);
                 imageJVRL.setRoiList(polygonRoiList);
                 printRois(polygonRoiList, polygonRoi, imagePlus);
+
             }
         }
+
         plotPane.setImage(imagePlus.getImage());
     }
 

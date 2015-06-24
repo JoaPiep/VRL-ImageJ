@@ -17,14 +17,13 @@ import java.io.Serializable;
 
 /**
  *
- * @author Joanna Pieper <joanna.pieper1@gmail.com>
+ * @author Joanna Pieper <joanna.pieper@gcsc.uni-frankfurt.de>
  */
 @ComponentInfo(name = "Filters",
         category = "ImageJ-VRL",
         description = "ImageJ filters: gaussian blur, minimum filter, median filter, invert filter and detect edges tools")
 public class ImageFilters implements Serializable {
 
-    
     public ImageFilters() {
     }
 
@@ -43,7 +42,6 @@ public class ImageFilters implements Serializable {
             @ParamInfo(name = "sigmaY   (double)") double sigmaY,
             @ParamInfo(name = "accuracy (double)") double accuracy) {
 
-        
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         GaussianBlur blur = new GaussianBlur();
 
@@ -125,6 +123,7 @@ public class ImageFilters implements Serializable {
         if (image.getRoiList().isEmpty()) {
             imageProcessor.invert();
         } else {
+            //for (Roi roi : image.getRoiManager().getRoisAsArray()) {
             for (PolygonRoi roi : image.getRoiList()) {
                 imageProcessor.snapshot();
                 imageProcessor.setRoi((Roi) roi);

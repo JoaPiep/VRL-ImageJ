@@ -5,6 +5,7 @@
 package image.filters;
 
 import eu.mihosoft.vrl.io.Base64;
+import ij.ImagePlus;
 import ij.gui.PolygonRoi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
@@ -25,7 +26,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Joanna Pieper <joanna.pieper1@gmail.com>
+ * @author Joanna Pieper <joanna.pieper@gcsc.uni-frankfurt.de>
  */
 public class ImageJVRL implements Serializable {
 
@@ -214,6 +215,22 @@ public class ImageJVRL implements Serializable {
         this.generateRois = generateRois;
     }
 
+    /** 
+     * 
+     * @return List of Rois from the Roi Manager (encoded as a String)
+     */
+    public ArrayList<String> getRoiDataListRM() {
+        return roiDataListRM;
+    }
+    
+    /**
+     * 
+     * @param roiDataListRM Stringlist to set (with encoded Rois from the Roi Manager)
+     */
+    public void setRoiDataListRM(ArrayList<String> roiDataListRM) {
+        this.roiDataListRM = roiDataListRM;
+    }
+
     /**
      *
      * @param roi encode the given ROI
@@ -382,7 +399,10 @@ public class ImageJVRL implements Serializable {
         return decodeROIList();
     }
 
-    //**************************************************************************
+    /**
+     *
+     * @param roiManager Roi Manager with Rois to encode
+     */
     public void encodeROIListRM(RoiManager roiManager) {
 
         ArrayList<String> tempRoiList = new ArrayList();
@@ -407,9 +427,10 @@ public class ImageJVRL implements Serializable {
 
     /**
      *
-     * @return list of decoded ROIs
+     * @param imagePlus current ImagePlus
+     * @return Roi Manager with decoded ROIs
      */
-    public RoiManager decodeROIListRM() {
+    public RoiManager decodeROIListRM(ImagePlus imagePlus) {
 
         RoiManager rManager = new RoiManager(false);
 
@@ -417,7 +438,7 @@ public class ImageJVRL implements Serializable {
             try {
                 byte[] stringToByte = Base64.decode(getRoiDataList().get(i));
                 RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
-                rManager.addRoi((PolygonRoi) rd.getRoi());
+                rManager.add(imagePlus, (PolygonRoi) rd.getRoi(), i);
             } catch (IOException ex) {
                 Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
                 ex.printStackTrace(System.err);
@@ -426,14 +447,13 @@ public class ImageJVRL implements Serializable {
         return rManager;
     }
 
-    public ArrayList<String> getRoiDataListRM() {
-        return roiDataListRM;
-    }
-
-    public void setRoiDataListRM(ArrayList<String> roiDataListRM) {
-        this.roiDataListRM = roiDataListRM;
-    }
-
+    /**
+     * 
+     * @param roiFile file to save the encoded Rois 
+     * @param roiManager relevant Roi Manager
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
     public void saveROIsInFileRM(File roiFile, RoiManager roiManager) throws FileNotFoundException, IOException {
 
         ArrayList<String> tempRoiList = new ArrayList();
@@ -458,6 +478,14 @@ public class ImageJVRL implements Serializable {
         aus.writeObject(tempRoiList);
     }
 
+    /**
+     * 
+     * @param roiFile File with Rois(as String)
+     * @return Roi Manager with decoded Rois from the file
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ClassNotFoundException 
+     */
     public RoiManager getROIsfromFileRM(File roiFile) throws FileNotFoundException, IOException, ClassNotFoundException {
 
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(roiFile));

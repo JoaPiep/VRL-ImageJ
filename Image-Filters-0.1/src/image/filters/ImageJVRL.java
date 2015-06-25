@@ -40,7 +40,7 @@ public class ImageJVRL implements Serializable {
     private ArrayList<String> roiDataList;
     private Boolean generateRois;
 
-    private transient RoiManager roiManager = new RoiManager(false);
+    private transient RoiManager roiManager;
     private ArrayList<String> roiDataListRM;
 
     /**
@@ -51,6 +51,7 @@ public class ImageJVRL implements Serializable {
         autoGenerateRoiList = new ArrayList<PolygonRoi>();
         roiDataList = new ArrayList<String>();
         roiDataListRM = new ArrayList<String>();
+        roiManager = new RoiManager(false);
     }
 
     /**
@@ -63,6 +64,7 @@ public class ImageJVRL implements Serializable {
         autoGenerateRoiList = new ArrayList<PolygonRoi>();
         roiDataList = new ArrayList<String>();
         roiDataListRM = new ArrayList<String>();
+        roiManager = new RoiManager(false);
 
     }
 

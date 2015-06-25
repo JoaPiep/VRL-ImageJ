@@ -45,12 +45,12 @@ public class ImageFilters implements Serializable {
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
         GaussianBlur blur = new GaussianBlur();
 
-        if (image.getRoiList().isEmpty()) {
+        if (image.getRoiManager().getCount() == 0) {
             blur.blurGaussian(imageProcessor, sigmaX, sigmaY, accuracy);
         } else {
-            for (PolygonRoi roi : image.getRoiList()) {
+            for (Roi roi : image.getRoiManager().getRoisAsArray()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) roi);
+                imageProcessor.setRoi(roi);
                 blur.blurGaussian(imageProcessor, sigmaX, sigmaY, accuracy);
                 imageProcessor.reset(imageProcessor.getMask());
             }
@@ -70,12 +70,12 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
 
-        if (image.getRoiList().isEmpty()) {
+        if (image.getRoiManager().getCount() == 0) {
             imageProcessor.dilate();
         } else {
-            for (PolygonRoi roi : image.getRoiList()) {
+            for (Roi roi : image.getRoiManager().getRoisAsArray()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) roi);
+                imageProcessor.setRoi(roi);
                 imageProcessor.dilate();
                 imageProcessor.reset(imageProcessor.getMask());
             }
@@ -96,12 +96,12 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
 
-        if (image.getRoiList().isEmpty()) {
+        if (image.getRoiManager().getCount() == 0) {
             imageProcessor.medianFilter();
         } else {
-            for (PolygonRoi roi : image.getRoiList()) {
+            for (Roi roi : image.getRoiManager().getRoisAsArray()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) roi);
+                imageProcessor.setRoi(roi);
                 imageProcessor.medianFilter();
                 imageProcessor.reset(imageProcessor.getMask());
             }
@@ -120,13 +120,12 @@ public class ImageFilters implements Serializable {
     public ImageJVRL invertFilter(@ParamInfo(name = "ImageJVRL", style = "ImageJPRoiType", options = "saveRoi=true") ImageJVRL image) {
 
         ImageProcessor imageProcessor = new ColorProcessor(image.getImage());
-        if (image.getRoiList().isEmpty()) {
+        if (image.getRoiManager().getCount() == 0) {
             imageProcessor.invert();
         } else {
-            //for (Roi roi : image.getRoiManager().getRoisAsArray()) {
-            for (PolygonRoi roi : image.getRoiList()) {
+            for (Roi roi : image.getRoiManager().getRoisAsArray()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) roi);
+                imageProcessor.setRoi(roi);
                 imageProcessor.invert();
                 imageProcessor.reset(imageProcessor.getMask());
             }
@@ -148,12 +147,12 @@ public class ImageFilters implements Serializable {
 
         ImageProcessor imageProcessor = ip.convertToByte(true);
 
-        if (image.getRoiList().isEmpty()) {
+        if (image.getRoiManager().getCount() == 0) {
             imageProcessor.findEdges();
         } else {
-            for (PolygonRoi roi : image.getRoiList()) {
+            for (Roi roi : image.getRoiManager().getRoisAsArray()) {
                 imageProcessor.snapshot();
-                imageProcessor.setRoi((Roi) roi);
+                imageProcessor.setRoi(roi);
                 imageProcessor.findEdges();
                 imageProcessor.reset(imageProcessor.getMask());
             }

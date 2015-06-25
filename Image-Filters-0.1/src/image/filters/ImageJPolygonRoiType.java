@@ -27,6 +27,8 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.MenuShortcut;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -102,10 +104,10 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                             if (plotPane.getImage() != null || isInput()) {
 
+                                //roiManager.setVisible(true);
+                                //roiManager.show();
                                 iw = new ImageWindow(imagePlus);
-
-                                roiManager.setVisible(true);
-
+                                //  roiManager.runCommand("Show All with labels");
                                 MenuBar menuBar = new MenuBar();
 
                                 Menu editMenu = new Menu("Edit");
@@ -315,16 +317,47 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                 );
 
                                 imageCanvas = iw.getCanvas();
+
                                 //####################### to edit ###########################
                                 imageCanvas.addMouseMotionListener(new MouseMotionAdapter() {
+//                                    @Override
+//                                    public void mouseDragged(MouseEvent e) {
+//                                        if (polygonRoi.contains(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))) {
+//                                            System.out.println("Contains");
+//
+//                                        }
+//                                    }
+//
+//                                });
+
                                     @Override
                                     public void mouseDragged(MouseEvent e) {
-                                        if (polygonRoi.contains(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))) {
-                                            System.out.println("Contains");
+
+                                        if (polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY())) >= 0) {
+                                            
+                                            Rectangle bounds = polygonRoi.getBounds();
+                                            FloatPolygon polygon = polygonRoi.getFloatPolygon();
+
+                                            System.out.println("BEFORE x " + polygon.xpoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))]);
+                                            System.out.println("BEFORE y " + polygon.ypoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))]);
+
+                                            polygon.xpoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))] = imageCanvas.offScreenX(e.getX());// - imageCanvas.offScreenY(bounds.x);
+                                            polygon.ypoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))] = imageCanvas.offScreenY(e.getY());// - imageCanvas.offScreenY(bounds.y);
+                                            
+                                            System.out.println("#######################################################");
+                                            System.out.println("AFTER1 x " + polygon.xpoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))]);
+                                            System.out.println("AFTER1 y " + polygon.ypoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))]);
+                                            System.out.println("BOUNDS X " + imageCanvas.offScreenX(bounds.x));
+                                            System.out.println("BOUNDS Y " + imageCanvas.offScreenX(bounds.y));
+
+                                            imagePlus.setRoi(polygonRoi);
+
+                                            imageJVRLvalue.setRoi(polygonRoi);
 
                                         }
-                                    }
 
+                                        e.consume();
+                                    }
                                 });
 
                                 iw.addMouseWheelListener(new MouseWheelListener() {
@@ -356,11 +389,15 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
                                             imagePlus.setRoi(polygonRoi);
+
+                                            System.out.println("X Koordinate " + polygonRoi.getFloatPolygon().xpoints[polygonRoi.getFloatPolygon().xpoints.length - 1]);
+                                            System.out.println("Y Koordinate " + polygonRoi.getFloatPolygon().ypoints[polygonRoi.getFloatPolygon().ypoints.length - 1]);
                                         }
 
                                         if (e.getButton() == MouseEvent.BUTTON3
                                         && e.getClickCount() == 1) {
-
+                                            System.out.println("X Koordinate Final " + polygonRoi.getFloatPolygon().xpoints[polygonRoi.getFloatPolygon().xpoints.length - 1]);
+                                            System.out.println("Y Koordinate Final " + polygonRoi.getFloatPolygon().ypoints[polygonRoi.getFloatPolygon().ypoints.length - 1]);
                                             if (polygonRoi.getNCoordinates() > 2) {
 
                                                 imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());
@@ -456,9 +493,8 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                         }
 
                                         setDataOutdated();
-                                        
+
                                         // printRoisRManager(roiManager, polygonRoi, imagePlus);
-                                        
                                         roiManager.close();
                                     }
                                 });
@@ -518,9 +554,13 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
             if (!imageJVRL.getRoiDataList().isEmpty() && polygonRoiList.isEmpty()) {
                 polygonRoiList = imageJVRL.decodeROIList();
-                roiManager = imageJVRL.decodeROIListRM(imagePlus);
                 imageJVRLvalue.setRoiList(polygonRoiList);
                 imageJVRL.setRoiList(polygonRoiList);
+
+                roiManager = imageJVRL.decodeROIListRM(imagePlus);
+                imageJVRLvalue.setRoiManager(roiManager);
+                imageJVRL.setRoiManager(roiManager);
+
             }
 
             if (saveRoiInVRL) {
@@ -545,7 +585,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
             if (isInput()) {
                 imageJVRLvalue.setImage(imageJVRL.getImage());
-
+                // ############################# TODO #############################
                 if (imageJVRL.getAutoGenerateRoiList() != null) { // autoGenerateRoi()
                     if (!imageJVRL.getAutoGenerateRoiList().isEmpty()) {
                         ArrayList<PolygonRoi> list = imageJVRL.getAutoGenerateRoiList();
@@ -626,10 +666,14 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                         tempList = imageJVRL.getAutoGenerateRoiList();
                     }
                 }
+                //################################################################
+                imageJVRL.setRoiList(polygonRoiList);
 
                 imageJVRL.setRoi(polygonRoi);
-                imageJVRL.setRoiList(polygonRoiList);
+                imageJVRL.setRoiManager(roiManager);
+
                 printRoisRManager(roiManager, polygonRoi, imagePlus);
+
             }
         }
 
@@ -710,9 +754,9 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
             ip.setRoi(roi);
         }
     }
-    
+
     /**
-     * 
+     *
      * @param roi current Roi to print (color - red)
      * @param ip current ImagePlus
      */

@@ -401,7 +401,8 @@ public class ConvertAndAnalyse implements Serializable {
 
         final RoiManager manager = RoiManager.getInstance();
         manager.setLocation(0, 0);
-       // manager.setVisible(false);
+        manager.setVisible(false);
+//        manager.close();
 
         Roi[] rois = manager.getRoisAsArray();
         ImageJVRL imageJVRL = new ImageJVRL(image.getImage());

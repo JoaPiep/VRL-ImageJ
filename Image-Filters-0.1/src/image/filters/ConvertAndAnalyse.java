@@ -33,7 +33,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Joanna Pieper <joanna.pieper1@gmail.com>
+ * @author Joanna Pieper <joanna.pieper@gcsc.uni-frankfurt.de>
  */
 @ComponentInfo(name = "Analyse Tools",
         category = "ImageJ-VRL",

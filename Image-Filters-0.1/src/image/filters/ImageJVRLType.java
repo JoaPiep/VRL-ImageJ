@@ -8,7 +8,7 @@ import eu.mihosoft.vrl.annotation.TypeInfo;
 import eu.mihosoft.vrl.types.BufferedImageType;
 
 /**
- * @author Joanna Pieper
+ * @author Joanna Pieper <joanna.pieper@gcsc.uni-frankfurt.de>
  */
 @TypeInfo(type = ImageJVRL.class, input = false, output = true, style = "default")
 public class ImageJVRLType extends BufferedImageType {

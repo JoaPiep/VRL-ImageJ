@@ -21,7 +21,7 @@ import javax.imageio.ImageIO;
 
 /**
  *
- * @author Joanna Pieper <joanna.pieper1@gmail.com>
+ * @author Joanna Pieper <joanna.pieper@gcsc.uni-frankfurt.de>
  */
 @ComponentInfo(name = "I/O-Tool",
         category = "ImageJ-VRL",

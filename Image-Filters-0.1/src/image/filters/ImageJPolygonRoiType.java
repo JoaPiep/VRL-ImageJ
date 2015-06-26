@@ -318,44 +318,15 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
                                 imageCanvas = iw.getCanvas();
 
-                                //####################### to edit ###########################
                                 imageCanvas.addMouseMotionListener(new MouseMotionAdapter() {
-//                                    @Override
-//                                    public void mouseDragged(MouseEvent e) {
-//                                        if (polygonRoi.contains(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))) {
-//                                            System.out.println("Contains");
-//
-//                                        }
-//                                    }
-//
-//                                });
 
                                     @Override
                                     public void mouseDragged(MouseEvent e) {
 
                                         if (polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY())) >= 0) {
-                                            
-                                            Rectangle bounds = polygonRoi.getBounds();
-                                            FloatPolygon polygon = polygonRoi.getFloatPolygon();
-
-                                            System.out.println("BEFORE x " + polygon.xpoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))]);
-                                            System.out.println("BEFORE y " + polygon.ypoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))]);
-
-                                            polygon.xpoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))] = imageCanvas.offScreenX(e.getX());// - imageCanvas.offScreenY(bounds.x);
-                                            polygon.ypoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))] = imageCanvas.offScreenY(e.getY());// - imageCanvas.offScreenY(bounds.y);
-                                            
-                                            System.out.println("#######################################################");
-                                            System.out.println("AFTER1 x " + polygon.xpoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))]);
-                                            System.out.println("AFTER1 y " + polygon.ypoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))]);
-                                            System.out.println("BOUNDS X " + imageCanvas.offScreenX(bounds.x));
-                                            System.out.println("BOUNDS Y " + imageCanvas.offScreenX(bounds.y));
-
-                                            imagePlus.setRoi(polygonRoi);
-
-                                            imageJVRLvalue.setRoi(polygonRoi);
-
+                                            floatPolygon.xpoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))] = imageCanvas.offScreenX(e.getX());
+                                            floatPolygon.ypoints[polygonRoi.isHandle(imageCanvas.offScreenX(e.getX()), imageCanvas.offScreenY(e.getY()))] = imageCanvas.offScreenY(e.getY());
                                         }
-
                                         e.consume();
                                     }
                                 });
@@ -373,7 +344,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                         }
                                     }
                                 });
-                                //###########################################################
+                                
                                 floatPolygon = new FloatPolygon();
 
                                 imageCanvas.addMouseListener(new MouseAdapter() {
@@ -389,15 +360,11 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             polygonRoi = new PolygonRoi(floatPolygon,
                                                     Roi.POLYGON);
                                             imagePlus.setRoi(polygonRoi);
-
-                                            System.out.println("X Koordinate " + polygonRoi.getFloatPolygon().xpoints[polygonRoi.getFloatPolygon().xpoints.length - 1]);
-                                            System.out.println("Y Koordinate " + polygonRoi.getFloatPolygon().ypoints[polygonRoi.getFloatPolygon().ypoints.length - 1]);
                                         }
 
                                         if (e.getButton() == MouseEvent.BUTTON3
                                         && e.getClickCount() == 1) {
-                                            System.out.println("X Koordinate Final " + polygonRoi.getFloatPolygon().xpoints[polygonRoi.getFloatPolygon().xpoints.length - 1]);
-                                            System.out.println("Y Koordinate Final " + polygonRoi.getFloatPolygon().ypoints[polygonRoi.getFloatPolygon().ypoints.length - 1]);
+                                            
                                             if (polygonRoi.getNCoordinates() > 2) {
 
                                                 imagePlus.setImage(((ImageJVRL) getViewValue()).getImage());

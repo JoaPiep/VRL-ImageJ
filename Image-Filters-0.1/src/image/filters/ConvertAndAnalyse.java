@@ -399,10 +399,9 @@ public class ConvertAndAnalyse implements Serializable {
         ParticleAnalyzer pa = new ParticleAnalyzer(options, measurements, new ResultsTable(), minSize, maxSize, minCirc, maxCirc);
         pa.analyze(imp);
 
-        final RoiManager manager = RoiManager.getInstance();
-        manager.setLocation(0, 0);
+        RoiManager manager = RoiManager.getInstance();
         manager.setVisible(false);
-//        manager.close();
+        manager.setLocation(0, 0);
 
         Roi[] rois = manager.getRoisAsArray();
         ImageJVRL imageJVRL = new ImageJVRL(image.getImage());
@@ -415,6 +414,7 @@ public class ConvertAndAnalyse implements Serializable {
         imageJVRL.setAutoGenerateRoiList(roiList);
         imageJVRL.setGenerateRois(generateRois);
         imageJVRL.setRoiManager(manager);
+        manager.close();
 
         return imageJVRL;
     }

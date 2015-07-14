@@ -381,7 +381,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                                     Set keySet = roIs.entrySet();
                                                     for (Iterator it = keySet.iterator(); it.hasNext();) {
                                                         Object roi = (Object) it.next();
-                                                        System.out.println("Roi in iterator: " + roi.toString());
+                                                        // System.out.println("Roi in iterator: " + roi.toString());
                                                     }
                                                     //##################################################################
                                                 } else {
@@ -556,42 +556,32 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                 if (!imageJVRL.getAutoGenerateRoiList().isEmpty()) {
                     ArrayList<PolygonRoi> list = imageJVRL.getAutoGenerateRoiList();
 
-                    if (!list.equals(tempList) || imageJVRL.isGenerateRois()) {
-                        Roi[] rois = roiManager.getRoisAsArray();
+                    if ((!list.equals(tempList) && !tempList.isEmpty()) || imageJVRL.isGenerateRois()) {
+
                         ArrayList<PolygonRoi> roiTempList = new ArrayList<PolygonRoi>();
-                        ArrayList<PolygonRoi> rmList = new ArrayList<PolygonRoi>();
+                        Roi[] rois = roiManager.getRoisAsArray();
+
+                        roiManager.reset();
 
                         for (Roi roi : rois) {
                             roiTempList.add((PolygonRoi) roi);
-                            rmList.add((PolygonRoi) roi);
                         }
 
                         for (PolygonRoi roi : tempList) {
                             if (roiTempList.contains(roi)) {
                                 roiTempList.remove(roi);
-                                rmList.remove(roi);
                             }
                         }
 
                         for (PolygonRoi roi : list) {
-                            if (rmList.contains(roi)) {
-                                rmList.remove(roi);
-                            }
+                            roiTempList.add(roi);
                         }
 
-                        for (PolygonRoi roi : rmList) {
-                            imageJVRL.getRoiManager().addRoi(roi);
+                        for (PolygonRoi roi : roiTempList) {
+                            roiManager.addRoi(roi);
                         }
 
-                        for (PolygonRoi roi : list) {
-                            if (!roiTempList.contains(roi)) {
-                                roiTempList.add(roi);
-                            }
-                        }
-
-                        polygonRoi = roiTempList.get(roiTempList.size() - 1);
-                        polygonRoiList = roiTempList;
-                        roiManager = imageJVRL.getRoiManager();
+                        polygonRoi = (PolygonRoi) roiManager.getRoi(roiManager.getCount() - 1);
 
                         if (saveRoiInVRL) {
                             if (polygonRoi != null) {

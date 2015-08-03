@@ -8,12 +8,10 @@ package image.filters;
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamGroupInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
-import eu.mihosoft.vrl.io.Base64;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
-import ij.io.RoiEncoder;
 import ij.measure.ResultsTable;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
@@ -23,11 +21,8 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -293,57 +288,27 @@ public class ConvertAndAnalyse implements Serializable {
         pa.analyze(imp);
 
         Roi[] rois = manager.getRoisAsArray();
-        ArrayList<PolygonRoi> roiList = new ArrayList<PolygonRoi>();
-
-        for (Roi roi : rois) {
-            roiList.add((PolygonRoi) roi);
-        }
 
         ImageJVRL imageJVRL = new ImageJVRL(image.getImage());
         ImagePlus ip = new ImagePlus("", image.getImage());
-        if (!roiList.isEmpty()) {
-            imageJVRL.setRoi(roiList.get(roiList.size() - 1));
-            imageJVRL.setRoiList(roiList);
-            saveRoisInFile(imgFile, imageJVRL);
-
+        
+        imageJVRL.setRoiManager(manager);
+        
+        if (rois.length > 0) {
+            
+            imageJVRL.saveROIsInFileRM(imgFile, manager);
             ImageProcessor imProcessor = ip.getProcessor();
 
-            for (int i = 0; i < roiList.size(); i++) {
+            for (Roi roi : rois) {
                 imProcessor.setColor(Color.red);
-                roiList.get(i).setStrokeWidth(1);
-                roiList.get(i).drawPixels(imProcessor);
-
+                roi.setStrokeWidth(1);
+                roi.drawPixels(imProcessor);
             }
         }
+        
         return ip.getImage();
     }
 
-    /**
-     *
-     * @param imgFile file to save the ROIs
-     * @param image ImageJVRL with ROIs
-     * @throws IOException
-     */
-    private void saveRoisInFile(@ParamInfo(name = "", style = "save-dialog", options = "endings=[\"txt\"]; description=\"Textfile\"") File imgFile,
-            @ParamInfo(name = "ImageJVRL") ImageJVRL image) throws IOException {
-
-        ArrayList<String> tempRoiList = new ArrayList();
-
-        if (image.getRoiList() != null) {
-            for (int i = 0; i < image.getRoiList().size(); i++) {
-                ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                RoiEncoder re = new RoiEncoder(bout);
-                re.write(image.getRoiList().get(i));
-                String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
-                tempRoiList.add(i, byteToString);
-                bout.close();
-            }
-
-            ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(imgFile));
-            aus.writeObject(tempRoiList);
-        }
-
-    }
 
     /**
      *

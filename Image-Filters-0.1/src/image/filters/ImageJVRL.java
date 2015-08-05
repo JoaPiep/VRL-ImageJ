@@ -5,7 +5,6 @@
 package image.filters;
 
 import eu.mihosoft.vrl.io.Base64;
-import ij.ImagePlus;
 import ij.gui.PolygonRoi;
 import ij.io.RoiDecoder;
 import ij.io.RoiEncoder;
@@ -156,17 +155,18 @@ public class ImageJVRL implements Serializable {
         this.generateRois = generateRois;
     }
 
-    /** 
-     * 
+    /**
+     *
      * @return List of Rois from the Roi Manager (encoded as a String)
      */
     public ArrayList<String> getRoiDataListRM() {
         return roiDataListRM;
     }
-    
+
     /**
-     * 
-     * @param roiDataListRM Stringlist to set (with encoded Rois from the Roi Manager)
+     *
+     * @param roiDataListRM Stringlist to set (with encoded Rois from the Roi
+     * Manager)
      */
     public void setRoiDataListRM(ArrayList<String> roiDataListRM) {
         this.roiDataListRM = roiDataListRM;
@@ -241,10 +241,9 @@ public class ImageJVRL implements Serializable {
 
     /**
      *
-     * @param imagePlus current ImagePlus
      * @return Roi Manager with decoded ROIs
      */
-    public RoiManager decodeROIListRM(ImagePlus imagePlus) {
+    public RoiManager decodeROIListRM() {
 
         RoiManager rManager = new RoiManager(false);
 
@@ -252,21 +251,22 @@ public class ImageJVRL implements Serializable {
             try {
                 byte[] stringToByte = Base64.decode(getRoiDataListRM().get(i));
                 RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
-                rManager.add(imagePlus, (PolygonRoi) rd.getRoi(), i);
+                rManager.addRoi((PolygonRoi) rd.getRoi());
             } catch (IOException ex) {
                 Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
                 ex.printStackTrace(System.err);
             }
+
         }
         return rManager;
     }
 
     /**
-     * 
-     * @param roiFile file to save the encoded Rois 
+     *
+     * @param roiFile file to save the encoded Rois
      * @param roiManager relevant Roi Manager
      * @throws FileNotFoundException
-     * @throws IOException 
+     * @throws IOException
      */
     public void saveROIsInFileRM(File roiFile, RoiManager roiManager) throws FileNotFoundException, IOException {
 
@@ -293,19 +293,50 @@ public class ImageJVRL implements Serializable {
     }
 
     /**
-     * 
+     *
+     * @param roiFile file to save the encoded Rois
+     * @param roiManager relevant Roi Manager
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public void saveSelectedROIsInFileRM(File roiFile, RoiManager roiManager) throws FileNotFoundException, IOException {
+
+        ArrayList<String> tempRoiList = new ArrayList();
+
+        for (int i = 0; i < roiManager.getSelectedIndexes().length; i++) {
+            try {
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                RoiEncoder re = new RoiEncoder(bout);
+                re.write(roiManager.getRoi(roiManager.getSelectedIndexes()[i]));
+                String byteToString = Base64.encodeBytes(bout.toByteArray()); // byte to string
+                tempRoiList.add(i, byteToString);
+                bout.close();
+
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+
+            }
+        }
+
+        ObjectOutputStream aus = new ObjectOutputStream(new FileOutputStream(roiFile));
+        aus.writeObject(tempRoiList);
+    }
+
+    /**
+     *
      * @param roiFile File with Rois(as String)
      * @return Roi Manager with decoded Rois from the file
      * @throws FileNotFoundException
      * @throws IOException
-     * @throws ClassNotFoundException 
+     * @throws ClassNotFoundException
      */
-    public RoiManager getROIsfromFileRM(File roiFile) throws FileNotFoundException, IOException, ClassNotFoundException {
+    public RoiManager getROIsfromFileAsRM(File roiFile) throws FileNotFoundException, IOException, ClassNotFoundException {
 
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(roiFile));
         ArrayList<String> tempList = (ArrayList<String>) in.readObject();
 
-        RoiManager rManager = new RoiManager(false);
+        RoiManager rManager = new RoiManager();
 
         for (int i = 0; i < tempList.size(); i++) {
             try {
@@ -318,6 +349,33 @@ public class ImageJVRL implements Serializable {
             }
         }
         return rManager;
+    }
+
+    /**
+     *
+     * @param roiFile File with Rois(as String)
+     * @return List with decoded Rois from the file
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public ArrayList<PolygonRoi> getROIsfromFileAsList(File roiFile) throws FileNotFoundException, IOException, ClassNotFoundException {
+
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(roiFile));
+        ArrayList<String> tempList = (ArrayList<String>) in.readObject();
+        ArrayList<PolygonRoi> roiList = new ArrayList();
+
+        for (int i = 0; i < tempList.size(); i++) {
+            try {
+                byte[] stringToByte = Base64.decode(tempList.get(i));
+                RoiDecoder rd = new RoiDecoder(stringToByte, "rd");
+                roiList.add((PolygonRoi) rd.getRoi());
+            } catch (IOException ex) {
+                Logger.getLogger(ImageJVRL.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace(System.err);
+            }
+        }
+        return roiList;
     }
 
 }

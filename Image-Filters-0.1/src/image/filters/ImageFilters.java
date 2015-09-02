@@ -7,7 +7,6 @@ package image.filters;
 import eu.mihosoft.vrl.annotation.ComponentInfo;
 import eu.mihosoft.vrl.annotation.ParamInfo;
 import ij.ImagePlus;
-import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.ColorProcessor;

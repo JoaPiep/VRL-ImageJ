@@ -67,6 +67,7 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
     protected FloatPolygon floatPolygon;
     protected PolygonRoi polygonRoi;
     protected RoiManager roiManager;
+    protected RoiManager manager;
     protected ArrayList<PolygonRoi> tempList;
     protected ImageProcessor imageProcessor;
     protected ImageJVRL imageJVRLvalue;
@@ -109,14 +110,15 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 //                                }
                                 // TODO ++++++++++++++++++++++++++++++
                                 Roi[] rois = roiManager.getRoisAsArray();
+                                System.out.println("Rois count " + rois.length);
                                 roiManager.reset();
                                 roiManager = new RoiManager();
                                 roiManager.setLocation(0, 0);
                                 for (Roi roi : rois) {
                                     roiManager.addRoi(roi);
                                 }
-                                //++++++++++++++++++++++++++++++++++++++
 
+                                //++++++++++++++++++++++++++++++++++++++
                                 iw = new ImageWindow(imagePlus);
 
                                 MenuItem removeAllRoisItem = new MenuItem("Remove all ROIs", new MenuShortcut(KeyEvent.VK_A));
@@ -608,7 +610,6 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                                             } else {
                                                 if (roiManager.getCount() != 0) {
                                                     polygonRoi = (PolygonRoi) roiManager.getRoi(roiManager.getCount() - 1);
-                                                    printPolygonRoi(polygonRoi, imagePlus);
                                                 } else {
                                                     polygonRoi = new PolygonRoi(new FloatPolygon(),
                                                             Roi.POLYGON);
@@ -683,22 +684,23 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
 
         if (imageJVRLvalue == null || isOutput()) {
 
-            imageJVRLvalue = new ImageJVRL(imageJVRL.getImage());
-
+           // imageJVRLvalue = new ImageJVRL(imageJVRL.getImage());
             if (imageJVRL.getRoiData() != null && polygonRoi == null) {
                 polygonRoi = imageJVRL.decodeROI();
-                imageJVRLvalue.setRoi(polygonRoi);
+                // imageJVRLvalue.setRoi(polygonRoi);
                 imageJVRL.setRoi(polygonRoi);
             }
 
             if (!imageJVRL.getRoiDataListRM().isEmpty() && roiManager.getCount() == 0) {
 
                 roiManager = imageJVRL.decodeROIListRM();
-                imageJVRLvalue.setRoiManager(roiManager);
+                //imageJVRLvalue.setRoiManager(roiManager);
                 imageJVRL.setRoiManager(roiManager);
 
             }
-
+            
+            imageJVRLvalue = new ImageJVRL(imageJVRL.getImage(), polygonRoi, roiManager);
+            
             if (saveRoiInVRL) {
                 if (polygonRoi != null) {
                     if (polygonRoi.getNCoordinates() != 0) {
@@ -770,6 +772,9 @@ public class ImageJPolygonRoiType extends TypeRepresentationBase
                 }
 
                 imageJVRL.setRoi(polygonRoi);
+                if (roiManager.equals(imageJVRL.getRoiManager())) {
+                    System.out.println("Managers are equals");
+                }
                 imageJVRL.setRoiManager(roiManager);
                 printRoisRManager(roiManager, polygonRoi, imagePlus);
 

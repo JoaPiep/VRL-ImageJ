@@ -61,6 +61,12 @@ public class ImageJVRL implements Serializable {
 
     }
 
+    public ImageJVRL(Image image, PolygonRoi roi, RoiManager roiManager) {
+        this.image = image;
+        this.roi = roi;
+        this.roiManager = roiManager;
+    }
+
     /**
      *
      * @return the image
